@@ -3,61 +3,128 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - EtourCompany</title>
+    <title>@ViewData["Title"] - ETourCorp</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">EtourCompany</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+<body onresize="onResizeRestoreSidebar()">
+    <nav class="navbar d-flex justify-content-between navbar-dark bg-dark flex-nowrap sticky-top">
+        <button id="burgerMenu" class="d-md-none hamburger hamburger--collapse mr-3" onclick="toggleNav(this)" type="button">
+            <span class="hamburger-box">
+                <span class="hamburger-inner"></span>
+            </span>
+        </button>
+        <a class="navbar-brand col-sm-3 col-md-2 p-0 d-flex justify-content-start" asp-controller="Home" asp-action="Index"><img src="~/images/logo.svg" height="25" /></a>
+        <ul class="navbar-nav px-3">
+            <li class="nav-item text-nowrap">
+                <a class="nav-link" href="#">Sign out</a>
+            </li>
+        </ul>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="sideNav" class="col-md-2 bg-light sidebar border-right">
+                <div class="sidebar-sticky h-100 pt-5">
+                    <ul class="nav flex-column text-light mt-2">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Analytic" asp-action="index">Analytics</a>
+                            <a class="nav-link" asp-controller="Analytic" asp-action="Index">
+                                <span data-feather="activity"></span>
+                                Analytics
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="index">Accounts</a>
+                            <a class="nav-link" asp-controller="Log" asp-action="Index">
+                                <span data-feather="file-text"></span>
+                                Logs
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Tour" asp-action="index">Tours</a>
+                            <a class="nav-link" asp-controller="Account" asp-action="Index">
+                                <span data-feather="users"></span>
+                                Accounts
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Ticket" asp-action="index">Tickets</a>
+                            <a class="nav-link" asp-controller="Tour" asp-action="Index">
+                                <span data-feather="map"></span>
+                                Tours
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Discount" asp-action="index">Discounts</a>
+                            <a class="nav-link" asp-controller="Discount" asp-action="Index">
+                                <span data-feather="percent"></span>
+                                Discounts
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Blog" asp-action="index">Blog</a>
+                            <a class="nav-link" asp-controller="Booking" asp-action="Index">
+                                <span data-feather="shopping-bag"></span>
+                                Bookings
+                            </a>
                         </li>
-                        <li class="nav-item mr-auto">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="QA" asp-action="index">Q&A</a>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Blog" asp-action="Index">
+                                <span data-feather="archive"></span>
+                                Blog
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="QA" asp-action="Index">
+                                <span data-feather="message-square"></span>
+                                Questions
+                            </a>
+                        </li>
+                    </ul>
+
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Saved reports</span>
+                        <a class="d-flex align-items-center text-muted" href="#">
+                            <span data-feather="plus-circle"></span>
+                        </a>
+                    </h6>
+                    <ul class="nav flex-column mb-2">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <span data-feather="file-text"></span>
+                                Current month
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <span data-feather="file-text"></span>
+                                Last quarter
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <span data-feather="file-text"></span>
+                                Social engagement
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <span data-feather="file-text"></span>
+                                Year-end sale
+                            </a>
                         </li>
                     </ul>
                 </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+            </nav>
+
+            <main onclick="closeSideNavOnClickOutside(event)" id="mainContent" role="main" class="col-md-9 ml-sm-auto bg-white col-lg-10 pt-3 px-4">
+                @RenderBody()
+            </main>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2021 - EtourCompany
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Icons -->
+    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <script>
+        feather.replace()
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

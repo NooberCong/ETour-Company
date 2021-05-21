@@ -1,0 +1,45 @@
+﻿@{
+    ViewData["Title"] = "Discounts";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+    <h1 class="h2">Manage Discounts</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <button class="btn btn-success ml-auto">Add new<span data-feather="plus"></span></button>
+    </div>
+</div>
+<table class="table">
+    <tr>
+        <th>Title</th>
+        <th>Valid Until</th>
+        <th>Type</th>
+        <th>Value</th>
+        <th>Action</th>
+    </tr>
+    <tbody>
+        <tr>
+            <td>Sale cuối tuần</td>
+            <td>22/05/2021</td>
+            <td>Percentage</td>
+            <td>10%</td>
+            <td class="border-top"><a class="mr-3 text-warning" href="#"><span data-feather="edit" /></a><a class="text-danger" href="#"><span data-feather="trash" /></a></td>
+
+        </tr>
+        <tr>
+            <td>Sale sinh nhật</td>
+            <td>22/05/2021</td>
+            <td>Amount</td>
+            <td>50$</td>
+            <td class="border-top"><a class="mr-3 text-warning" href="#"><span data-feather="edit" /></a><a class="text-danger" href="#"><span data-feather="trash" /></a></td>
+
+        </tr>
+        <tr>
+            <td>Sale sinh viên</td>
+            <td>22/05/2021</td>
+            <td>Percentage</td>
+            <td>5%</td>
+            <td class="border-top"><a class="mr-3 text-warning" href="#"><span data-feather="edit" /></a><a class="text-danger" href="#"><span data-feather="trash" /></a></td>
+
+        </tr>
+    </tbody>
+</table>
