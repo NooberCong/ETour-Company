@@ -1,11 +1,13 @@
-﻿@{
+﻿@model IEnumerable<TourListItemModel>
+
+@{
     ViewData["Title"] = "Tours";
 }
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
     <h1 class="h2">Manage Tours</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
-        <button class="btn btn-success ml-auto">Add new<span data-feather="plus"></span></button>
+        <a class="btn btn-success ml-auto" asp-action="New">Add new<span data-feather="plus"></span></a>
     </div>
 </div>
 <table class="table">
@@ -17,6 +19,17 @@
         <th>Action</th>
     </tr>
     <tbody>
+        @foreach (var tourItem in Model)
+        {
+            <tr>
+                <td>@tourItem.Title</td>
+                <td>@tourItem.Start</td>
+                <td>@tourItem.Destination</td>
+                <td>@tourItem.Type</td>
+                <td class="border-top"><a class="mr-3 text-primary" href="#"><span data-feather="navigation" /></a><a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@tourItem.ID"><span data-feather="edit" /></a><a class="text-danger" href="#"><span data-feather="trash" /></a></td>
+
+            </tr>
+        }
         <tr>
             <td>Tour cá đuối</td>
             <td>HCM City</td>

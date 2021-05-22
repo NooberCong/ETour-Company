@@ -21,7 +21,7 @@ function onResizeRestoreSidebar() {
 
 function closeSideNavOnClickOutside(e) {
     let btn = document.getElementById("burgerMenu");
-    if (document.documentElement.clientWidth < 768 && document.getElementById("sideNav").style.width != "0px") {
+    if (document.documentElement.clientWidth < 768 && btn.classList.contains("is-active")) {
         btn.click();
     }
 }

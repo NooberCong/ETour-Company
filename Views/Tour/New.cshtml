@@ -1,0 +1,54 @@
+﻿@model TourFormModel
+
+@{
+    ViewData["Title"] = " Tour";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+    <h1 class="h2">New Tour</h1>
+</div>
+
+<form enctype="multipart/form-data" method="post" class="col-md-8 pl-0">
+    <div class="form-group">
+        <label asp-for="Tour.Title"></label>
+        <input class="form-control" asp-for="Tour.Title" />
+        <span asp-validation-for="Tour.Title" class="text-danger"></span>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label asp-for="Tour.StartPlace"></label>
+            <input class="form-control" asp-for="Tour.StartPlace" />
+            <span asp-validation-for="Tour.StartPlace" class="text-danger"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="Tour.Destination"></label>
+            <input class="form-control" asp-for="Tour.Destination" />
+            <span asp-validation-for="Tour.Destination" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="Tour.Description"></label>
+        <textarea class="form-control" asp-for="Tour.Description"></textarea>
+        <span asp-validation-for="Tour.Description" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Tour.Type"></label>
+        <select asp-for="Tour.Type"
+                class="form-control"
+                asp-items="Html.GetEnumSelectList<Tour.TourType>()">
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="Images"></label>
+        <input accept="image/*" class="form-control-file" asp-for="Images" onchange="handleFiles(this.files, 'previewContainer')" />
+        <div id="previewContainer" class="d-flex flex-wrap my-3"></div>
+        <span asp-validation-for="Images" class="text-danger"></span>
+    </div>
+    <span asp-validation-summary="ModelOnly" class="text-danger"></span>
+    <a class="btn btn-secondary" asp-action="Index">Back to list</a>
+    <button type="submit" class="btn btn-primary">Save Tour</button>
+</form>
+
+@section Scripts {
+    <script src="~/js/formfiles.js"></script>
+}

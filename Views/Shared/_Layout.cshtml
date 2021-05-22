@@ -23,7 +23,7 @@
     </nav>
     <div class="container-fluid">
         <div class="row">
-            <nav id="sideNav" class="col-md-2 bg-light sidebar border-right">
+            <nav id="sideNav" class="col-md-2 bg-light sidebar border-right pt-4 pt-md-0">
                 <div class="sidebar-sticky h-100 pt-5">
                     <ul class="nav flex-column text-light mt-2">
                         <li class="nav-item">
@@ -112,6 +112,7 @@
             </nav>
 
             <main onclick="closeSideNavOnClickOutside(event)" id="mainContent" role="main" class="col-md-9 ml-sm-auto bg-white col-lg-10 pt-3 px-4">
+                <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
                 @RenderBody()
             </main>
         </div>
