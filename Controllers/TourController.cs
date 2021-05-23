@@ -61,7 +61,7 @@ namespace Company.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            Tour tour = await _tourRepository.FirstOrDefaultAsync(id);
+            Tour tour = await _tourRepository.FindAsync(id);
 
             if (tour == null)
             {
@@ -78,10 +78,9 @@ namespace Company.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID", "Title", "StartPlace", "Destination", "Description", "Type")] Tour tour, IFormFileCollection images)
         {
-            System.Console.WriteLine($"Image count: {tour.ImageUrls.Count}");
             Tour existingTour;
 
-            if (id != tour.ID || (existingTour = await _tourRepository.FirstOrDefaultAsync(id)) == null)
+            if (id != tour.ID || (existingTour = await _tourRepository.FindAsync(id)) == null)
             {
                 return NotFound();
             }
