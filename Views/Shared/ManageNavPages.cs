@@ -16,6 +16,8 @@ namespace Company.Views.Shared
 
         public static string Tour => "Tour";
 
+        public static string Trip => "Trip";
+
         public static string Discount => "Discount";
 
         public static string Booking => "Booking";
@@ -31,6 +33,8 @@ namespace Company.Views.Shared
         public static string AccountNavClass(ViewContext viewContext) => PageNavClass(viewContext, Account);
 
         public static string TourNavClass(ViewContext viewContext) => PageNavClass(viewContext, Tour);
+
+        public static string TripNavClass(ViewContext viewContext) => PageNavClass(viewContext, Trip);
 
         public static string DiscountNavClass(ViewContext viewContext) => PageNavClass(viewContext, Discount);
 

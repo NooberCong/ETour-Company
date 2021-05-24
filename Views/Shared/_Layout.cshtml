@@ -55,6 +55,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link @ManageNavPages.TripNavClass(ViewContext)" asp-controller="Trip" asp-action="Index">
+                                <span data-feather="layers"></span>
+                                Trips
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link @ManageNavPages.DiscountNavClass(ViewContext)" asp-controller="Discount" asp-action="Index">
                                 <span data-feather="percent"></span>
                                 Discounts
@@ -97,18 +103,6 @@
                             <a class="nav-link" href="#">
                                 <span data-feather="file-text"></span>
                                 Last quarter
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="file-text"></span>
-                                Social engagement
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="file-text"></span>
-                                Year-end sale
                             </a>
                         </li>
                     </ul>
