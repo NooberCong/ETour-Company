@@ -10,7 +10,6 @@ namespace Company.Controllers
 {
     public class TourController : Controller
     {
-        private readonly int _pageSize = 10;
         private readonly ITourRepository _tourRepository;
         private readonly IRemoteFileStorageHandler _remoteFileStorageHandler;
         private readonly IUnitOfWork _unitOfWork;
@@ -22,10 +21,14 @@ namespace Company.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        public IActionResult Index(int page = 1)
+        public IActionResult Index(bool showClosed = false)
         {
-            var tourList = _tourRepository.QueryPaged(page, _pageSize);
-            return View(tourList.Select(TourListItemModel.FromTourEntity));
+            var tourList = _tourRepository.QueryFiltered(tour => showClosed || tour.IsOpen == true);
+            return View(new TourListModel
+            {
+                Tours = tourList.Select(TourListItem.FromTourEntity),
+                ShowClosed = showClosed
+            });
         }
 
         public IActionResult New()
@@ -87,7 +90,8 @@ namespace Company.Controllers
 
             if (!ModelState.IsValid)
             {
-                return View(new TourFormModel {
+                return View(new TourFormModel
+                {
                     Tour = tour
                 });
             }
@@ -105,7 +109,8 @@ namespace Company.Controllers
                     string url = await _remoteFileStorageHandler.UploadAsync(stream, "jpg");
                     tour.ImageUrls.Add(url);
                 }
-            } else
+            }
+            else
             {
                 tour.ImageUrls = existingTour.ImageUrls;
             }
@@ -116,6 +121,38 @@ namespace Company.Controllers
             TempData["StatusMessage"] = "Editted tour sucessfully";
 
             return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Detail(int id)
+        {
+            Tour tour = await _tourRepository.FindAsync(id);
+
+            if (tour == null)
+            {
+                return NotFound();
+            }
+            return View(tour);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleClose(int id, string returnUrl = "~/")
+        {
+            Tour tour = await _tourRepository.FindAsync(id);
+            if (tour == null)
+            {
+                return NotFound();
+            }
+
+            tour.IsOpen = !tour.IsOpen;
+
+            await _tourRepository.UpdateAsync(tour);
+
+            await _unitOfWork.CommitAsync();
+
+            TempData["StatusMessage"] = tour.IsOpen? "Tour opened successfully": "Tour closed successfully";
+
+            return LocalRedirect(returnUrl);
         }
     }
 }

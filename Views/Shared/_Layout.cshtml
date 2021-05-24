@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using Company.Views.Shared;
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -6,6 +8,12 @@
     <title>@ViewData["Title"] - ETourCorp</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Icons -->
+    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
 </head>
 <body onresize="onResizeRestoreSidebar()">
     <nav class="navbar d-flex justify-content-between navbar-dark bg-dark flex-nowrap sticky-top">
@@ -15,11 +23,7 @@
             </span>
         </button>
         <a class="navbar-brand col-sm-3 col-md-2 p-0 d-flex justify-content-start" asp-controller="Home" asp-action="Index"><img src="~/images/logo.svg" height="25" /></a>
-        <ul class="navbar-nav px-3">
-            <li class="nav-item text-nowrap">
-                <a class="nav-link" href="#">Sign out</a>
-            </li>
-        </ul>
+        <partial name="_LoginPartial" />
     </nav>
     <div class="container-fluid">
         <div class="row">
@@ -27,49 +31,49 @@
                 <div class="sidebar-sticky h-100 pt-5">
                     <ul class="nav flex-column text-light mt-2">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Analytic" asp-action="Index">
+                            <a class="nav-link @ManageNavPages.AnalyticNavClass(ViewContext)" asp-controller="Analytic" asp-action="Index">
                                 <span data-feather="activity"></span>
                                 Analytics
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Log" asp-action="Index">
+                            <a class="nav-link @ManageNavPages.LogNavClass(ViewContext)" asp-controller="Log" asp-action="Index">
                                 <span data-feather="file-text"></span>
                                 Logs
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Account" asp-action="Index">
+                            <a class="nav-link @ManageNavPages.AccountNavClass(ViewContext)" asp-controller="Account" asp-action="Index">
                                 <span data-feather="users"></span>
                                 Accounts
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Tour" asp-action="Index">
+                            <a class="nav-link @ManageNavPages.TourNavClass(ViewContext)" asp-controller="Tour" asp-action="Index">
                                 <span data-feather="map"></span>
                                 Tours
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Discount" asp-action="Index">
+                            <a class="nav-link @ManageNavPages.DiscountNavClass(ViewContext)" asp-controller="Discount" asp-action="Index">
                                 <span data-feather="percent"></span>
                                 Discounts
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Booking" asp-action="Index">
+                            <a class="nav-link @ManageNavPages.BookingNavClass(ViewContext)" asp-controller="Booking" asp-action="Index">
                                 <span data-feather="shopping-bag"></span>
                                 Bookings
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Blog" asp-action="Index">
+                            <a class="nav-link @ManageNavPages.BlogNavClass(ViewContext)" asp-controller="Blog" asp-action="Index">
                                 <span data-feather="archive"></span>
                                 Blog
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="QA" asp-action="Index">
+                            <a class="nav-link @ManageNavPages.QuestionNavClass(ViewContext)" asp-controller="QA" asp-action="Index">
                                 <span data-feather="message-square"></span>
                                 Questions
                             </a>
@@ -117,12 +121,6 @@
             </main>
         </div>
     </div>
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    <!-- Icons -->
-    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
     <script>
         feather.replace()
     </script>

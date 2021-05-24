@@ -1,6 +1,11 @@
+using Company.Areas.Identity;
 using Infrastructure.Extentions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,10 +24,29 @@ namespace Company
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc(config =>
+            {
+                var policy = new AuthorizationPolicyBuilder()
+                     .RequireAuthenticatedUser()
+                     .Build();
+                config.Filters.Add(new AuthorizeFilter(policy));
+            });
+            services.AddRazorPages();
             services.AddControllersWithViews();
             services.AddDatabase();
             services.AddAzureStorage();
-            services.AddEmployeesIdentity();
+            services.AddAuthorization();
+            services.AddEmployeesIdentity(op => {
+                op.SignIn.RequireConfirmedEmail = true;
+                op.SignIn.RequireConfirmedAccount = true;
+                op.Password.RequireNonAlphanumeric = false;
+                op.Password.RequireUppercase = false;
+                op.User.RequireUniqueEmail = true;
+            }).AddDefaultUI();
+            services.AddEmailService();
+
+
+            services.AddTransient<IEmailSender, EmailSender>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,11 +66,12 @@ namespace Company
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapRazorPages();
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");

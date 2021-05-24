@@ -1,0 +1,15 @@
+﻿@model string
+
+<input class="form-control col-10" id="filter-inp" type="text" placeholder="Search..">
+<input hidden id="tblId" value="@Model" />
+<script>
+    let tblId = $("#tblId").val();
+    $(document).ready(function () {
+        $("#filter-inp").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $(`#${tblId} tr:not(:has(th))`).filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+</script>

@@ -1,16 +1,27 @@
-﻿@model IEnumerable<TourListItemModel>
+﻿@model TourListModel
 
 @{
     ViewData["Title"] = "Tours";
+    string tblId = "tour-tbl";
 }
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
     <h1 class="h2">Manage Tours</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
-        <a class="btn btn-success ml-auto" asp-action="New">Add new<span data-feather="plus"></span></a>
+        <a class="btn btn-success ml-auto" asp-action="New"><span data-feather="plus"></span> Add</a>
     </div>
 </div>
-<table class="table">
+
+<div class="d-flex mb-2 align-items-center">
+    <partial name="_TblSearchPartial" model="@tblId" />
+    <form class="col-2 text-center" method="get">
+        <div class="form-check">
+            <input onchange="$(this).closest('form').submit()" asp-for="ShowClosed" class="form-check-input">
+            <label asp-for="ShowClosed"> Show closed</label>
+        </div>
+    </form>
+</div>
+<table class="table" id="tour-tbl">
     <tr>
         <th>Title</th>
         <th>Starting place</th>
@@ -19,15 +30,28 @@
         <th>Action</th>
     </tr>
     <tbody>
-        @foreach (var tourItem in Model)
+        @foreach (var tour in Model.Tours)
         {
             <tr>
-                <td>@tourItem.Title</td>
-                <td>@tourItem.Start</td>
-                <td>@tourItem.Destination</td>
-                <td>@tourItem.Type</td>
-                <td class="border-top"><a class="mr-3 text-primary" href="#"><span data-feather="navigation" /></a><a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@tourItem.ID"><span data-feather="edit" /></a><a class="text-danger" href="#"><span data-feather="trash" /></a></td>
-
+                <td>
+                    @tour.Title @if (!tour.IsOpen)
+                    {
+                        <span class="badge badge-danger">Closed</span>
+                    }
+                </td>
+                <td>@tour.Start</td>
+                <td>@tour.Destination</td>
+                <td>@tour.Type</td>
+                <td class="border-top d-flex">
+                    <a class="mr-3 text-primary" asp-action="Detail" asp-route-id="@tour.ID"><span data-feather="navigation" /></a>
+                    <a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@tour.ID"><span data-feather="edit" /></a>
+                    <form style="cursor: pointer" class="d-inline" asp-action="ToggleClose" asp-route-id="@tour.ID" asp-route-returnUrl="@Context.Request.Path" method="post">
+                        @if (tour.IsOpen)
+                        {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="trash" /></a> }
+                        else
+                        { <a onclick="$(this).closest('form').submit()" class="text-success d-inline"><span data-feather="refresh-cw" /></a>}
+                    </form>
+                </td>
             </tr>
         }
         <tr>
