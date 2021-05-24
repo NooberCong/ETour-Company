@@ -19,8 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj" />
-    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\ETour-Core\Core.csproj" />
+    <ProjectReference Include="..\ETour-Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
