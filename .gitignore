@@ -6,7 +6,7 @@
 # Solution files
 *.sln
 #Project files
-*.csproj
+*.csproj*
 
 # User-specific files
 *.rsuser
