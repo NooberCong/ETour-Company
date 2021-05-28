@@ -1,0 +1,42 @@
+﻿@model Discount
+
+@{
+    ViewData["Title"] = "Edit Discount";
+}
+
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+    <h1 class="h2">Edit @Model.Title</h1>
+</div>
+
+<form method="post" class="col-md-8 pl-0">
+    <div class="form-group">
+        <label asp-for="Title"></label>
+        <input class="form-control" asp-for="Title" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ValidUntil"></label>
+        <input class="form-control" asp-for="ValidUntil" />
+        <span asp-validation-for="ValidUntil" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Value"></label>
+        <input class="form-control" asp-for="Value" />
+        <span asp-validation-for="Value" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Type"></label>
+        <select asp-for="Type"
+                class="form-control"
+                asp-items="Html.GetEnumSelectList<Discount.DiscountType>()">
+        </select>
+    </div>
+    <span asp-validation-summary="ModelOnly" class="text-danger"></span>
+    <a class="btn btn-secondary" asp-action="Index"><span data-feather="arrow-left"></span> Back to list</a>
+    <button type="submit" class="btn btn-primary"><span data-feather="save"></span> Save Discount</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

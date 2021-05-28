@@ -3,6 +3,7 @@ using Core.Entities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,6 +17,7 @@ namespace Company.Controllers
 
         public TourController(ITourRepository tourRepository, IRemoteFileStorageHandler remoteFileStorageHandler, IUnitOfWork unitOfWork)
         {
+
             _tourRepository = tourRepository;
             _remoteFileStorageHandler = remoteFileStorageHandler;
             _unitOfWork = unitOfWork;
@@ -23,6 +25,7 @@ namespace Company.Controllers
 
         public IActionResult Index(bool showClosed = false)
         {
+
             var tourList = _tourRepository.QueryFiltered(tour => showClosed || tour.IsOpen == true);
             return View(new TourListModel
             {
@@ -57,7 +60,7 @@ namespace Company.Controllers
             await _tourRepository.AddAsync(tour);
             await _unitOfWork.CommitAsync();
 
-            TempData["StatusMessage"] = "Created new tour sucessfully";
+            TempData["StatusMessage"] = "Tour created sucessfully";
 
             return RedirectToAction("Index");
         }
@@ -118,14 +121,18 @@ namespace Company.Controllers
             await _tourRepository.UpdateAsync(tour);
             await _unitOfWork.CommitAsync();
 
-            TempData["StatusMessage"] = "Editted tour sucessfully";
+            TempData["StatusMessage"] = "Tour updated sucessfully";
 
             return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Detail(int id)
         {
-            Tour tour = await _tourRepository.FindAsync(id);
+            Tour tour = await _tourRepository.Queryable
+                .Include(t => t.Trips)
+                .ThenInclude(tr => tr.TripDiscounts)
+                .ThenInclude(trd => trd.Discount)
+                .FirstOrDefaultAsync(t => t.ID == id);
 
             if (tour == null)
             {
@@ -150,7 +157,7 @@ namespace Company.Controllers
 
             await _unitOfWork.CommitAsync();
 
-            TempData["StatusMessage"] = tour.IsOpen? "Tour opened successfully": "Tour closed successfully";
+            TempData["StatusMessage"] = tour.IsOpen ? "Tour opened successfully" : "Tour closed successfully";
 
             return LocalRedirect(returnUrl);
         }

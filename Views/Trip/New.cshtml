@@ -1,0 +1,72 @@
+﻿@model TripFormModel
+
+@{
+    ViewData["Title"] = "New Trip";
+}
+
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+    <h1 class="h2">New Trip for @Model.Tour.Title</h1>
+</div>
+
+<form method="post" class="col-md-8 pl-0">
+    <input hidden name="returnUrl" value="@Model.ReturnUrl" />
+    <input asp-for="Trip.TourID" hidden value="@Model.Tour.ID" />
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label asp-for="Trip.StartTime"></label>
+            <input class="form-control" asp-for="Trip.StartTime" />
+            <span asp-validation-for="Trip.StartTime" class="text-danger"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="Trip.EndTime"></label>
+            <input class="form-control" asp-for="Trip.EndTime" />
+            <span asp-validation-for="Trip.EndTime" class="text-danger"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="Trip.Capacity"></label>
+            <input class="form-control" asp-for="Trip.Capacity" />
+            <span asp-validation-for="Trip.Capacity" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="Trip.Price"></label>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">$</span>
+            </div>
+            <input class="form-control" asp-for="Trip.Price" />
+            <div class="input-group-append">
+                <span class="input-group-text">.00</span>
+            </div>
+        </div>
+        <span asp-validation-for="Trip.Price" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Trip.Description"></label>
+        <textarea class="form-control" asp-for="Trip.Description"></textarea>
+        <span asp-validation-for="Trip.Description" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label>Discounts</label>
+        <br>
+        @foreach (var disc in Model.Discounts)
+        {
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="discounts" checked="@Model.AppliedDiscounts.Contains(disc.ID)" id="@disc.ID" value="@disc.ID" />
+                <label class="form-check-label" for="@disc.ID">@disc.Title</label>
+            </div>
+        }
+    </div>
+    @if (!Model.Discounts.Any())
+    {
+        <p class="text-muted">There are currently no discounts</p>
+    }
+    <span asp-validation-summary="ModelOnly" class="text-danger"></span>
+    <a class="btn btn-secondary" asp-action="Index">Back to list</a>
+    <button type="submit" class="btn btn-primary">Save Trip</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

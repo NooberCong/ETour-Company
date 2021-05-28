@@ -21,70 +21,71 @@
         </div>
     </form>
 </div>
-<table class="table" id="tour-tbl">
-    <tr>
-        <th>Title</th>
-        <th>Starting place</th>
-        <th>Destination</th>
-        <th>Type</th>
-        <th>Action</th>
-    </tr>
-    <tbody>
-        @foreach (var tour in Model.Tours)
-        {
+<div class="table-responsive">
+    <table class="table" id="tour-tbl">
+        <tr class="w-100">
+            <th>Title</th>
+            <th>Starting place</th>
+            <th>Destination</th>
+            <th>Type</th>
+            <th>Action</th>
+        </tr>
+        <tbody class="w-100">
+            @foreach (var tour in Model.Tours)
+            {
+                <tr>
+                    <td>
+                        @tour.Title @if (!tour.IsOpen)
+                        {
+                            <span class="badge badge-danger">Closed</span>
+                        }
+                    </td>
+                    <td>@tour.Start</td>
+                    <td>@tour.Destination</td>
+                    <td>@tour.Type</td>
+                    <td class="border-top d-flex">
+                        <a class="mr-3 text-primary" asp-action="Detail" asp-route-id="@tour.ID"><span data-feather="navigation" /></a>
+                        <a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@tour.ID"><span data-feather="edit" /></a>
+                        <form style="cursor: pointer" class="d-inline" asp-action="ToggleClose" asp-route-id="@tour.ID" asp-route-returnUrl="@Context.Request.Path" method="post">
+                            @if (tour.IsOpen)
+                            {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="trash" /></a> }
+                            else
+                            { <a onclick="$(this).closest('form').submit()" class="text-success d-inline"><span data-feather="refresh-cw" /></a>}
+                        </form>
+                    </td>
+                </tr>
+            }
             <tr>
-                <td>
-                    @tour.Title @if (!tour.IsOpen)
-                    {
-                        <span class="badge badge-danger">Closed</span>
-                    }
-                </td>
-                <td>@tour.Start</td>
-                <td>@tour.Destination</td>
-                <td>@tour.Type</td>
-                <td class="border-top d-flex">
-                    <a class="mr-3 text-primary" asp-action="Detail" asp-route-id="@tour.ID"><span data-feather="navigation" /></a>
-                    <a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@tour.ID"><span data-feather="edit" /></a>
-                    <form style="cursor: pointer" class="d-inline" asp-action="ToggleClose" asp-route-id="@tour.ID" asp-route-returnUrl="@Context.Request.Path" method="post">
-                        @if (tour.IsOpen)
-                        {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="trash" /></a> }
-                        else
-                        { <a onclick="$(this).closest('form').submit()" class="text-success d-inline"><span data-feather="refresh-cw" /></a>}
-                    </form>
-                </td>
+                <td>Tour cá đuối</td>
+                <td>HCM City</td>
+                <td>Vung Tau</td>
+                <td>Domestic</td>
+                <td class="border-top"><a class="mr-3 text-primary" href="#"><span data-feather="navigation" /></a><a class="mr-3 text-warning" href="#"><span data-feather="edit" /></a><a class="text-danger" href="#"><span data-feather="trash" /></a></td>
+
             </tr>
-        }
-        <tr>
-            <td>Tour cá đuối</td>
-            <td>HCM City</td>
-            <td>Vung Tau</td>
-            <td>Domestic</td>
-            <td class="border-top"><a class="mr-3 text-primary" href="#"><span data-feather="navigation" /></a><a class="mr-3 text-warning" href="#"><span data-feather="edit" /></a><a class="text-danger" href="#"><span data-feather="trash" /></a></td>
+            <tr>
+                <td>Tour cá chép</td>
+                <td>HCM City</td>
+                <td>Vung Tau</td>
+                <td>Domestic</td>
+                <td class="border-top"><a class="mr-3 text-primary" href="#"><span data-feather="navigation" /></a><a class="mr-3 text-warning" href="#"><span data-feather="edit" /></a><a class="text-danger" href="#"><span data-feather="trash" /></a></td>
 
-        </tr>
-        <tr>
-            <td>Tour cá chép</td>
-            <td>HCM City</td>
-            <td>Vung Tau</td>
-            <td>Domestic</td>
-            <td class="border-top"><a class="mr-3 text-primary" href="#"><span data-feather="navigation" /></a><a class="mr-3 text-warning" href="#"><span data-feather="edit" /></a><a class="text-danger" href="#"><span data-feather="trash" /></a></td>
+            </tr>
+            <tr>
+                <td>Tour cá heo</td>
+                <td>HCM City</td>
+                <td>Vung Tau</td>
+                <td>International</td>
+                <td class="border-top"><a class="mr-3 text-primary" href="#"><span data-feather="navigation" /></a><a class="mr-3 text-warning" href="#"><span data-feather="edit" /></a><a class="text-danger" href="#"><span data-feather="trash" /></a></td>
 
-        </tr>
-        <tr>
-            <td>Tour cá heo</td>
-            <td>HCM City</td>
-            <td>Vung Tau</td>
-            <td>International</td>
-            <td class="border-top"><a class="mr-3 text-primary" href="#"><span data-feather="navigation" /></a><a class="mr-3 text-warning" href="#"><span data-feather="edit" /></a><a class="text-danger" href="#"><span data-feather="trash" /></a></td>
-
-        </tr>
-        <tr>
-            <td>Tour cá hề</td>
-            <td>HCM City</td>
-            <td>Vung Tau</td>
-            <td>Domestic</td>
-            <td class="border-top"><a class="mr-3 text-primary" href="#"><span data-feather="navigation" /></a><a class="mr-3 text-warning" href="#"><span data-feather="edit" /></a><a class="text-danger" href="#"><span data-feather="trash" /></a></td>
-
-        </tr>
-    </tbody>
-</table>
+            </tr>
+            <tr>
+                <td>Tour cá hề</td>
+                <td>HCM City</td>
+                <td>Vung Tau</td>
+                <td>Domestic</td>
+                <td class="border-top"><a class="mr-3 text-primary" href="#"><span data-feather="navigation" /></a><a class="mr-3 text-warning" href="#"><span data-feather="edit" /></a><a class="text-danger" href="#"><span data-feather="trash" /></a></td
+            </tr>
+        </tbody>
+    </table>
+</div>

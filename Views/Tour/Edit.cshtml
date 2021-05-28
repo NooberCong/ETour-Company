@@ -5,7 +5,7 @@
 }
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-    <h1 class="h2">Edit Tour</h1>
+    <h1 class="h2">Edit @Model.Tour.Title</h1>
 </div>
 
 <form enctype="multipart/form-data" method="post" class="col-md-8 pl-0">
@@ -56,4 +56,5 @@
 
 @section Scripts {
     <script src="~/js/formfiles.js"></script>
+    <partial name="_ValidationScriptsPartial" />
 }
