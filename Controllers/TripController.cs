@@ -2,6 +2,7 @@
 using Core.Entities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -27,9 +28,20 @@ namespace Company.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(bool showClosed = false)
         {
-            return View();
+            var tripList = await _tripRepository.Queryable
+                .Include(tr => tr.TripDiscounts)
+                .ThenInclude(trd => trd.Discount)
+                .Where(tr => showClosed || tr.IsOpen).ToArrayAsync();
+
+            var tourList = _tourRepository.QueryFiltered(t => t.IsOpen);
+
+            return View(new TripListModel
+            {
+                Trips = tripList,
+                Tours = tourList
+            });
         }
 
         public async Task<IActionResult> New(int tourID, string returnUrl)
@@ -49,9 +61,15 @@ namespace Company.Controllers
             });
         }
 
-        private IEnumerable<Discount> GetAvailableDiscounts()
+        private IEnumerable<Discount> GetAvailableDiscounts(Trip trip = default)
         {
-            return _discountRepository.Queryable.AsEnumerable().Where(d => d.IsValid(DateTime.Now));
+            return _discountRepository.Queryable
+                .Include(d => d.TripDiscounts)
+                .AsEnumerable()
+                .Where(d => d.TripDiscounts.Any(trd =>
+                (trip == null && !d.IsExpired(DateTime.Now))
+                || trd.TripID == trip.ID)
+                || !d.IsExpired(DateTime.Now));
         }
 
         [HttpPost]
@@ -67,8 +85,12 @@ namespace Company.Controllers
                 return NotFound();
             }
 
-            if (!ModelState.IsValid)
+            var errors = trip.GetValidationErrors();
+
+            if (!ModelState.IsValid || errors.Any())
             {
+                AddModelErrors(errors);
+
                 return View(new TripFormModel
                 {
                     Tour = tour,
@@ -107,7 +129,7 @@ namespace Company.Controllers
             {
                 Tour = trip.Tour,
                 Trip = trip,
-                Discounts = GetAvailableDiscounts(),
+                Discounts = GetAvailableDiscounts(trip),
                 AppliedDiscounts = trip.TripDiscounts.Select(td => td.DiscountID).ToArray(),
                 ReturnUrl = returnUrl
             });
@@ -129,13 +151,17 @@ namespace Company.Controllers
                 return NotFound();
             }
 
-            if (!ModelState.IsValid)
+            var errors = trip.GetValidationErrors();
+
+            if (!ModelState.IsValid || errors.Any())
             {
+                AddModelErrors(errors);
+
                 return View(new TripFormModel
                 {
                     Tour = existingTrip.Tour,
                     Trip = trip,
-                    Discounts = GetAvailableDiscounts(),
+                    Discounts = GetAvailableDiscounts(trip),
                     AppliedDiscounts = discounts,
                     ReturnUrl = returnUrl
                 });
@@ -158,6 +184,69 @@ namespace Company.Controllers
             TempData["StatusMessage"] = "Trip updated successfully";
 
             return LocalRedirect(returnUrl);
+        }
+
+        private void AddModelErrors(IReadOnlyDictionary<string, List<string>> errors)
+        {
+            foreach (var item in errors)
+            {
+                foreach (var error in item.Value)
+                {
+                    Console.WriteLine($"{item.Key}:{error}");
+                    ModelState.AddModelError(item.Key, error);
+                }
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleClose(int id, string returnUrl)
+        {
+            returnUrl ??= Url.Action("Index");
+
+            Trip trip = await _tripRepository.Queryable
+                .Include(tr => tr.Tour)
+                .FirstOrDefaultAsync(tr => tr.ID == id);
+
+            if (trip == null)
+            {
+                return NotFound();
+            }
+
+            trip.IsOpen = !trip.IsOpen;
+
+            // Trip cannot be open when it's tour is closed
+            if (trip.IsOpen && !trip.Tour.IsOpen)
+            {
+                TempData["StatusMessage"] = "Error: Trip cannot be open when it's tour is closed";
+                return LocalRedirect(returnUrl);
+            }
+
+            await _tripRepository.UpdateAsync(trip);
+
+            await _unitOfWork.CommitAsync();
+
+            TempData["StatusMessage"] = trip.IsOpen ? "Trip opened successfully" : "Trip closed successfully";
+
+            return LocalRedirect(returnUrl);
+        }
+
+        public async Task<IActionResult> Detail(int id)
+        {
+            var trip = await _tripRepository.Queryable
+                .Include(tr => tr.Tour)
+                .Include(tr => tr.TripDiscounts)
+                .ThenInclude(trd => trd.Discount)
+                .Include(tr => tr.Bookings)
+                .Include(tr => tr.Itineraries)
+                .FirstOrDefaultAsync(tr => tr.ID == id);
+
+            if (trip == null)
+            {
+                return NotFound();
+            }
+
+            return View(trip);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Company.Models
         public string ReturnUrl { get; set; }
         public Trip Trip { get; set; }
         public Tour Tour { get; set; }
-        public int[] AppliedDiscounts { get; set; } = new int[] { };
+        public int[] AppliedDiscounts { get; set; } = Array.Empty<int>();
         public IEnumerable<Discount> Discounts { get; set; }
     }
 }

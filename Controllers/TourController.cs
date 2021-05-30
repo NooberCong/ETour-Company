@@ -12,13 +12,14 @@ namespace Company.Controllers
     public class TourController : Controller
     {
         private readonly ITourRepository _tourRepository;
+        private readonly ITripRepository _tripRepository;
         private readonly IRemoteFileStorageHandler _remoteFileStorageHandler;
         private readonly IUnitOfWork _unitOfWork;
 
-        public TourController(ITourRepository tourRepository, IRemoteFileStorageHandler remoteFileStorageHandler, IUnitOfWork unitOfWork)
+        public TourController(ITourRepository tourRepository, ITripRepository tripRepository, IRemoteFileStorageHandler remoteFileStorageHandler, IUnitOfWork unitOfWork)
         {
-
             _tourRepository = tourRepository;
+            _tripRepository = tripRepository;
             _remoteFileStorageHandler = remoteFileStorageHandler;
             _unitOfWork = unitOfWork;
         }
@@ -29,7 +30,7 @@ namespace Company.Controllers
             var tourList = _tourRepository.QueryFiltered(tour => showClosed || tour.IsOpen == true);
             return View(new TourListModel
             {
-                Tours = tourList.Select(TourListItem.FromTourEntity),
+                Tours = tourList,
                 ShowClosed = showClosed
             });
         }
@@ -143,15 +144,30 @@ namespace Company.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ToggleClose(int id, string returnUrl = "~/")
+        public async Task<IActionResult> ToggleClose(int id, string returnUrl)
         {
-            Tour tour = await _tourRepository.FindAsync(id);
+            returnUrl ??= Url.Action("Index");
+
+            Tour tour = await _tourRepository.Queryable
+                .Include(t => t.Trips)
+                .FirstOrDefaultAsync(t => t.ID == id);
+
             if (tour == null)
             {
                 return NotFound();
             }
 
             tour.IsOpen = !tour.IsOpen;
+
+            // Close all it's trips when closed
+            if (!tour.IsOpen)
+            {
+                foreach (var trip in tour.Trips.Where(tr => tr.IsOpen))
+                {
+                    trip.IsOpen = false;
+                    await _tripRepository.UpdateAsync(trip);
+                }
+            }
 
             await _tourRepository.UpdateAsync(tour);
 

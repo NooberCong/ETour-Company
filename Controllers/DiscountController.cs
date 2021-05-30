@@ -1,4 +1,5 @@
 ﻿using Client.Models;
+using Company.Models;
 using Core.Entities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -23,16 +24,20 @@ namespace Company.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        public IActionResult Index(bool showInvalid = false)
+        public IActionResult Index(bool showExpired = false)
         {
             IEnumerable<Discount> discounts = _discountRepository.Queryable
                 .Include(d => d.TripDiscounts)
                 .ThenInclude(trd => trd.Trip)
                 .ThenInclude(t => t.Tour)
                 .AsEnumerable()
-                .Where(d => showInvalid || d.IsValid(DateTime.Now));
+                .Where(d => showExpired || !d.IsExpired(DateTime.Now));
 
-            return View(discounts);
+            return View(new DiscountListModel
+            {
+                Discounts = discounts,
+                ShowExpired = showExpired
+            });
         }
 
         public IActionResult New()
@@ -103,7 +108,7 @@ namespace Company.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, string returnUrl)
         {
             Discount discount = await _discountRepository.Queryable
                 .Include(d => d.TripDiscounts)
@@ -122,7 +127,7 @@ namespace Company.Controllers
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Discount deleted successfully";
-            return RedirectToAction("Index");
+            return LocalRedirect(returnUrl);
         }
 
         [HttpPost]

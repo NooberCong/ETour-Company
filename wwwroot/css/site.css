@@ -97,7 +97,7 @@ body {
     transition: .5s;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     #sideNav {
         width: 0px;
     }
@@ -191,7 +191,6 @@ body {
         transition-property: transform;
         transition-duration: 0.15s;
         transition-timing-function: ease;
-
     }
 
         .hamburger-inner::before, .hamburger-inner::after {

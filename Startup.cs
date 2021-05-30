@@ -1,4 +1,5 @@
 using Company.Areas.Identity;
+using HtmlAgilityPack;
 using Infrastructure.Extentions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -45,8 +46,8 @@ namespace Company
             }).AddDefaultUI();
             services.AddEmailService();
 
-
             services.AddTransient<IEmailSender, EmailSender>();
+            services.AddTransient<HtmlDocument>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

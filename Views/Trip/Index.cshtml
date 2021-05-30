@@ -1,3 +1,99 @@
-﻿@{
+﻿@model TripListModel
+
+
+@{
     ViewData["Title"] = "Trips";
+    string tblID = "tripTbl";
 }
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+    <h1 class="h2">Manage Trips</h1>
+    <div class="btn-toolbar mb-2 mb-md-0 d-flex align-items-center">
+        <form method="get" class="mr-3">
+            <div class="form-check">
+                <input style="transform: translateY(2px)" onchange="$(this).closest('form').submit()" asp-for="ShowClosed" class="form-check-input">
+                <label asp-for="ShowClosed"> Show Closed</label>
+            </div>
+        </form>
+        <button class="btn btn-success text-white ml-auto" data-toggle="modal" data-target="#tourSelector"><span data-feather="plus"></span> Add</button>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table" id="@tblID">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(_ => Model.Trips.First().ID)</th>
+                <th>Tour ID</th>
+                <th>@Html.DisplayNameFor(_ => Model.Trips.First().StartTime)</th>
+                <th>@Html.DisplayNameFor(_ => Model.Trips.First().EndTime)</th>
+                <th>@Html.DisplayNameFor(_ => Model.Trips.First().Capacity)</th>
+                <th>@Html.DisplayNameFor(_ => Model.Trips.First().Price)</th>
+                <th>Sale Price</th>
+                <th class="no-ordering">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var trip in Model.Trips)
+            {
+                <tr>
+                    <td>
+                        @trip.ID
+                        @if (!trip.IsOpen)
+                        {
+                            <span class="badge badge-danger">Closed</span>
+                        }
+                    </td>
+                    <td>@trip.TourID</td>
+                    <td>@trip.StartTime</td>
+                    <td>@trip.EndTime</td>
+                    <td>@trip.Capacity</td>
+                    <td>$@trip.Price</td>
+                    <td class="text-success">$@trip.GetSalePrice()<span class="d-none d-md-inline" data-feather="chevrons-down"></span></td>
+                    <td class="row">
+                        <a class="mr-3 text-primary mb-3 mb-md-0" asp-controller="Trip" asp-action="Detail" asp-route-id="@trip.ID"><span data-feather="navigation" /></a>
+                        <a class="mr-3 text-info mb-3 mb-md-0" asp-controller="Tour" asp-action="Detail" asp-route-id="@trip.TourID"><span data-feather="map" /></a>
+                        <a class="mr-3 text-warning mb-3 mb-md-0" asp-controller="Trip" asp-action="Edit" asp-route-id="@trip.ID" asp-route-returnUrl="@Context.Request.Path"><span data-feather="edit" /></a>
+                        <form style="cursor: pointer" class="d-inline" asp-controller="Trip" asp-action="ToggleClose" asp-route-id="@trip.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
+                            @if (trip.IsOpen)
+                            {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="trash" /></a> }
+                            else
+                            { <a onclick="$(this).closest('form').submit()" class="text-success d-inline"><span data-feather="refresh-cw" /></a>}
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="tourSelector" tabindex="-1" role="dialog" aria-labelledby="selectTourLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="selectTourLabel">Select tour</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="New" method="get">
+                <div class="modal-body form-group">
+                    <label for="tourSelect" class="form-label">Target:</label>
+                    <select id="tourSelect" class="selectpicker" data-live-search="true" aria-label="Select to add new trip" name="tourID">
+                        @foreach (var tour in Model.Tours)
+                        {
+                            <option value="@tour.ID">@tour.Title</option>
+                        }
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary"><span data-feather="check"></span> Continue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<partial name="_DataTable" model="@tblID" />

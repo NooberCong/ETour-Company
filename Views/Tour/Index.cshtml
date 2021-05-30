@@ -2,35 +2,34 @@
 
 @{
     ViewData["Title"] = "Tours";
-    string tblId = "tour-tbl";
+    string tblID = "tourTbl";
 }
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
     <h1 class="h2">Manage Tours</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
+    <div class="btn-toolbar mb-2 mb-md-0 d-flex align-items-center">
+        <form method="get" class="mr-3">
+            <div class="form-check">
+                <input style="transform: translateY(2px)" onchange="$(this).closest('form').submit()" asp-for="ShowClosed" class="form-check-input">
+                <label asp-for="ShowClosed"> Show Closed</label>
+            </div>
+        </form>
         <a class="btn btn-success ml-auto" asp-action="New"><span data-feather="plus"></span> Add</a>
     </div>
 </div>
 
-<div class="d-flex mb-2 align-items-center">
-    <partial name="_TblSearchPartial" model="@tblId" />
-    <form class="col-2 text-center" method="get">
-        <div class="form-check">
-            <input onchange="$(this).closest('form').submit()" asp-for="ShowClosed" class="form-check-input">
-            <label asp-for="ShowClosed"> Show closed</label>
-        </div>
-    </form>
-</div>
 <div class="table-responsive">
-    <table class="table" id="tour-tbl">
-        <tr class="w-100">
-            <th>Title</th>
-            <th>Starting place</th>
-            <th>Destination</th>
-            <th>Type</th>
-            <th>Action</th>
-        </tr>
-        <tbody class="w-100">
+    <table id="@tblID" class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Starting place</th>
+                <th>Destination</th>
+                <th>Type</th>
+                <th class="no-ordering">Action</th>
+            </tr>
+        </thead>
+        <tbody>
             @foreach (var tour in Model.Tours)
             {
                 <tr>
@@ -40,13 +39,13 @@
                             <span class="badge badge-danger">Closed</span>
                         }
                     </td>
-                    <td>@tour.Start</td>
+                    <td>@tour.StartPlace</td>
                     <td>@tour.Destination</td>
                     <td>@tour.Type</td>
                     <td class="border-top d-flex">
                         <a class="mr-3 text-primary" asp-action="Detail" asp-route-id="@tour.ID"><span data-feather="navigation" /></a>
                         <a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@tour.ID"><span data-feather="edit" /></a>
-                        <form style="cursor: pointer" class="d-inline" asp-action="ToggleClose" asp-route-id="@tour.ID" asp-route-returnUrl="@Context.Request.Path" method="post">
+                        <form style="cursor: pointer" class="d-inline" asp-action="ToggleClose" asp-route-id="@tour.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
                             @if (tour.IsOpen)
                             {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="trash" /></a> }
                             else
@@ -55,37 +54,8 @@
                     </td>
                 </tr>
             }
-            <tr>
-                <td>Tour cá đuối</td>
-                <td>HCM City</td>
-                <td>Vung Tau</td>
-                <td>Domestic</td>
-                <td class="border-top"><a class="mr-3 text-primary" href="#"><span data-feather="navigation" /></a><a class="mr-3 text-warning" href="#"><span data-feather="edit" /></a><a class="text-danger" href="#"><span data-feather="trash" /></a></td>
-
-            </tr>
-            <tr>
-                <td>Tour cá chép</td>
-                <td>HCM City</td>
-                <td>Vung Tau</td>
-                <td>Domestic</td>
-                <td class="border-top"><a class="mr-3 text-primary" href="#"><span data-feather="navigation" /></a><a class="mr-3 text-warning" href="#"><span data-feather="edit" /></a><a class="text-danger" href="#"><span data-feather="trash" /></a></td>
-
-            </tr>
-            <tr>
-                <td>Tour cá heo</td>
-                <td>HCM City</td>
-                <td>Vung Tau</td>
-                <td>International</td>
-                <td class="border-top"><a class="mr-3 text-primary" href="#"><span data-feather="navigation" /></a><a class="mr-3 text-warning" href="#"><span data-feather="edit" /></a><a class="text-danger" href="#"><span data-feather="trash" /></a></td>
-
-            </tr>
-            <tr>
-                <td>Tour cá hề</td>
-                <td>HCM City</td>
-                <td>Vung Tau</td>
-                <td>Domestic</td>
-                <td class="border-top"><a class="mr-3 text-primary" href="#"><span data-feather="navigation" /></a><a class="mr-3 text-warning" href="#"><span data-feather="edit" /></a><a class="text-danger" href="#"><span data-feather="trash" /></a></td
-            </tr>
         </tbody>
     </table>
 </div>
+
+<partial name="_DataTable" model="@tblID" />

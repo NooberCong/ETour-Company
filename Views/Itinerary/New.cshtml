@@ -1,0 +1,58 @@
+﻿@model ItineraryFormModel
+
+@{
+    ViewData["Title"] = "New itinerary";
+}
+
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+    <h1 class="h2">New Itinerary - Trip #@Model.Trip.ID - @Model.Trip.Tour.Title</h1>
+</div>
+
+<form method="post">
+    <input asp-for="Itinerary.TripID" hidden value="@Model.Trip.ID" />
+    <div class="col-md-5 p-0">
+        <div class="form-group">
+            <label asp-for="Itinerary.Title"></label>
+            <input class="form-control" asp-for="Itinerary.Title" />
+            <span asp-validation-for="Itinerary.Title" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Itinerary.StartTime"></label>
+            <input class="form-control" asp-for="Itinerary.StartTime" />
+            <span asp-validation-for="Itinerary.StartTime" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Itinerary.Transport"></label>
+            <input class="form-control" asp-for="Itinerary.Transport" />
+            <span asp-validation-for="Itinerary.Transport" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Itinerary.Meal"></label>
+            <input class="form-control" asp-for="Itinerary.Meal" />
+            <span asp-validation-for="Itinerary.Meal" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Itinerary.Accommodation"></label>
+            <input class="form-control" asp-for="Itinerary.Accommodation" />
+            <span asp-validation-for="Itinerary.Accommodation" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Itinerary.Activity"></label>
+            <input class="form-control" asp-for="Itinerary.Activity" />
+            <span asp-validation-for="Itinerary.Activity" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="Itinerary.Detail"></label>
+        <textarea id="summernote" class="form-control" asp-for="Itinerary.Detail"></textarea>
+        <span asp-validation-for="Itinerary.Detail" class="text-danger"></span>
+    </div>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <button type="submit" class="btn btn-primary"><span data-feather="save"></span> Save Itinerary</button>
+</form>
+
+@section Scripts {
+    <partial name="_SummerNote" />
+    <partial name="_ValidationScriptsPartial" />
+}

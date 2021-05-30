@@ -1,0 +1,44 @@
+﻿@*
+    Partial for enabling jquery dataTable for a table
+    Model is a string representing the id of the target table
+    Add the class 'no-ordering' to a 'th' tag in the 'theader' to disable ordering the corresponding column
+*@
+
+@model string
+
+
+<link href="~/lib/data-tables/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+<script src="~/lib/data-tables/js/jquery.dataTables.min.js"></script>
+<script src="~/lib/data-tables/js/dataTables.bootstrap5.min.js"></script>
+
+<style>
+    .dataTables_filter {
+        padding-top: .25rem;
+        padding-right: .25rem;
+    }
+
+    .dt-bootstrap5 table {
+        padding-bottom: 1rem;
+    }
+</style>
+
+<input type="hidden" id="tblID" value="@Model" />
+
+<script>
+    let tblID = $('#tblID').val();
+
+    let orderingDisabled = [];
+    for (const [i, th] of Array.from(document.getElementById(tblID).getElementsByTagName("thead")[0].getElementsByTagName("tr")[0].getElementsByTagName("th")).entries()) {
+        if (th.classList.contains("no-ordering")) {
+            orderingDisabled.push(i);
+        }
+    }
+
+    $(document).ready(function () {
+        $(`#${tblID}`).DataTable({
+            columnDefs: [
+                { orderable: false, targets: orderingDisabled }
+            ]
+        });
+    });
+</script>
