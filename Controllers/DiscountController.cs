@@ -46,14 +46,13 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> New(Discount discount)
         {
-            var discountErrors = discount.GetValidationErrors();
+            var errors = discount.GetValidationErrors();
 
-            if (!ModelState.IsValid || discountErrors.Any())
+            if (!ModelState.IsValid || errors.Any())
             {
-                AddCustomModelErrors(discountErrors);
+                ModelState.AddModelErrors(errors);
                 return View();
             }
 
@@ -64,16 +63,6 @@ namespace Company.Controllers
             return RedirectToAction("Index");
         }
 
-        private void AddCustomModelErrors(IReadOnlyDictionary<string, List<string>> discountErrors)
-        {
-            foreach (var item in discountErrors)
-            {
-                foreach (var error in item.Value)
-                {
-                    ModelState.AddModelError(item.Key, error);
-                }
-            }
-        }
 
         public async Task<IActionResult> Edit(int id)
         {
@@ -88,14 +77,13 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Discount discount)
         {
-            var discountErrors = discount.GetValidationErrors();
+            var errors = discount.GetValidationErrors();
 
-            if (!ModelState.IsValid || discountErrors.Any())
+            if (!ModelState.IsValid || errors.Any())
             {
-                AddCustomModelErrors(discountErrors);
+                ModelState.AddModelErrors(errors);
                 return View(discount);
             }
 
@@ -107,7 +95,6 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id, string returnUrl)
         {
             Discount discount = await _discountRepository.Queryable
@@ -131,7 +118,7 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        
         public async Task<IActionResult> ToggleApply(int id, int[] tripIDs)
         {
 

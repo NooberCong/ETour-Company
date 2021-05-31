@@ -14,13 +14,15 @@ namespace Company.Controllers
         private readonly ITourRepository _tourRepository;
         private readonly ITripRepository _tripRepository;
         private readonly IRemoteFileStorageHandler _remoteFileStorageHandler;
+        private readonly IETourLogger _eTourLogger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public TourController(ITourRepository tourRepository, ITripRepository tripRepository, IRemoteFileStorageHandler remoteFileStorageHandler, IUnitOfWork unitOfWork)
+        public TourController(ITourRepository tourRepository, ITripRepository tripRepository, IRemoteFileStorageHandler remoteFileStorageHandler, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
         {
             _tourRepository = tourRepository;
             _tripRepository = tripRepository;
             _remoteFileStorageHandler = remoteFileStorageHandler;
+            _eTourLogger = eTourLogger;
             _unitOfWork = unitOfWork;
         }
 
@@ -41,7 +43,6 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> New([Bind("Title", "StartPlace", "Destination", "Description", "Type")] Tour tour, IFormFileCollection images)
         {
             if (!ModelState.IsValid)
@@ -58,7 +59,9 @@ namespace Company.Controllers
                 string url = await _remoteFileStorageHandler.UploadAsync(stream, "jpg");
                 tour.ImageUrls.Add(url);
             }
+
             await _tourRepository.AddAsync(tour);
+            await _eTourLogger.LogAsync(Log.LogType.Creation, $"{User.Identity.Name} created tour {tour.Title}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Tour created sucessfully";
@@ -82,7 +85,6 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID", "Title", "StartPlace", "Destination", "Description", "Type")] Tour tour, IFormFileCollection images)
         {
             Tour existingTour;
@@ -120,6 +122,7 @@ namespace Company.Controllers
             }
 
             await _tourRepository.UpdateAsync(tour);
+            await _eTourLogger.LogAsync(Log.LogType.Modification, $"{User.Identity.Name} updated tour {tour.Title}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Tour updated sucessfully";
@@ -143,7 +146,6 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleClose(int id, string returnUrl)
         {
             returnUrl ??= Url.Action("Index");
@@ -170,7 +172,7 @@ namespace Company.Controllers
             }
 
             await _tourRepository.UpdateAsync(tour);
-
+            await _eTourLogger.LogAsync(Log.LogType.Creation, $"{User.Identity.Name} {(tour.IsOpen ? "opened" : "closed")} tour {tour.Title}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = tour.IsOpen ? "Tour opened successfully" : "Tour closed successfully";

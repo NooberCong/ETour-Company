@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +32,7 @@ namespace Company
                      .RequireAuthenticatedUser()
                      .Build();
                 config.Filters.Add(new AuthorizeFilter(policy));
+                config.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             });
             services.AddRazorPages();
             services.AddControllersWithViews();

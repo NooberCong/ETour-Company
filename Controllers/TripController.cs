@@ -73,7 +73,6 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> New(Trip trip, int[] discounts, string returnUrl)
         {
             returnUrl ??= Url.Action("Index");
@@ -89,7 +88,8 @@ namespace Company.Controllers
 
             if (!ModelState.IsValid || errors.Any())
             {
-                AddModelErrors(errors);
+
+                ModelState.AddModelErrors(errors);
 
                 return View(new TripFormModel
                 {
@@ -136,7 +136,6 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Trip trip, int[] discounts, string returnUrl)
         {
             returnUrl ??= Url.Action("Index");
@@ -155,7 +154,7 @@ namespace Company.Controllers
 
             if (!ModelState.IsValid || errors.Any())
             {
-                AddModelErrors(errors);
+                ModelState.AddModelErrors(errors);
 
                 return View(new TripFormModel
                 {
@@ -186,20 +185,7 @@ namespace Company.Controllers
             return LocalRedirect(returnUrl);
         }
 
-        private void AddModelErrors(IReadOnlyDictionary<string, List<string>> errors)
-        {
-            foreach (var item in errors)
-            {
-                foreach (var error in item.Value)
-                {
-                    Console.WriteLine($"{item.Key}:{error}");
-                    ModelState.AddModelError(item.Key, error);
-                }
-            }
-        }
-
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleClose(int id, string returnUrl)
         {
             returnUrl ??= Url.Action("Index");

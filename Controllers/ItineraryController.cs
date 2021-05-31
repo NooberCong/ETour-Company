@@ -46,7 +46,6 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> New(Itinerary itinerary, string returnUrl)
         {
             returnUrl ??= Url.Action("Detail", "Trip", new { id = itinerary.TripID });
@@ -60,8 +59,12 @@ namespace Company.Controllers
                 return NotFound();
             }
 
-            if (!ModelState.IsValid)
+            var errors = itinerary.GetValidationErrors(trip);
+
+            if (!ModelState.IsValid || errors.Any())
             {
+                ModelState.AddModelErrors(errors);
+
                 return View(new ItineraryFormModel
                 {
                     Trip = trip,
@@ -98,7 +101,6 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Itinerary itinerary, string returnUrl)
         {
             returnUrl ??= Url.Action("Detail", "Trip", new { id = itinerary.TripID });
@@ -113,8 +115,12 @@ namespace Company.Controllers
                 return NotFound();
             }
 
-            if (!ModelState.IsValid)
+            var errors = itinerary.GetValidationErrors(existingItinerary.Trip);
+
+            if (!ModelState.IsValid || errors.Any())
             {
+                ModelState.AddModelErrors(errors);
+
                 return View(new ItineraryFormModel
                 {
                     Trip = existingItinerary.Trip,
@@ -124,9 +130,9 @@ namespace Company.Controllers
 
             await ProcessDetail(itinerary);
 
-            var imagesToDelete = existingItinerary.ImageUrls.Where(url => !itinerary.ImageUrls.Contains(url));
-
-            foreach (var imageUrl in imagesToDelete)
+            foreach (var imageUrl in existingItinerary
+                .GetUnusedImageUrls(itinerary.ImageUrls)
+                .Where(_remoteFileStorageHandler.IsHostedFile))
             {
                 await _remoteFileStorageHandler.DeleteAsync(imageUrl);
             }
@@ -139,7 +145,6 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id, string returnUrl)
         {
             var itinerary = await _itineraryRepository.FindAsync(id);
@@ -147,6 +152,11 @@ namespace Company.Controllers
             if (itinerary == null)
             {
                 return NotFound();
+            }
+
+            foreach (var imageUrl in itinerary.ImageUrls.Where(_remoteFileStorageHandler.IsHostedFile))
+            {
+                await _remoteFileStorageHandler.DeleteAsync(imageUrl);
             }
 
             returnUrl ??= Url.Action("Detail", "Trip", new { id = itinerary.TripID });
@@ -161,6 +171,12 @@ namespace Company.Controllers
         private async Task ProcessDetail(Itinerary itinerary)
         {
             _doc.LoadHtml(itinerary.Detail);
+            var images = _doc.DocumentNode.SelectNodes("//img");
+
+            if (images == null)
+            {
+                return;
+            }
 
             foreach (var img in _doc.DocumentNode.SelectNodes("//img"))
             {
