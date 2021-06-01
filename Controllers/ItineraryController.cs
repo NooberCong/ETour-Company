@@ -17,14 +17,16 @@ namespace Company.Controllers
         private readonly IItineraryRepository _itineraryRepository;
         private readonly IRemoteFileStorageHandler _remoteFileStorageHandler;
         private readonly HtmlDocument _doc;
+        private readonly IETourLogger _eTourLogger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public ItineraryController(ITripRepository tripRepository, IItineraryRepository itineraryRepository, IRemoteFileStorageHandler remoteFileStorageHandler, HtmlDocument doc, IUnitOfWork unitOfWork)
+        public ItineraryController(ITripRepository tripRepository, IItineraryRepository itineraryRepository, IRemoteFileStorageHandler remoteFileStorageHandler, HtmlDocument doc, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
         {
             _tripRepository = tripRepository;
             _itineraryRepository = itineraryRepository;
             _remoteFileStorageHandler = remoteFileStorageHandler;
             _doc = doc;
+            _eTourLogger = eTourLogger;
             _unitOfWork = unitOfWork;
         }
 
@@ -75,6 +77,7 @@ namespace Company.Controllers
             await ProcessDetail(itinerary);
 
             await _itineraryRepository.AddAsync(itinerary);
+            await _eTourLogger.LogAsync(Log.LogType.Creation, $"{User.Identity.Name} created itinerary #{itinerary.Title} - Trip {trip.ID}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Itinerary created successfully";
@@ -138,6 +141,7 @@ namespace Company.Controllers
             }
 
             await _itineraryRepository.UpdateAsync(itinerary);
+            await _eTourLogger.LogAsync(Log.LogType.Modification, $"{User.Identity.Name} updated itinerary #{itinerary.Title} - Trip {itinerary.TripID}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Itinerary updated successfully";
@@ -162,6 +166,7 @@ namespace Company.Controllers
             returnUrl ??= Url.Action("Detail", "Trip", new { id = itinerary.TripID });
 
             await _itineraryRepository.DeleteAsync(itinerary);
+            await _eTourLogger.LogAsync(Log.LogType.Deletion, $"{User.Identity.Name} deleted itinerary #{itinerary.Title} - Trip {itinerary.TripID}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Itinerary deleted successfully";
