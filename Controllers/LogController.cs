@@ -7,7 +7,7 @@ namespace Company.Controllers
 {
     public class LogController : Controller
     {
-        private static int _pageSize = 20;
+        private static readonly int _pageSize = 20;
         private readonly ILogRepository _logRepository;
 
         public LogController(ILogRepository logRepository)

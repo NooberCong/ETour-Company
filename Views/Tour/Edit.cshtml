@@ -9,6 +9,7 @@
 </div>
 
 <form enctype="multipart/form-data" method="post" class="col-md-8 pl-0">
+    <input type="hidden" asp-for="Tour.IsOpen" />
     <input type="hidden" asp-for="Tour.ID" />
     <div class="form-group">
         <label asp-for="Tour.Title"></label>

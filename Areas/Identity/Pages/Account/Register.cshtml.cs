@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using System;
 using Core.Interfaces;
+using Company.Areas.Identity.Validation_Attributes;
 
 namespace Company.Areas.Identity.Pages.Account
 {
@@ -57,6 +58,7 @@ namespace Company.Areas.Identity.Pages.Account
 
             [Required]
             [DataType(DataType.Date)]
+            [DateOfBirth(ErrorMessage = "Please input a valid date of birth (18 - 99 years old is accepted)")]
             [Display(Name = "Date of birth")]
             public DateTime DOB { get; set; }
 
@@ -100,7 +102,7 @@ namespace Company.Areas.Identity.Pages.Account
                     var callbackUrl = Url.Page(
                         "/Account/ConfirmEmail",
                         pageHandler: null,
-                        values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
+                        values: new { area = "Identity", userId = user.Id, code, returnUrl },
                         protocol: Request.Scheme);
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
@@ -108,7 +110,7 @@ namespace Company.Areas.Identity.Pages.Account
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl });
                     }
                     else
                     {

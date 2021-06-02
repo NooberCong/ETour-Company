@@ -19,7 +19,7 @@
             border-bottom: 3px solid #0275d8;
         }
 
-    .btn-grey {
+    /*.btn-grey {
         background-color: #D8D8D8;
         color: #FFF;
     }
@@ -69,7 +69,7 @@
 
     .review-block-description {
         font-size: 13px;
-    }
+    }*/
 </style>
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
@@ -91,115 +91,110 @@
     </div>
 </div>
 
-<div class="classic-tabs border rounded px-4 pt-1">
-
-    <ul class="nav tabs-primary nav-justified mb-3" id="advancedTab" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link active show" id="description-tab" data-toggle="tab" href="#description" role="tab" aria-controls="description" aria-selected="true">Information</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="false">Trips</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="reviews-tab" data-toggle="tab" href="#reviews" role="tab" aria-controls="reviews" aria-selected="false">Reviews (@Model.Reviews.Count)</a>
-        </li>
-    </ul>
-    <div class="tab-content" id="advancedTabContent">
-        <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
-            <div class="table-responsive">
-                <table class="table">
-                    <tbody>
+<ul class="nav tabs-primary nav-justified mb-3" id="advancedTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active show" id="description-tab" data-toggle="tab" href="#description" role="tab" aria-controls="description" aria-selected="true">Information</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="false">Trips</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="reviews-tab" data-toggle="tab" href="#reviews" role="tab" aria-controls="reviews" aria-selected="false">Reviews (@Model.Reviews.Count)</a>
+    </li>
+</ul>
+<div class="tab-content" id="advancedTabContent">
+    <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+        <div class="table-responsive">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>@Html.DisplayNameFor(m => m.ID)</th>
+                        <td>@Html.DisplayFor(m => m.ID)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(m => m.Title)</th>
+                        <td>@Html.DisplayFor(m => m.Title)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(m => m.StartPlace)</th>
+                        <td>@Html.DisplayFor(m => m.StartPlace)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(m => m.Destination)</th>
+                        <td>@Html.DisplayFor(m => m.Destination)</td>
+                    </tr>
+                    <tr>
+                        <th>@Html.DisplayNameFor(m => m.Description)</th>
+                        <td>@Html.DisplayFor(m => m.Description)</td>
+                    </tr>
+                    <tr>
+                        <th>Images</th>
+                        <td class="d-flex flex-wrap">
+                            @foreach (var url in Model.ImageUrls)
+                            {
+                                <a data-lightbox="tour-images" href="@url"><img style="height: 10rem" src="@url" class="img-fluid mr-2 mb-2" /></a>
+                            }
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="info" role="tabpanel" aria-labelledby="info-tab">
+        <a asp-controller="Trip" asp-action="New" asp-route-tourID="@Model.ID" asp-route-returnUrl="@Context.Request.Path" class="btn btn-success mb-3">
+            <span data-feather="plus"></span> New Trip
+        </a>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Capacity</th>
+                        <th>Base Price</th>
+                        <th>Sale Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var trip in Model.Trips)
+                    {
                         <tr>
-                            <th>@Html.DisplayNameFor(m => m.ID)</th>
-                            <td>@Html.DisplayFor(m => m.ID)</td>
-                        </tr>
-                        <tr>
-                            <th>@Html.DisplayNameFor(m => m.Title)</th>
-                            <td>@Html.DisplayFor(m => m.Title)</td>
-                        </tr>
-                        <tr>
-                            <th>@Html.DisplayNameFor(m => m.StartPlace)</th>
-                            <td>@Html.DisplayFor(m => m.StartPlace)</td>
-                        </tr>
-                        <tr>
-                            <th>@Html.DisplayNameFor(m => m.Destination)</th>
-                            <td>@Html.DisplayFor(m => m.Destination)</td>
-                        </tr>
-                        <tr>
-                            <th>@Html.DisplayNameFor(m => m.Description)</th>
-                            <td>@Html.DisplayFor(m => m.Description)</td>
-                        </tr>
-                        <tr>
-                            <th>Images</th>
-                            <td class="d-flex flex-wrap">
-                                @foreach (var url in Model.ImageUrls)
+                            <td>
+                                @trip.ID
+                                @if (!trip.IsOpen)
                                 {
-                                    <a data-lightbox="tour-images" href="@url"><img style="height: 10rem" src="@url" class="img-fluid mr-2 mb-2" /></a>
+                                    <span class="badge badge-danger">Closed</span>
                                 }
                             </td>
+                            <td>@trip.StartTime</td>
+                            <td>@trip.EndTime</td>
+                            <td>@trip.Capacity</td>
+                            <td>$@trip.Price</td>
+                            <td class="text-success">$@trip.GetSalePrice()<span class="d-none d-md-inline" data-feather="chevrons-down"></span></td>
+                            <td class="row">
+                                <a class="mr-3 text-primary mb-3 mb-md-0" asp-controller="Trip" asp-action="Detail" asp-route-id="@trip.ID"><span data-feather="navigation" /></a>
+                                <a class="mr-3 text-warning mb-3 mb-md-0" asp-controller="Trip" asp-action="Edit" asp-route-id="@trip.ID" asp-route-returnUrl="@Context.Request.Path"><span data-feather="edit" /></a>
+                                <form style="cursor: pointer" class="d-inline" asp-controller="Trip" asp-action="ToggleClose" asp-route-id="@trip.ID" asp-route-returnUrl="@Context.Request.Path" method="post">
+                                    @if (trip.IsOpen)
+                                    {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="trash" /></a> }
+                                    else
+                                    { <a onclick="$(this).closest('form').submit()" class="text-success d-inline"><span data-feather="refresh-cw" /></a>}
+                                </form>
+                            </td>
                         </tr>
-                    </tbody>
-                </table>
-            </div>
+                    }
+                </tbody>
+            </table>
         </div>
-        <div class="tab-pane fade" id="info" role="tabpanel" aria-labelledby="info-tab">
-            <a asp-controller="Trip" asp-action="New" asp-route-tourID="@Model.ID" asp-route-returnUrl="@Context.Request.Path" class="btn btn-success mb-3">
-                <span data-feather="plus"></span> New Trip
-            </a>
-            @if (Model.Trips.Any())
-            {
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>@Html.DisplayNameFor(_ => Model.Trips.First().ID)</th>
-                                <th>@Html.DisplayNameFor(_ => Model.Trips.First().StartTime)</th>
-                                <th>@Html.DisplayNameFor(_ => Model.Trips.First().EndTime)</th>
-                                <th>@Html.DisplayNameFor(_ => Model.Trips.First().Capacity)</th>
-                                <th>@Html.DisplayNameFor(_ => Model.Trips.First().Price)</th>
-                                <th>Sale Price</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var trip in Model.Trips)
-                            {
-                                <tr>
-                                    <td>
-                                        @trip.ID
-                                        @if (!trip.IsOpen)
-                                        {
-                                            <span class="badge badge-danger">Closed</span>
-                                        }
-                                    </td>
-                                    <td>@trip.StartTime</td>
-                                    <td>@trip.EndTime</td>
-                                    <td>@trip.Capacity</td>
-                                    <td>$@trip.Price</td>
-                                    <td class="text-success">$@trip.GetSalePrice()<span class="d-none d-md-inline" data-feather="chevrons-down"></span></td>
-                                    <td class="row">
-                                        <a class="mr-3 text-primary mb-3 mb-md-0" asp-controller="Trip" asp-action="Detail" asp-route-id="@trip.ID"><span data-feather="navigation" /></a>
-                                        <a class="mr-3 text-warning mb-3 mb-md-0" asp-controller="Trip" asp-action="Edit" asp-route-id="@trip.ID" asp-route-returnUrl="@Context.Request.Path"><span data-feather="edit" /></a>
-                                        <form style="cursor: pointer" class="d-inline" asp-controller="Trip" asp-action="ToggleClose" asp-route-id="@trip.ID" asp-route-returnUrl="@Context.Request.Path" method="post">
-                                            @if (trip.IsOpen)
-                                            {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="trash" /></a> }
-                                            else
-                                            { <a onclick="$(this).closest('form').submit()" class="text-success d-inline"><span data-feather="refresh-cw" /></a>}
-                                        </form>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-            else
-            {
-                <p class="text-muted text-center">No trips are available for this tour</p>
-            }
-        </div>
-        <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
-            <div class="row">
+        @if (!Model.Trips.Any())
+        {
+            <p class="text-muted text-center">No trips are available for this tour</p>
+        }
+    </div>
+    <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+        @*<div class="row">
                 <div class="col-sm-4">
                     <div class="rating-block">
                         <h4>Average user rating</h4>
@@ -343,10 +338,47 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
+            </div>*@
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Reviewer</th>
+                        <th>Stars</th>
+                        <th>Date Reviewed</th>
+                        <th>Content (Shortened)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var review in Model.Reviews)
+                    {
+                        <tr>
+                            <td>@review.Author.Name</td>
+                            <td>
+                                @for (int i = 0; i < review.Stars; i++)
+                                {
+                                    <span class="text-warning" data-feather="star"></span>
 
+                                }
+                            </td>
+                            <td>@review.LastUpdated</td>
+                            <td>@review.Content</td>
+                            <td class="row">
+                                <form style="cursor: pointer" class="d-inline" asp-controller="Review" asp-action="Delete" asp-route-id="@review.ID" asp-route-returnUrl="@Context.Request.Path" method="post">
+                                    <a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="trash" /></a>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (!Model.Reviews.Any())
+        {
+            <p class="text-muted text-center">No reviews are available for this tour</p>
+        }
+    </div>
 </div>
 
 @section Scripts {

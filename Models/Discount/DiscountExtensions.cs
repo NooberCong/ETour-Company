@@ -19,7 +19,17 @@ namespace Client.Models
                 errors[nameof(discount.Value)].Add("Invalid percentage value, must be from 0 to 100");
             }
 
-            if (discount.ValidUntil < DateTime.Now)
+            if (discount.ValidFrom >= discount.ValidUntil)
+            {
+                if (errors.GetValueOrDefault(nameof(discount.ValidFrom)) == null)
+                {
+                    errors[nameof(discount.ValidFrom)] = new List<string>();
+                }
+                errors[nameof(discount.ValidFrom)].Add("Valid From cannot be after Valid Until");
+            }
+            return errors;
+
+            if (discount.ValidUntil <= DateTime.Now)
             {
                 if (errors.GetValueOrDefault(nameof(discount.ValidUntil)) == null)
                 {

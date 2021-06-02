@@ -11,6 +11,7 @@
 
 <form method="post" class="col-md-8 pl-0">
     <input hidden name="returnUrl" value="@Model.ReturnUrl" />
+    <input type="hidden" asp-for="Trip.IsOpen" />
     <input asp-for="Trip.TourID" hidden value="@Model.Tour.ID" />
     <div class="form-row">
         <div class="form-group col-md-6">

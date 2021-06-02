@@ -36,7 +36,7 @@ namespace Company.Controllers
                 .Include(tr => tr.Tour)
                 .FirstOrDefaultAsync(tr => tr.ID == tripID);
 
-            if (trip == null || !trip.IsOpen)
+            if (trip == null)
             {
                 return NotFound();
             }
