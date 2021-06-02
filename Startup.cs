@@ -49,6 +49,7 @@ namespace Company
             }).AddDefaultUI();
             services.AddEmailService();
             services.AddSignalR();
+            services.AddETourLogging();
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<HtmlDocument>();
         }
