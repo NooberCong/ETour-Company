@@ -2,7 +2,6 @@
 using Core.Entities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,16 +15,14 @@ namespace Company.Controllers
         private readonly ITourRepository _tourRepository;
         private readonly ITripRepository _tripRepository;
         private readonly IDiscountRepository _discountRepository;
-        private readonly ITripDiscountRepository _tripDiscountRepository;
         private readonly IETourLogger _eTourLogger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public TripController(ITourRepository tourRepository, ITripRepository tripRepository, IDiscountRepository discountRepository, ITripDiscountRepository tripDiscountRepository, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
+        public TripController(ITourRepository tourRepository, ITripRepository tripRepository, IDiscountRepository discountRepository, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
         {
             _tourRepository = tourRepository;
             _tripRepository = tripRepository;
             _discountRepository = discountRepository;
-            _tripDiscountRepository = tripDiscountRepository;
             _eTourLogger = eTourLogger;
             _unitOfWork = unitOfWork;
         }
@@ -50,7 +47,7 @@ namespace Company.Controllers
         {
             Tour tour = await _tourRepository.FindAsync(tourID);
 
-            if (tour == null || !tour.IsOpen)
+            if (tour == null)
             {
                 return NotFound();
             }
@@ -69,9 +66,9 @@ namespace Company.Controllers
                 .Include(d => d.TripDiscounts)
                 .AsEnumerable()
                 .Where(d => d.TripDiscounts.Any(trd =>
-                (trip == null && !d.IsExpired(DateTime.Now))
+                (trip == null && !d.IsValid(DateTime.Now))
                 || trd.TripID == trip.ID)
-                || !d.IsExpired(DateTime.Now));
+                || !d.IsValid(DateTime.Now));
         }
 
         [HttpPost]
@@ -81,7 +78,7 @@ namespace Company.Controllers
 
             Tour tour = await _tourRepository.FindAsync(trip.TourID);
 
-            if (tour == null || !tour.IsOpen)
+            if (tour == null)
             {
                 return NotFound();
             }
@@ -103,12 +100,9 @@ namespace Company.Controllers
                 });
             }
 
-            foreach (var discountID in discounts)
-            {
-                trip.TripDiscounts.Add(new TripDiscount { TripID = trip.ID, DiscountID = discountID });
-            }
+            trip.IsOpen = tour.IsOpen;
 
-            await _tripRepository.AddAsync(trip);
+            await _tripRepository.AddAsync(trip, discounts);
             await _eTourLogger.LogAsync(Log.LogType.Creation, $"{User.Identity.Name} created trip #{trip.ID} - {tour.Title}");
             await _unitOfWork.CommitAsync();
 
@@ -123,7 +117,7 @@ namespace Company.Controllers
                 .Include(t => t.TripDiscounts)
                 .FirstOrDefaultAsync(t => t.ID == id);
 
-            if (trip == null || !trip.IsOpen || !trip.Tour.IsOpen)
+            if (trip == null)
             {
                 return NotFound();
             }
@@ -139,16 +133,15 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, Trip trip, int[] discounts, string returnUrl)
+        public async Task<IActionResult> Edit(Trip trip, int[] discounts, string returnUrl)
         {
             returnUrl ??= Url.Action("Index");
 
             Trip existingTrip = await _tripRepository.Queryable
                             .Include(t => t.Tour)
-                            .Include(t => t.TripDiscounts)
-                            .FirstOrDefaultAsync(t => t.ID == id);
+                            .FirstOrDefaultAsync(t => t.ID == trip.ID);
 
-            if (id != trip.ID || existingTrip == null || !existingTrip.IsOpen || !existingTrip.Tour.IsOpen)
+            if (existingTrip == null)
             {
                 return NotFound();
             }
@@ -169,18 +162,7 @@ namespace Company.Controllers
                 });
             }
 
-            foreach (var tripDisc in existingTrip.TripDiscounts)
-            {
-                tripDisc.Trip = trip;
-                await _tripDiscountRepository.DeleteAsync(tripDisc);
-            }
-
-            foreach (var discountID in discounts)
-            {
-                await _tripDiscountRepository.AddAsync(new TripDiscount { DiscountID = discountID, TripID = trip.ID });
-            }
-
-            await _tripRepository.UpdateAsync(trip);
+            await _tripRepository.UpdateAsync(trip, discounts);
             await _eTourLogger.LogAsync(Log.LogType.Modification, $"{User.Identity.Name} updated trip #{trip.ID} - {existingTrip.Tour.Title}");
             await _unitOfWork.CommitAsync();
 
@@ -203,11 +185,17 @@ namespace Company.Controllers
                 return NotFound();
             }
 
-            trip.IsOpen = !trip.IsOpen;
-
-            // Trip cannot be open when it's tour is closed
-            if (trip.IsOpen && !trip.Tour.IsOpen)
+            if (trip.IsOpen)
             {
+                trip.Close();
+            }
+            else if (trip.CanOpen())
+            {
+                trip.Open();
+            }
+            else
+            {
+                // Trip cannot be open when it's tour is closed
                 TempData["StatusMessage"] = "Error: Trip cannot be open when it's tour is closed";
                 return LocalRedirect(returnUrl);
             }

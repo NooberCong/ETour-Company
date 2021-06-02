@@ -44,7 +44,7 @@
                     <td>@tour.Type</td>
                     <td class="border-top d-flex">
                         <a class="mr-3 text-primary" asp-action="Detail" asp-route-id="@tour.ID"><span data-feather="navigation" /></a>
-                        <a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@tour.ID"><span data-feather="edit" /></a>
+                        <a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@tour.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="edit" /></a>
                         <form style="cursor: pointer" class="d-inline" asp-action="ToggleClose" asp-route-id="@tour.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
                             @if (tour.IsOpen)
                             {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="trash" /></a> }

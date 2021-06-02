@@ -1,0 +1,187 @@
+﻿@*@model AccountListModel
+
+@{
+    ViewData["Title"] = "Accounts";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+    <h1 class="h2">Manage Accounts</h1>
+    <div class="btn-toolbar mb-2 mb-md-0 d-flex align-items-center">
+        <form method="get" class="mr-3">
+            <div class="form-check">
+                <input style="transform: translateY(2px)" onchange="$(this).closest('form').submit()" asp-for="ShowClosed" class="form-check-input">
+                <label> Show Disabled</label>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<style>
+    #advancedTab .nav-link {
+        color: grey;
+        font-weight: 600;
+        transition: .25s;
+        padding: 1rem;
+    }
+
+        #advancedTab .nav-link.active {
+            color: #0275d8;
+            border-bottom: 3px solid #0275d8;
+        }
+</style>
+
+<ul class="nav tabs-primary nav-justified mb-3" id="advancedTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active show" id="customers-tab" data-toggle="tab" href="#customers" role="tab" aria-controls="customers" aria-selected="true">Customers</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="employees-tab" data-toggle="tab" href="#employees" role="tab" aria-controls="employees" aria-selected="false">Employees</a>
+    </li>
+</ul>
+<div class="tab-content" id="advancedTabContent">
+    <div class="tab-pane fade show active" id="customers" role="tabpanel" aria-labelledby="customers-tab">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Points</th>
+                        <th>Last Login</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <h3 class="my-3">Discounts applied to this trip</h3>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Valid From</th>
+                        <th>Valid Until</th>
+                        <th>Type</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var disc in Model.TripDiscounts.Select(trd => trd.Discount))
+                    {
+                        <tr>
+                            <td>
+                                @disc.Title @if (disc.IsValid(DateTime.Now))
+                                {
+                                    <span class="badge badge-danger">Expired</span>
+                                }
+                            </td>
+                            <td>@disc.ValidFrom</td>
+                            <td>@disc.ValidUntil</td>
+                            <td>@disc.Type</td>
+                            <td>@disc.Value@disc.GetValueSuffix()</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @if (!Model.TripDiscounts.Any())
+            {
+                <p class="text-muted">There is no discount applied to this trip</p>
+            }
+        </div>
+    </div>
+    <div class="tab-pane fade" id="employees" role="tabpanel" aria-labelledby="employees-tab">
+        <a asp-controller="Itinerary" asp-action="New" asp-route-tripID="@Model.ID" class="btn btn-success mb-3">
+            <span data-feather="plus"></span> New Itinerary
+        </a>
+        @if (Model.Itineraries.Any())
+        {
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Start time</th>
+                            <th>Transport</th>
+                            <th>Meals</th>
+                            <th>Accommodation</th>
+                            <th>Activities</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var itin in Model.Itineraries)
+                        {
+                            <tr>
+                                <td>@itin.Title</td>
+                                <td>@itin.StartTime</td>
+                                <td>@itin.Transport</td>
+                                <td>@itin.Meal</td>
+                                <td>@itin.Accommodation</td>
+                                <td>@itin.Activity</td>
+                                <td class="d-flex">
+                                    <a style="cursor: pointer" data-toggle="modal" data-target="#itin-@itin.ID" class="mr-3 text-primary"><span data-feather="eye" /></a>
+                                    <a class="mr-3 text-warning" asp-controller="Itinerary" asp-action="Edit" asp-route-id="@itin.ID"><span data-feather="edit" /></a>
+                                    <form style="cursor: pointer" class="d-inline" asp-controller="Itinerary" asp-action="Delete" asp-route-id="@itin.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
+                                        <a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="trash" /></a>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted text-center">No itinerary is found for this trip</p>
+        }
+    </div>
+    <div class="tab-pane fade" id="bookings" role="tabpanel" aria-labelledby="bookings-tab">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Quantity</th>
+                        <th>Note</th>
+                        <th>Status</th>
+                        <th>Total Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var booking in Model.Bookings)
+                    {
+                        <tr>
+                            <td>@booking.OrderID</td>
+                            <td>@booking.Quantity</td>
+                            <td>@booking.Note</td>
+                            <td>@booking.Status</td>
+                            <td>$@booking.CalculatePrice()</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td>1</td>
+                        <td>3</td>
+                        <td>Pick me up at Times Square</td>
+                        <td><span class="badge badge-primary">Pending</span></td>
+                        <td>$150</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>2</td>
+                        <td>I need extra water during the trip</td>
+                        <td><span class="badge badge-success">Active</span></td>
+                        <td>$200</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>1</td>
+                        <td>I need extra food during the trip</td>
+                        <td><span class="badge badge-danger">Expired</span></td>
+                        <td>$99</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>*@

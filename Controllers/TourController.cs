@@ -12,16 +12,12 @@ namespace Company.Controllers
     public class TourController : Controller
     {
         private readonly ITourRepository _tourRepository;
-        private readonly ITripRepository _tripRepository;
-        private readonly IRemoteFileStorageHandler _remoteFileStorageHandler;
         private readonly IETourLogger _eTourLogger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public TourController(ITourRepository tourRepository, ITripRepository tripRepository, IRemoteFileStorageHandler remoteFileStorageHandler, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
+        public TourController(ITourRepository tourRepository, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
         {
             _tourRepository = tourRepository;
-            _tripRepository = tripRepository;
-            _remoteFileStorageHandler = remoteFileStorageHandler;
             _eTourLogger = eTourLogger;
             _unitOfWork = unitOfWork;
         }
@@ -43,8 +39,10 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> New([Bind("Title", "StartPlace", "Destination", "Description", "Type")] Tour tour, IFormFileCollection images)
+        public async Task<IActionResult> New(Tour tour, IFormFileCollection images, string returnUrl)
         {
+            returnUrl ??= Url.Action("Index");
+
             if (!ModelState.IsValid)
             {
                 return View(new TourFormModel
@@ -53,20 +51,14 @@ namespace Company.Controllers
                     Images = images
                 });
             }
-            foreach (var file in images.AsEnumerable())
-            {
-                using var stream = file.OpenReadStream();
-                string url = await _remoteFileStorageHandler.UploadAsync(stream, "jpg");
-                tour.ImageUrls.Add(url);
-            }
 
-            await _tourRepository.AddAsync(tour);
+            await _tourRepository.AddAsync(tour, images);
             await _eTourLogger.LogAsync(Log.LogType.Creation, $"{User.Identity.Name} created tour {tour.Title}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Tour created sucessfully";
 
-            return RedirectToAction("Index");
+            return LocalRedirect(returnUrl);
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -85,11 +77,11 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, [Bind("ID", "Title", "StartPlace", "Destination", "Description", "Type")] Tour tour, IFormFileCollection images)
+        public async Task<IActionResult> Edit(Tour tour, IFormFileCollection images, string returnUrl)
         {
-            Tour existingTour;
+            returnUrl ??= Url.Action("Index");
 
-            if (id != tour.ID || (existingTour = await _tourRepository.FindAsync(id)) == null)
+            if ((await _tourRepository.FindAsync(tour.ID)) == null)
             {
                 return NotFound();
             }
@@ -102,32 +94,13 @@ namespace Company.Controllers
                 });
             }
 
-            if (images.Any())
-            {
-                foreach (var imageUri in existingTour.ImageUrls)
-                {
-                    await _remoteFileStorageHandler.DeleteAsync(imageUri);
-                }
-
-                foreach (var file in images.AsEnumerable())
-                {
-                    using var stream = file.OpenReadStream();
-                    string url = await _remoteFileStorageHandler.UploadAsync(stream, "jpg");
-                    tour.ImageUrls.Add(url);
-                }
-            }
-            else
-            {
-                tour.ImageUrls = existingTour.ImageUrls;
-            }
-
-            await _tourRepository.UpdateAsync(tour);
+            await _tourRepository.UpdateAsync(tour, images);
             await _eTourLogger.LogAsync(Log.LogType.Modification, $"{User.Identity.Name} updated tour {tour.Title}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Tour updated sucessfully";
 
-            return RedirectToAction("Index");
+            return LocalRedirect(returnUrl);
         }
 
         public async Task<IActionResult> Detail(int id)
@@ -159,16 +132,13 @@ namespace Company.Controllers
                 return NotFound();
             }
 
-            tour.IsOpen = !tour.IsOpen;
-
-            // Close all it's trips when closed
-            if (!tour.IsOpen)
+            if (tour.IsOpen)
             {
-                foreach (var trip in tour.Trips.Where(tr => tr.IsOpen))
-                {
-                    trip.IsOpen = false;
-                    await _tripRepository.UpdateAsync(trip);
-                }
+                tour.Close();
+            }
+            else
+            {
+                tour.Open();
             }
 
             await _tourRepository.UpdateAsync(tour);

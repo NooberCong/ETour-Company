@@ -22,6 +22,7 @@
         <thead>
             <tr>
                 <th>Title</th>
+                <th>Valid From</th>
                 <th>Valid Until</th>
                 <th>Type</th>
                 <th>Value</th>
@@ -33,18 +34,21 @@
             {
                 <tr>
                     <td>
-                        @disc.Title @if (disc.IsExpired(DateTime.Now))
+                        @disc.Title @if (disc.IsValid(DateTime.Now))
                         {
                             <span class="badge badge-danger">Expired</span>
                         }
                     </td>
+                    <td>@disc.ValidFrom</td>
                     <td>@disc.ValidUntil</td>
                     <td>@disc.Type</td>
                     <td>@disc.Value@disc.GetValueSuffix()</td>
                     <td class="border-top row">
                         <a style="cursor: pointer" data-toggle="modal" data-target="#trips-@disc.ID" class="text-primary mr-3"><span data-feather="layers" /></a>
-                        <a class="text-warning mr-3 mb-3 mb-md-0" asp-action="Edit" asp-route-id="@disc.ID"><span data-feather="edit" /></a>
-                        <a style="cursor: pointer" class="text-danger" data-toggle="modal" data-target="#delete-@disc.ID"><span data-feather="trash" /></a>
+                        <a class="text-warning mr-3 mb-3 mb-md-0" asp-action="Edit" asp-route-id="@disc.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="edit" /></a>
+                        <form class="d-inline" asp-action="Delete" asp-route-id="@disc.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
+                            <a style="cursor: pointer" onclick="targetForm = this.parentNode;" class="text-danger" data-toggle="modal" data-target="#delete-modal"><span data-feather="trash" /></a>
+                        </form>
                     </td>
                 </tr>
             }
@@ -63,13 +67,13 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form asp-action="ToggleApply" method="post">
+                <form asp-action="ToggleApply" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
                     <input name="id" value="@disc.ID" hidden />
                     <div class="modal-body">
                         @foreach (var tripDiscount in disc.TripDiscounts)
                         {
                             <div class="row">
-                                <a class="font-weight-bold text-primary d-block col-11" asp-action="Detail" asp-controller="Trip">
+                                <a class="font-weight-bold text-primary d-block col-11" asp-action="Detail" asp-route-id="@tripDiscount.TripID" asp-controller="Trip">
                                     Trip #@tripDiscount.Trip.ID - @tripDiscount.Trip.Tour.Title
                                     @if (!tripDiscount.Trip.IsOpen)
                                     {
@@ -92,27 +96,31 @@
             </div>
         </div>
     </div>
+}
 
-    <div id="delete-@disc.ID" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Are you sure?</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>This discount be deleted and no longer applied to all the associated trips.</p>
-                </div>
-                <div class="modal-footer">
-                    <form class="d-inline" asp-action="Delete" asp-route-id="@disc.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
-                        <button class="btn btn-danger d-inline"><span data-feather="trash"></span> Confirm</button>
-                    </form>
-                </div>
+<div id="delete-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Are you sure?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>This discount be deleted and no longer applied to all the associated trips.</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="targetForm.submit()" class="btn btn-danger d-inline"><span data-feather="trash"></span> Confirm</button>
             </div>
         </div>
     </div>
+</div>
+
+@section Scripts {
+    <script>
+        var targetForm = this.parentNode;
+    </script>
 }
 
 <partial name="_DataTable" model="@tableID" />

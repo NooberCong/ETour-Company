@@ -14,14 +14,12 @@ namespace Company.Controllers
     public class DiscountController : Controller
     {
         private readonly IDiscountRepository _discountRepository;
-        private readonly ITripDiscountRepository _tripDiscountRepository;
         private readonly IETourLogger _eTourLogger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public DiscountController(IDiscountRepository discountRepository, ITripDiscountRepository tripDiscountRepository, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
+        public DiscountController(IDiscountRepository discountRepository, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
         {
             _discountRepository = discountRepository;
-            _tripDiscountRepository = tripDiscountRepository;
             _eTourLogger = eTourLogger;
             _unitOfWork = unitOfWork;
         }
@@ -33,7 +31,7 @@ namespace Company.Controllers
                 .ThenInclude(trd => trd.Trip)
                 .ThenInclude(t => t.Tour)
                 .AsEnumerable()
-                .Where(d => showExpired || !d.IsExpired(DateTime.Now));
+                .Where(d => showExpired || !d.IsValid(DateTime.Now));
 
             return View(new DiscountListModel
             {
@@ -48,8 +46,10 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> New(Discount discount)
+        public async Task<IActionResult> New(Discount discount, string returnUrl)
         {
+            returnUrl ??= Url.Action("Index");
+
             var errors = discount.GetValidationErrors();
 
             if (!ModelState.IsValid || errors.Any())
@@ -63,7 +63,7 @@ namespace Company.Controllers
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Discount created successfully";
-            return RedirectToAction("Index");
+            return LocalRedirect(returnUrl);
         }
 
 
@@ -80,8 +80,10 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Discount discount)
+        public async Task<IActionResult> Edit(Discount discount, string returnUrl)
         {
+            returnUrl ??= Url.Action("Index");
+
             var errors = discount.GetValidationErrors();
 
             if (!ModelState.IsValid || errors.Any())
@@ -95,25 +97,21 @@ namespace Company.Controllers
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Discount updated successfully";
-            return RedirectToAction("Index");
+            return LocalRedirect(returnUrl);
         }
 
         [HttpPost]
         public async Task<IActionResult> Delete(int id, string returnUrl)
         {
-            Discount discount = await _discountRepository.Queryable
-                .Include(d => d.TripDiscounts)
-                .FirstOrDefaultAsync(d => d.ID == id);
+            returnUrl ??= Url.Action("Index");
 
+            Discount discount = await _discountRepository.FindAsync(id);
 
             if (discount == null)
             {
                 return NotFound();
             }
 
-            discount.TripDiscounts.Clear();
-
-            await _discountRepository.UpdateAsync(discount);
             await _discountRepository.DeleteAsync(discount);
             await _eTourLogger.LogAsync(Log.LogType.Deletion, $"{User.Identity.Name} deleted discount {discount.Title}");
             await _unitOfWork.CommitAsync();
@@ -123,8 +121,9 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ToggleApply(int id, int[] tripIDs)
+        public async Task<IActionResult> ToggleApply(int id, int[] tripIDs, string returnUrl)
         {
+            returnUrl ??= Url.Action("Index");
 
             Discount discount = await _discountRepository.Queryable
                 .Include(d => d.TripDiscounts)
@@ -136,18 +135,12 @@ namespace Company.Controllers
                 return NotFound();
             }
 
-            var tripDiscountsToDelete = discount.TripDiscounts.Where(td => !tripIDs.Contains(td.Trip.ID));
-
-            foreach (var tripDisc in tripDiscountsToDelete)
-            {
-                await _tripDiscountRepository.DeleteAsync(tripDisc);
-            }
-
-            await _eTourLogger.LogAsync(Log.LogType.Deletion, $"{User.Identity.Name} removed discount {discount.Title} from trips #[{string.Join(", ", tripDiscountsToDelete.Select(trd => Convert.ToString(trd.TripID)).ToArray())}]");
+            _discountRepository.UpdateTripApplications(discount, tripIDs);
+            await _eTourLogger.LogAsync(Log.LogType.Deletion, $"{User.Identity.Name} removed discount {discount.Title} from some of the applied trips");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Applied trip list updated successfully";
-            return RedirectToAction("Index");
+            return LocalRedirect(returnUrl);
         }
 
 

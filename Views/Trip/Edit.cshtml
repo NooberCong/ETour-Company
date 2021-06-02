@@ -11,6 +11,7 @@
 
 <form method="post" class="col-md-8 pl-0">
     <input hidden name="returnUrl" value="@Model.ReturnUrl" />
+    <input type="hidden" asp-for="Trip.IsOpen" />
     <input asp-for="Trip.ID" hidden />
     <input asp-for="Trip.TourID" hidden value="@Model.Tour.ID" />
     <div class="form-row">
@@ -54,9 +55,9 @@
         @foreach (var disc in Model.Discounts)
         {
             <div class="form-check">
-                <input class="form-check-input" disabled="@disc.IsExpired(DateTime.Now)" style="transform: translateY(3px)" type="checkbox" name="discounts" checked="@(Model.AppliedDiscounts.Contains(disc.ID) && !disc.IsExpired(DateTime.Now))" id="@disc.ID" value="@disc.ID" />
+                <input class="form-check-input" disabled="@disc.IsValid(DateTime.Now)" style="transform: translateY(3px)" type="checkbox" name="discounts" checked="@(Model.AppliedDiscounts.Contains(disc.ID) && !disc.IsValid(DateTime.Now))" id="@disc.ID" value="@disc.ID" />
                 <label class="form-check-label" for="@disc.ID">
-                    @disc.Title @if (disc.IsExpired(DateTime.Now))
+                    @disc.Title @if (disc.IsValid(DateTime.Now))
                     {
                         <span class="badge badge-danger">Expired</span>
                     }
