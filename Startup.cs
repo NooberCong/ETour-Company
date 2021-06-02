@@ -1,11 +1,13 @@
 using Company.Areas.Identity;
 using HtmlAgilityPack;
 using Infrastructure.Extentions;
+using Infrastructure.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +33,7 @@ namespace Company
                      .RequireAuthenticatedUser()
                      .Build();
                 config.Filters.Add(new AuthorizeFilter(policy));
+                config.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             });
             services.AddRazorPages();
             services.AddControllersWithViews();
@@ -45,7 +48,7 @@ namespace Company
                 op.User.RequireUniqueEmail = true;
             }).AddDefaultUI();
             services.AddEmailService();
-
+            services.AddSignalR();
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<HtmlDocument>();
         }
@@ -72,6 +75,7 @@ namespace Company
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<LogHub>("/logs");
                 endpoints.MapRazorPages();
                 endpoints.MapControllerRoute(
                     name: "default",

@@ -17,14 +17,16 @@ namespace Company.Controllers
         private readonly IItineraryRepository _itineraryRepository;
         private readonly IRemoteFileStorageHandler _remoteFileStorageHandler;
         private readonly HtmlDocument _doc;
+        private readonly IETourLogger _eTourLogger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public ItineraryController(ITripRepository tripRepository, IItineraryRepository itineraryRepository, IRemoteFileStorageHandler remoteFileStorageHandler, HtmlDocument doc, IUnitOfWork unitOfWork)
+        public ItineraryController(ITripRepository tripRepository, IItineraryRepository itineraryRepository, IRemoteFileStorageHandler remoteFileStorageHandler, HtmlDocument doc, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
         {
             _tripRepository = tripRepository;
             _itineraryRepository = itineraryRepository;
             _remoteFileStorageHandler = remoteFileStorageHandler;
             _doc = doc;
+            _eTourLogger = eTourLogger;
             _unitOfWork = unitOfWork;
         }
 
@@ -46,7 +48,6 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> New(Itinerary itinerary, string returnUrl)
         {
             returnUrl ??= Url.Action("Detail", "Trip", new { id = itinerary.TripID });
@@ -60,8 +61,12 @@ namespace Company.Controllers
                 return NotFound();
             }
 
-            if (!ModelState.IsValid)
+            var errors = itinerary.GetValidationErrors(trip);
+
+            if (!ModelState.IsValid || errors.Any())
             {
+                ModelState.AddModelErrors(errors);
+
                 return View(new ItineraryFormModel
                 {
                     Trip = trip,
@@ -72,6 +77,7 @@ namespace Company.Controllers
             await ProcessDetail(itinerary);
 
             await _itineraryRepository.AddAsync(itinerary);
+            await _eTourLogger.LogAsync(Log.LogType.Creation, $"{User.Identity.Name} created itinerary #{itinerary.Title} - Trip {trip.ID}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Itinerary created successfully";
@@ -98,7 +104,6 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Itinerary itinerary, string returnUrl)
         {
             returnUrl ??= Url.Action("Detail", "Trip", new { id = itinerary.TripID });
@@ -113,8 +118,12 @@ namespace Company.Controllers
                 return NotFound();
             }
 
-            if (!ModelState.IsValid)
+            var errors = itinerary.GetValidationErrors(existingItinerary.Trip);
+
+            if (!ModelState.IsValid || errors.Any())
             {
+                ModelState.AddModelErrors(errors);
+
                 return View(new ItineraryFormModel
                 {
                     Trip = existingItinerary.Trip,
@@ -124,14 +133,15 @@ namespace Company.Controllers
 
             await ProcessDetail(itinerary);
 
-            var imagesToDelete = existingItinerary.ImageUrls.Where(url => !itinerary.ImageUrls.Contains(url));
-
-            foreach (var imageUrl in imagesToDelete)
+            foreach (var imageUrl in existingItinerary
+                .GetUnusedImageUrls(itinerary.ImageUrls)
+                .Where(_remoteFileStorageHandler.IsHostedFile))
             {
                 await _remoteFileStorageHandler.DeleteAsync(imageUrl);
             }
 
             await _itineraryRepository.UpdateAsync(itinerary);
+            await _eTourLogger.LogAsync(Log.LogType.Modification, $"{User.Identity.Name} updated itinerary #{itinerary.Title} - Trip {itinerary.TripID}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Itinerary updated successfully";
@@ -139,7 +149,6 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id, string returnUrl)
         {
             var itinerary = await _itineraryRepository.FindAsync(id);
@@ -149,9 +158,15 @@ namespace Company.Controllers
                 return NotFound();
             }
 
+            foreach (var imageUrl in itinerary.ImageUrls.Where(_remoteFileStorageHandler.IsHostedFile))
+            {
+                await _remoteFileStorageHandler.DeleteAsync(imageUrl);
+            }
+
             returnUrl ??= Url.Action("Detail", "Trip", new { id = itinerary.TripID });
 
             await _itineraryRepository.DeleteAsync(itinerary);
+            await _eTourLogger.LogAsync(Log.LogType.Deletion, $"{User.Identity.Name} deleted itinerary #{itinerary.Title} - Trip {itinerary.TripID}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Itinerary deleted successfully";
@@ -161,6 +176,12 @@ namespace Company.Controllers
         private async Task ProcessDetail(Itinerary itinerary)
         {
             _doc.LoadHtml(itinerary.Detail);
+            var images = _doc.DocumentNode.SelectNodes("//img");
+
+            if (images == null)
+            {
+                return;
+            }
 
             foreach (var img in _doc.DocumentNode.SelectNodes("//img"))
             {

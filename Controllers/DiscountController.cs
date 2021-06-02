@@ -15,12 +15,14 @@ namespace Company.Controllers
     {
         private readonly IDiscountRepository _discountRepository;
         private readonly ITripDiscountRepository _tripDiscountRepository;
+        private readonly IETourLogger _eTourLogger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public DiscountController(IDiscountRepository discountRepository, ITripDiscountRepository tripDiscountRepository, IUnitOfWork unitOfWork)
+        public DiscountController(IDiscountRepository discountRepository, ITripDiscountRepository tripDiscountRepository, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
         {
             _discountRepository = discountRepository;
             _tripDiscountRepository = tripDiscountRepository;
+            _eTourLogger = eTourLogger;
             _unitOfWork = unitOfWork;
         }
 
@@ -46,34 +48,24 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> New(Discount discount)
         {
-            var discountErrors = discount.GetValidationErrors();
+            var errors = discount.GetValidationErrors();
 
-            if (!ModelState.IsValid || discountErrors.Any())
+            if (!ModelState.IsValid || errors.Any())
             {
-                AddCustomModelErrors(discountErrors);
+                ModelState.AddModelErrors(errors);
                 return View();
             }
 
             await _discountRepository.AddAsync(discount);
+            await _eTourLogger.LogAsync(Log.LogType.Creation, $"{User.Identity.Name} created discount {discount.Title}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Discount created successfully";
             return RedirectToAction("Index");
         }
 
-        private void AddCustomModelErrors(IReadOnlyDictionary<string, List<string>> discountErrors)
-        {
-            foreach (var item in discountErrors)
-            {
-                foreach (var error in item.Value)
-                {
-                    ModelState.AddModelError(item.Key, error);
-                }
-            }
-        }
 
         public async Task<IActionResult> Edit(int id)
         {
@@ -88,18 +80,18 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Discount discount)
         {
-            var discountErrors = discount.GetValidationErrors();
+            var errors = discount.GetValidationErrors();
 
-            if (!ModelState.IsValid || discountErrors.Any())
+            if (!ModelState.IsValid || errors.Any())
             {
-                AddCustomModelErrors(discountErrors);
+                ModelState.AddModelErrors(errors);
                 return View(discount);
             }
 
             await _discountRepository.UpdateAsync(discount);
+            await _eTourLogger.LogAsync(Log.LogType.Modification, $"{User.Identity.Name} updated discount {discount.Title}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Discount updated successfully";
@@ -107,7 +99,6 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id, string returnUrl)
         {
             Discount discount = await _discountRepository.Queryable
@@ -124,6 +115,7 @@ namespace Company.Controllers
 
             await _discountRepository.UpdateAsync(discount);
             await _discountRepository.DeleteAsync(discount);
+            await _eTourLogger.LogAsync(Log.LogType.Deletion, $"{User.Identity.Name} deleted discount {discount.Title}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Discount deleted successfully";
@@ -131,7 +123,6 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleApply(int id, int[] tripIDs)
         {
 
@@ -145,12 +136,14 @@ namespace Company.Controllers
                 return NotFound();
             }
 
+            var tripDiscountsToDelete = discount.TripDiscounts.Where(td => !tripIDs.Contains(td.Trip.ID));
 
-            foreach (var tripDisc in discount.TripDiscounts.Where(td => !tripIDs.Contains(td.Trip.ID)))
+            foreach (var tripDisc in tripDiscountsToDelete)
             {
                 await _tripDiscountRepository.DeleteAsync(tripDisc);
             }
 
+            await _eTourLogger.LogAsync(Log.LogType.Deletion, $"{User.Identity.Name} removed discount {discount.Title} from trips #[{string.Join(", ", tripDiscountsToDelete.Select(trd => Convert.ToString(trd.TripID)).ToArray())}]");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Applied trip list updated successfully";

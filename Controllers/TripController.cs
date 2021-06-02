@@ -17,14 +17,16 @@ namespace Company.Controllers
         private readonly ITripRepository _tripRepository;
         private readonly IDiscountRepository _discountRepository;
         private readonly ITripDiscountRepository _tripDiscountRepository;
+        private readonly IETourLogger _eTourLogger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public TripController(ITourRepository tourRepository, ITripRepository tripRepository, IDiscountRepository discountRepository, ITripDiscountRepository tripDiscountRepository, IUnitOfWork unitOfWork)
+        public TripController(ITourRepository tourRepository, ITripRepository tripRepository, IDiscountRepository discountRepository, ITripDiscountRepository tripDiscountRepository, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
         {
             _tourRepository = tourRepository;
             _tripRepository = tripRepository;
             _discountRepository = discountRepository;
             _tripDiscountRepository = tripDiscountRepository;
+            _eTourLogger = eTourLogger;
             _unitOfWork = unitOfWork;
         }
 
@@ -73,7 +75,6 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> New(Trip trip, int[] discounts, string returnUrl)
         {
             returnUrl ??= Url.Action("Index");
@@ -89,7 +90,8 @@ namespace Company.Controllers
 
             if (!ModelState.IsValid || errors.Any())
             {
-                AddModelErrors(errors);
+
+                ModelState.AddModelErrors(errors);
 
                 return View(new TripFormModel
                 {
@@ -107,6 +109,7 @@ namespace Company.Controllers
             }
 
             await _tripRepository.AddAsync(trip);
+            await _eTourLogger.LogAsync(Log.LogType.Creation, $"{User.Identity.Name} created trip #{trip.ID} - {tour.Title}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Trip created successfully";
@@ -136,7 +139,6 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Trip trip, int[] discounts, string returnUrl)
         {
             returnUrl ??= Url.Action("Index");
@@ -155,7 +157,7 @@ namespace Company.Controllers
 
             if (!ModelState.IsValid || errors.Any())
             {
-                AddModelErrors(errors);
+                ModelState.AddModelErrors(errors);
 
                 return View(new TripFormModel
                 {
@@ -179,6 +181,7 @@ namespace Company.Controllers
             }
 
             await _tripRepository.UpdateAsync(trip);
+            await _eTourLogger.LogAsync(Log.LogType.Modification, $"{User.Identity.Name} updated trip #{trip.ID} - {existingTrip.Tour.Title}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Trip updated successfully";
@@ -186,20 +189,7 @@ namespace Company.Controllers
             return LocalRedirect(returnUrl);
         }
 
-        private void AddModelErrors(IReadOnlyDictionary<string, List<string>> errors)
-        {
-            foreach (var item in errors)
-            {
-                foreach (var error in item.Value)
-                {
-                    Console.WriteLine($"{item.Key}:{error}");
-                    ModelState.AddModelError(item.Key, error);
-                }
-            }
-        }
-
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleClose(int id, string returnUrl)
         {
             returnUrl ??= Url.Action("Index");
@@ -223,7 +213,7 @@ namespace Company.Controllers
             }
 
             await _tripRepository.UpdateAsync(trip);
-
+            await _eTourLogger.LogAsync(Log.LogType.Deletion, $"{User.Identity.Name} {(trip.IsOpen ? "open" : "closed")} trip #{trip.ID} - {trip.Tour.Title}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = trip.IsOpen ? "Trip opened successfully" : "Trip closed successfully";

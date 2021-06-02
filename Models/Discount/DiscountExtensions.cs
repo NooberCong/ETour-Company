@@ -8,7 +8,7 @@ namespace Client.Models
     {
         public static IReadOnlyDictionary<string, List<string>> GetValidationErrors(this Discount discount)
         {
-            Dictionary<string, List<string>> errors = new Dictionary<string, List<string>>();
+            Dictionary<string, List<string>> errors = new();
 
             if (discount.Type == Discount.DiscountType.Percentage && (discount.Value < 0 || discount.Value > 100))
             {
