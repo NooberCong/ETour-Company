@@ -42,7 +42,7 @@
                     <td>@disc.ValidFrom</td>
                     <td>@disc.ValidUntil</td>
                     <td>@disc.Type</td>
-                    <td>@disc.Value@disc.GetValueSuffix()</td>
+                    <td class="text-right">@disc.Value@disc.GetValueSuffix()</td>
                     <td class="border-top row">
                         <a style="cursor: pointer" data-toggle="modal" data-target="#trips-@disc.ID" class="text-primary mr-3"><span data-feather="layers" /></a>
                         <a class="text-warning mr-3 mb-3 mb-md-0" asp-action="Edit" asp-route-id="@disc.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="edit" /></a>

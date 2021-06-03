@@ -1,6 +1,5 @@
 ﻿using Core.Entities;
 using Core.Interfaces;
-using Infrastructure.InterfaceImpls;
 using System.Collections.Generic;
 
 namespace Company.Models

@@ -23,8 +23,7 @@
     <table class="table" id="@tblID">
         <thead>
             <tr>
-                <th>@Html.DisplayNameFor(_ => Model.Trips.First().ID)</th>
-                <th>Tour ID</th>
+                <th>Tour</th>
                 <th>@Html.DisplayNameFor(_ => Model.Trips.First().StartTime)</th>
                 <th>@Html.DisplayNameFor(_ => Model.Trips.First().EndTime)</th>
                 <th>@Html.DisplayNameFor(_ => Model.Trips.First().Capacity)</th>
@@ -37,18 +36,15 @@
             @foreach (var trip in Model.Trips)
             {
                 <tr>
-                    <td>
-                        @trip.ID
-                        @if (!trip.IsOpen)
-                        {
-                            <span class="badge badge-danger">Closed</span>
-                        }
-                    </td>
-                    <td>@trip.TourID</td>
+                    @*@if (!trip.IsOpen)
+                            {
+                        <span class="badge badge-danger">Closed</span>
+                            }*@
+                    <td>@trip.Tour.Title</td>
                     <td>@trip.StartTime</td>
                     <td>@trip.EndTime</td>
-                    <td>@trip.Capacity</td>
-                    <td>$@trip.Price</td>
+                    <td class="text-right">@trip.Capacity</td>
+                    <td class="text-right">$@trip.Price</td>
                     <td class="text-success">$@trip.GetSalePrice()<span class="d-none d-md-inline" data-feather="chevrons-down"></span></td>
                     <td class="row">
                         <a class="mr-3 text-primary mb-3 mb-md-0" asp-controller="Trip" asp-action="Detail" asp-route-id="@trip.ID"><span data-feather="navigation" /></a>
@@ -93,7 +89,5 @@
         </div>
     </div>
 </div>
-
-
 
 <partial name="_DataTable" model="@tblID" />

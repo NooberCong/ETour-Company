@@ -30,6 +30,7 @@ namespace Company.Controllers
         public async Task<IActionResult> Index(bool showClosed = false)
         {
             var tripList = await _tripRepository.Queryable
+                .Include(tr => tr.Tour)
                 .Include(tr => tr.TripDiscounts)
                 .ThenInclude(trd => trd.Discount)
                 .Where(tr => showClosed || tr.IsOpen).ToArrayAsync();

@@ -1,11 +1,10 @@
 ﻿using Company.Models;
+using Company.Models.Blog;
 using Core.Interfaces;
 using Infrastructure.InterfaceImpls;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -15,12 +14,12 @@ namespace Company.Controllers
 {
     public class BlogController : Controller
     {
-        private readonly IPostRepository<Post,Employee> _blogRepository;
+        private readonly IPostRepository<Post, Employee> _blogRepository;
         private readonly IRemoteFileStorageHandler _remoteFileStorageHandler;
         private readonly IUnitOfWork _unitOfWork;
-       
 
-        public BlogController(IPostRepository<Post,Employee> blogRepository, IRemoteFileStorageHandler remoteFileStorageHandler, IUnitOfWork unitOfWork)
+
+        public BlogController(IPostRepository<Post, Employee> blogRepository, IRemoteFileStorageHandler remoteFileStorageHandler, IUnitOfWork unitOfWork)
         {
             _blogRepository = blogRepository;
             _remoteFileStorageHandler = remoteFileStorageHandler;
@@ -29,14 +28,14 @@ namespace Company.Controllers
 
         public IActionResult Index(bool showClosed = false)
         {
-            IEnumerable<Post> bloglist = _blogRepository.Queryable.Include(p=> p.Author)
+            IEnumerable<Post> bloglist = _blogRepository.Queryable.Include(p => p.Author)
                 .Where(post => showClosed || post.IsDeleted == true).AsEnumerable();
-              //  .QueryFiltered(post => showClosed || post.IsDeleted == true);
+            //  .QueryFiltered(post => showClosed || post.IsDeleted == true);
 
-            return View(new BlogListModel 
+            return View(new BlogListModel
             {
-                Posts=bloglist,   
-                ShowClosed=showClosed
+                Posts = bloglist,
+                ShowClosed = showClosed
             });
         }
 
@@ -47,7 +46,6 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> New(Post post, IFormFileCollection images)
         {
             //Lấy ID
@@ -68,19 +66,18 @@ namespace Company.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpPost]
         public async Task<IActionResult> Detail(int id)
         {
             Post post = await _blogRepository.FindAsync(id);
             return View(new BlogFormModel
             {
-                Post=post
+                Post = post
             });
         }
 
 
         public async Task<IActionResult> Edit(int id)
-        { 
+        {
             Post post = await _blogRepository.FindAsync(id);
 
             //Post post = _blogRepository.Queryable.Include(p => p.Author)
@@ -94,7 +91,7 @@ namespace Company.Controllers
             return View(new BlogFormModel
             {
                 Post = post,
-                
+
             });
         }
 
@@ -114,11 +111,11 @@ namespace Company.Controllers
                 {
                     Post = post,
                     //Images = images
-                }) ;
+                });
             }
 
             await _blogRepository.UpdateAsync(post);
-           // await _eTourLogger.LogAsync(Log.LogType.Modification, $"{User.Identity.Name} updated tour {tour.Title}");
+            // await _eTourLogger.LogAsync(Log.LogType.Modification, $"{User.Identity.Name} updated tour {tour.Title}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Blog updated sucessfully";
@@ -126,12 +123,12 @@ namespace Company.Controllers
             return LocalRedirect(returnUrl);
         }
         //[HttpPost]
-       // public Task<IActionResult> Delete(int id)
+        // public Task<IActionResult> Delete(int id)
         //{
 
-            //return RedirectToAction("Index");
+        //return RedirectToAction("Index");
         //}
 
-        
+
     }
 }
