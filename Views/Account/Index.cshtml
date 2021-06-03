@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Accounts";
+    string customerTbl = "cusTbl";
+    string employeeTbl = "empTbl";
 }
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
@@ -9,7 +11,7 @@
     <div class="btn-toolbar mb-2 mb-md-0 d-flex align-items-center">
         <form method="get" class="mr-3">
             <div class="form-check">
-                <input style="transform: translateY(2px)" onchange="$(this).closest('form').submit()" asp-for="ShowClosed" class="form-check-input">
+                <input style="transform: translateY(2px)" onchange="$(this).closest('form').submit()" asp-for="ShowBanned" class="form-check-input">
                 <label> Show Banned</label>
             </div>
         </form>
@@ -42,14 +44,14 @@
 <div class="tab-content" id="advancedTabContent">
     <div class="tab-pane fade show active" id="customers" role="tabpanel" aria-labelledby="customers-tab">
         <div class="table-responsive">
-            <table class="table">
+            <table id="@customerTbl" class="table">
                 <thead>
                     <tr>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Points</th>
                         <th>Last Login</th>
-                        <th>Action</th>
+                        <th class="no-ordering">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,8 +60,11 @@
                         <tr>
                             <td>@customer.Name</td>
                             <td>@customer.Email</td>
-                            <td>@DateTime.Now</td>
-                            <td>
+                            <td>@customer.Points</td>
+                            <td>@customer.LastSignIn</td>
+                            <td class="row">
+                                <a class="mr-3 text-primary mb-3 mb-md-0" asp-action="DetailCustomer" asp-route-id="@customer.ID"><span data-feather="navigation" /></a>
+                                <a class="mr-3 text-warning mb-3 mb-md-0" asp-action="EditEmployee" asp-route-id="@customer.ID"><span data-feather="edit" /></a>
                                 <form style="cursor: pointer" class="d-inline" asp-action="Ban" asp-route-id="@customer.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
                                     <a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="slash" /></a>
                                 </form>
@@ -74,45 +79,46 @@
             }
         </div>
     </div>
-</div>
-<div class="tab-pane fade" id="employees" role="tabpanel" aria-labelledby="employees-tab">
-    <a asp-controller="Itinerary" asp-action="New" asp-route-tripID="@Model.ID" class="btn btn-success mb-3">
-        <span data-feather="plus"></span> New Itinerary
-    </a>
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Full Name</th>
-                    <th>Email</th>
-                    <th>Date Of Birth</th>
-                    <th>Date Started Work</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var emp in Model.Employees)
-                {
+    <div class="tab-pane fade" id="employees" role="tabpanel" aria-labelledby="employees-tab">
+        <div class="table-responsive">
+            <table id="@employeeTbl" class="table">
+                <thead>
                     <tr>
-                        <td>@emp.FullName</td>
-                        <td>@emp.Email</td>
-                        <td>@emp.DOB</td>
-                        <td>@emp.StartWork</td>
-                        <td class="d-flex">
-                            <a class="mr-3 text-primary" asp-action="DetailEmployee" asp-route-id="@emp.ID"><span data-feather="navigation" /></a>
-                            <a class="mr-3 text-warning" asp-action="EditEmployee" asp-route-id="@emp.ID"><span data-feather="edit" /></a>
-                            <form style="cursor: pointer" class="d-inline" asp-action="BanEmployee" asp-route-id="@emp.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
-                                <a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="slash" /></a>
-                            </form>
-                        </td>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th>Date Of Birth</th>
+                        <th>Started Work</th>
+                        <th class="no-ordering">Action</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    @foreach (var emp in Model.Employees)
+                    {
+                        <tr>
+                            <td>@emp.FullName</td>
+                            <td>@emp.Email</td>
+                            <td>@string.Join(", ", emp.Roles)</td>
+                            <td>@emp.DOB</td>
+                            <td>@emp.StartWork</td>
+                            <td class="row">
+                                <a class="mr-3 mb-3 mb-md-0 text-primary" asp-action="DetailEmployee" asp-route-id="@emp.ID"><span data-feather="navigation" /></a>
+                                <a class="mr-3 mb-3 mb-md-0 text-warning" asp-action="EditEmployee" asp-route-id="@emp.ID"><span data-feather="edit" /></a>
+                                <form style="cursor: pointer" class="d-inline" asp-action="BanEmployee" asp-route-id="@emp.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
+                                    <a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="slash" /></a>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
 
-    @if (!Model.Employees.Any())
-    {
-        <p class="text-muted text-center">There is no employee</p>
-    }
+        @if (!Model.Employees.Any())
+        {
+            <p class="text-muted text-center">There is no employee</p>
+        }
+    </div>
 </div>
+
+<partial name="_DataTable" model="@($"{customerTbl},{employeeTbl}")" />

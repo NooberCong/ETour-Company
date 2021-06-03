@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Company.Controllers
 {
-    public class BookingController : Controller
+    public class OrderController : Controller
     {
         public IActionResult Index()
         {
