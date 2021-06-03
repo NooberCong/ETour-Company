@@ -1,8 +1,6 @@
 ﻿using Core.Entities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Company.Models
 {
@@ -12,15 +10,23 @@ namespace Company.Models
         {
             Dictionary<string, List<string>> errors = new Dictionary<string, List<string>>();
 
-            if (trip.StartTime < DateTime.Now || trip.StartTime >= trip.EndTime)
+            if (trip.StartTime >= trip.EndTime)
             {
-                if (errors.GetValueOrDefault("") == null)
+                if (errors.GetValueOrDefault("Trip.StartTime") == null)
                 {
-                    errors[""] = new List<string>();
+                    errors["Trip.StartTime"] = new List<string>();
                 }
-                errors[""].Add("Invalid time frame, Start time must be a day in the future and is before end time");
+                errors["Trip.StartTime"].Add("Start time cannot be after end time");
             }
-            
+
+            if (trip.EndTime <= DateTime.Now)
+            {
+                if (errors.GetValueOrDefault("Trip.EndTime") == null)
+                {
+                    errors["Trip.EndTime"] = new List<string>();
+                }
+                errors["Trip.EndTime"].Add("End time cannot be in the past");
+            }
             return errors;
         }
     }

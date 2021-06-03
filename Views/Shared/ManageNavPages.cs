@@ -20,7 +20,7 @@ namespace Company.Views.Shared
 
         public static string Discount => "Discount";
 
-        public static string Booking => "Booking";
+        public static string Order => "Order";
 
         public static string Blog => "Blog";
 
@@ -38,7 +38,7 @@ namespace Company.Views.Shared
 
         public static string DiscountNavClass(ViewContext viewContext) => PageNavClass(viewContext, Discount);
 
-        public static string BookingNavClass(ViewContext viewContext) => PageNavClass(viewContext, Booking);
+        public static string BookingNavClass(ViewContext viewContext) => PageNavClass(viewContext, Order);
 
         public static string BlogNavClass(ViewContext viewContext) => PageNavClass(viewContext, Blog);
 

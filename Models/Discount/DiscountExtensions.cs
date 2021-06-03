@@ -27,7 +27,6 @@ namespace Client.Models
                 }
                 errors[nameof(discount.ValidFrom)].Add("Valid From cannot be after Valid Until");
             }
-            return errors;
 
             if (discount.ValidUntil <= DateTime.Now)
             {

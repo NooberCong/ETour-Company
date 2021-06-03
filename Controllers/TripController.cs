@@ -87,7 +87,6 @@ namespace Company.Controllers
 
             if (!ModelState.IsValid || errors.Any())
             {
-
                 ModelState.AddModelErrors(errors);
 
                 return View(new TripFormModel

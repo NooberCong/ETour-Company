@@ -1,16 +1,29 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Company.Models;
+using Core.Interfaces;
+using Infrastructure.InterfaceImpls;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Company.Controllers
 {
     public class AccountController : Controller
     {
-        public IActionResult Index()
+        private readonly ICustomerRepository _customerRepository;
+        private readonly IEmployeeRepository<Employee> _employeeRepository;
+
+        public AccountController(ICustomerRepository customerRepository, IEmployeeRepository<Employee> employeeRepository)
         {
-            return View();
+            _customerRepository = customerRepository;
+            _employeeRepository = employeeRepository;
+        }
+
+        public IActionResult Index(bool showBanned = true)
+        {
+            return View(new AccountListModel
+            {
+                Customers = _customerRepository.QueryFiltered(cus => showBanned || !cus.Banned),
+                Employees = _employeeRepository.QueryFiltered(emp => showBanned || !emp.Banned),
+                ShowBanned = showBanned
+            });
         }
     }
 }
