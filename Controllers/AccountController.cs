@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Company.Models;
+using Core.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +11,14 @@ namespace Company.Controllers
 {
     public class AccountController : Controller
     {
-        public IActionResult Index()
+        private readonly ICustomerRepository _customerRepository;
+
+        public IActionResult Index(bool showBanned = true)
         {
-            return View();
+            return View(new AccountListModel
+            {
+
+            });
         }
     }
 }

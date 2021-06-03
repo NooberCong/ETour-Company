@@ -8,5 +8,6 @@ namespace Company.Models
     {
         public IEnumerable<Customer> Customers { get; set; }
         public IEnumerable<Employee> Employees { get; set; }
+        public bool ShowBanned { get; set; }
     }
 }
