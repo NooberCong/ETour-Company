@@ -1,0 +1,61 @@
+﻿@model BlogListModel
+@{
+    string tblID = "blogTbl";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+    <h1 class="h2">Manage Blogs</h1>
+    <div class="btn-toolbar mb-2 mb-md-0 d-flex align-items-center">
+        <form method="get" class="mr-3">
+            <div class="form-check">
+                <input style="transform: translateY(2px)" onchange="$(this).closest('form').submit()" asp-for="ShowClosed" class="form-check-input">
+                <label asp-for="ShowClosed"> Show Closed</label>
+            </div>
+        </form>
+        <a class="btn btn-success ml-auto" asp-action="New"><span data-feather="plus"></span> Add</a>
+    </div>
+</div>
+
+
+<div class="table-responsive">
+    <table id="@tblID" class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Last Updated</th>
+                <th>Topic</th>
+                <th class="no-ordering">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var post in Model.Posts)
+            {
+                <tr>
+                    <td><a asp-action="Detail" asp-route-id="@post.ID">
+                             @post.Title @if (!post.IsDeleted)
+                             {
+                                  <span class="badge badge-danger">Closed</span>
+                         }
+                        </a>
+                    </td>
+                    <td>@post.Author.UserName</td>
+                    <td>@post.LastUpdated</td>
+                    <td>@post.</td>
+                    <td class="border-top d-flex">
+                        <a class="mr-3 text-primary" asp-action="Detail" asp-route-id="@post.ID"><span data-feather="navigation" /></a>
+                        <a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@post.ID"><span data-feather="edit" /></a>
+                        <form style="cursor: pointer" class="d-inline" asp-action="ToggleClose" asp-route-id="@post.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
+                            @if (post.IsDeleted)
+                            {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="trash" /></a> }
+                            else
+                            { <a onclick="$(this).closest('form').submit()" class="text-success d-inline"><span data-feather="refresh-cw" /></a>}
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<partial name="_DataTable" model="@tblID"/>
