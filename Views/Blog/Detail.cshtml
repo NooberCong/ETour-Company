@@ -1,219 +1,126 @@
-﻿@model BlogFormModel
+﻿@using Infrastructure.InterfaceImpls;
 
+@model Post
 
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
 @{
+    ViewData["Title"] = Model.Title;
 }
-<div class="btn-toolbar mb-2 mb-md-0">
-    <a class="btn btn-success ml-auto" asp-action="Delete">Delete</a>
-</div>
 
-<div class="container">
-
-    <!-- Grid row -->
-    <div class="row mt-5">
-
-        <!-- Grid column -->
-        <div class="col-md-8 mb-4">
-
-            <h1 class="font-weight-bold" action></h1>
-            <h3 class="dark-grey-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit.</h3>
-
-            <div class="card my-4">
-                <img src="https://mdbootstrap.com/img/Photos/Others/city8.jpg" class="img-fluid" alt="">
+<div class="mt-3">
+    <article>
+        <div class="row">
+            <div class="col-lg-8">
+                <header class="mb-4">
+                    <h1 class="fw-bolder mb-1">@Model.Title</h1>
+                    <div class="text-muted fst-italic mb-2">Posted on @Model.LastUpdated.ToLongDateString() by @Model.Author.FullName</div>
+                    @foreach (var tag in Model.Tags)
+                    {
+                        <a style="cursor:pointer" class="badge bg-primary text-decoration-none text-white p-1 px-2">@tag</a>
+                    }
+                </header>
             </div>
-
-            <div class="modal-body">
-               @Html.Raw(Model.Post.Content)
-            </div>
-            
-        </div>
-        <!-- Grid column -->
-        <!-- Grid column -->
-        <div class="col-md-4 mb-4">
-
-            <section class="magazine-section mb-5">
-
-                <h5 class="font-weight-bold text-center mb-4 pb-2">The newest articles</h5>
-
-                <!-- Grid row -->
-                <div class="row">
-
-                    <!-- Grid column -->
-                    <div class="col-md-12">
-
-                        <!-- Small news -->
-                        <div class="single-news mb-4">
-
-                            <!-- Grid row -->
-                            <div class="row">
-
-                                <!-- Grid column -->
-                                <div class="col-md-3">
-
-                                    <!--Image-->
-                                    <div class="view overlay rounded z-depth-1 mb-4">
-                                        <img class="img-fluid" src="https://mdbootstrap.com/img/Photos/Others/img%20(29).jpg" alt="Sample image">
-                                        <a>
-                                            <div class="mask rgba-white-slight"></div>
-                                        </a>
-                                    </div>
-
-                                </div>
-                                <!-- Grid column -->
-                                <!-- Grid column -->
-                                <div class="col-md-9">
-
-                                    <!-- Excerpt -->
-                                    <p class="font-weight-bold dark-grey-text">26/02/2018</p>
-                                    <div class="d-flex justify-content-between">
-                                        <div class="col-11 text-truncate pl-0 mb-3">
-                                            <a href="#!" class="dark-grey-text">
-                                                At vero eos et accusamus et iusto odio dignissimos
-                                                ducimus qui blanditiis
-                                            </a>
-                                        </div>
-                                        <a><i class="fas fa-angle-right"></i></a>
-                                    </div>
-
-                                </div>
-                                <!-- Grid column -->
-
-                            </div>
-                            <!-- Grid row -->
-
-                        </div>
-                        <!-- Small news -->
-                        <!-- Small news -->
-                        <div class="single-news mb-4">
-
-                            <!-- Grid row -->
-                            <div class="row">
-
-                                <!-- Grid column -->
-                                <div class="col-md-3">
-
-                                    <!--Image-->
-                                    <div class="view overlay rounded z-depth-1 mb-4">
-                                        <img class="img-fluid" src="https://mdbootstrap.com/img/Photos/Horizontal/Food/4-col/img%20(45).jpg"
-                                             alt="Sample image">
-                                        <a>
-                                            <div class="mask rgba-white-slight"></div>
-                                        </a>
-                                    </div>
-
-                                </div>
-                                <!-- Grid column -->
-                                <!-- Grid column -->
-                                <div class="col-md-9">
-
-                                    <!-- Excerpt -->
-                                    <p class="font-weight-bold dark-grey-text">25/02/2018</p>
-                                    <div class="d-flex justify-content-between">
-                                        <div class="col-11 text-truncate pl-0 mb-3">
-                                            <a href="#!" class="dark-grey-text">Itaque earum rerum hic tenetur a sapiente delectus</a>
-                                        </div>
-                                        <a><i class="fas fa-angle-right"></i></a>
-                                    </div>
-
-                                </div>
-                                <!-- Grid column -->
-
-                            </div>
-                            <!-- Grid row -->
-
-                        </div>
-                        <!-- Small news -->
-                        <!-- Small news -->
-                        <div class="single-news mb-4">
-
-                            <!-- Grid row -->
-                            <div class="row">
-
-                                <!-- Grid column -->
-                                <div class="col-md-3">
-
-                                    <!--Image-->
-                                    <div class="view overlay rounded z-depth-1 mb-4">
-                                        <img class="img-fluid" src="https://mdbootstrap.com/img/Photos/Others/images/87.jpg" alt="Sample image">
-                                        <a>
-                                            <div class="mask rgba-white-slight"></div>
-                                        </a>
-                                    </div>
-
-                                </div>
-                                <!-- Grid column -->
-                                <!-- Grid column -->
-                                <div class="col-md-9">
-
-                                    <!-- Excerpt -->
-                                    <p class="font-weight-bold dark-grey-text">24/02/2018</p>
-                                    <div class="d-flex justify-content-between">
-                                        <div class="col-11 text-truncate pl-0 mb-3">
-                                            <a href="#!" class="dark-grey-text">
-                                                Soluta nobis est eligendi optio cumque nihil impedit quo
-                                                minus
-                                            </a>
-                                        </div>
-                                        <a><i class="fas fa-angle-right"></i></a>
-                                    </div>
-
-                                </div>
-                                <!-- Grid column -->
-
-                            </div>
-                            <!-- Grid row -->
-
-                        </div>
-                        <!-- Small news -->
-                        <!-- Small news -->
-                        <div class="single-news">
-
-                            <!-- Grid row -->
-                            <div class="row">
-
-                                <!-- Grid column -->
-                                <div class="col-md-3">
-
-                                    <!--Image-->
-                                    <div class="view overlay rounded z-depth-1 mb-md-0 mb-4">
-                                        <img class="img-fluid" src="https://mdbootstrap.com/img/Photos/Others/img%20(27).jpg" alt="Sample image">
-                                        <a>
-                                            <div class="mask rgba-white-slight"></div>
-                                        </a>
-                                    </div>
-
-                                </div>
-                                <!-- Grid column -->
-                                <!-- Grid column -->
-                                <div class="col-md-9">
-
-                                    <!-- Excerpt -->
-                                    <p class="font-weight-bold dark-grey-text">23/02/2018</p>
-                                    <div class="d-flex justify-content-between">
-                                        <div class="col-11 text-truncate pl-0 mb-lg-3">
-                                            <a href="#!" class="dark-grey-text">Duis aute irure dolor in reprehenderit in voluptate</a>
-                                        </div>
-                                        <a><i class="fas fa-angle-right"></i></a>
-                                    </div>
-
-                                </div>
-                                <!-- Grid column -->
-
-                            </div>
-                            <!-- Grid row -->
-
-                        </div>
-                        <!-- Small news -->
-
-                    </div>
-                    <!--Grid column-->
-
+            <div class="col-lg-4">
+                <div class="btn-toolbar mt-2 mb-3 mb-md-0 d-flex justify-content-md-end">
+                    <a class="btn btn-secondary mr-2" asp-action="Index"><span data-feather="arrow-left"></span> Back to list</a>
+                    <a class="btn btn-primary mr-2" asp-action="Edit" asp-route-id="@Model.ID"><span data-feather="edit"></span> Edit</a>
+                    <form class="text-white mr-2" style="cursor: pointer" asp-action="ToggleClose" method="post" asp-route-id="@Model.ID" asp-route-returnUrl="@Context.Request.Path">
+                        @if (!Model.IsSoftDeleted)
+                        {
+                            <a onclick="$(this).closest('form').submit()" class="btn btn-danger"><span data-feather="eye-off"></span> Hide</a>
+                        }
+                        else
+                        {
+                            <a onclick="$(this).closest('form').submit()" class="btn btn-success"><span data-feather="eye"></span> Show</a>
+                        }
+                    </form>
                 </div>
-                <!-- Grid row -->
-
-            </section>
-
-           <partial name="_summernote"/>
+            </div>
+            <div class="col-md-8">
+                <!-- Preview image figure-->
+                <figure class="mb-5"><img class="img-fluid rounded" src="@Model.CoverImgUrl" alt="coverImg" /></figure>
+                <!-- Post content-->
+                <section class="mb-3">
+                    @Html.Raw(Model.Content)
+                </section>
+                <!-- Comments section-->
+                <section class="mb-3">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <!-- Comment form-->
+                            <h4 class="mb-4">Comments<span class="font-weight-normal ml-3">4</span></h4>
+                            <!-- Comment with nested comments-->
+                            <div class="d-flex mb-4">
+                                <!-- Parent comment-->
+                                <div class="flex-shrink-0"><img class="rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..." /></div>
+                                <div class="ms-3">
+                                    <div class="fw-bold">Commenter Name</div>
+                                    If you're going to lead a space frontier, it has to be government; it'll never be private enterprise. Because the space frontier is dangerous, and it's expensive, and it has unquantified risks.
+                                    <!-- Child comment 1-->
+                                    <div class="d-flex mt-4">
+                                        <div class="flex-shrink-0"><img class="rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..." /></div>
+                                        <div class="ms-3">
+                                            <div class="fw-bold">Commenter Name</div>
+                                            And under those conditions, you cannot establish a capital-market evaluation of that enterprise. You can't get investors.
+                                        </div>
+                                    </div>
+                                    <!-- Child comment 2-->
+                                    <div class="d-flex mt-4">
+                                        <div class="flex-shrink-0"><img class="rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..." /></div>
+                                        <div class="ms-3">
+                                            <div class="fw-bold">Commenter Name</div>
+                                            When you put money directly to a problem, it makes a good headline.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Single comment-->
+                            <div class="d-flex">
+                                <div class="flex-shrink-0"><img class="rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..." /></div>
+                                <div class="ms-3">
+                                    <div class="fw-bold">Commenter Name</div>
+                                    When I look at the universe and all the ways the universe wants to kill us, I find it hard to reconcile that with statements of beneficence.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div class="col-md-4">
+                <!-- Search widget-->
+                <div class="card mb-4">
+                    <div class="card-header">Details</div>
+                    <div class="card-body">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th class="pl-0 py-1 pr-1 border-0">Category</th>
+                                    <td class="p-1 border-0 text-right">@Model.Category</td>
+                                </tr>
+                                <tr>
+                                    <th class="pl-0 py-1 pr-1 border-0">Views</th>
+                                    <td class="p-1 border-0 text-right">112</td>
+                                </tr>
+                                <tr>
+                                    <th class="pl-0 py-1 pr-1 border-0">Min read</th>
+                                    <td class="p-1 border-0 text-right">6 minutes</td>
+                                </tr>
+                                <tr>
+                                    <th class="pl-0 py-1 pr-1 border-0">Likes</th>
+                                    <td class="p-1 border-0 text-right">33</td>
+                                </tr>
+                                <tr>
+                                    <th class="pl-0 py-1 pr-1 border-0">Shares</th>
+                                    <td class="p-1 border-0 text-right">10</td>
+                                </tr>
+                                <tr>
+                                    <th class="pl-0 py-1 pr-1 border-0">Comments</th>
+                                    <td class="p-1 border-0 text-right">6</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </article>
+</div>

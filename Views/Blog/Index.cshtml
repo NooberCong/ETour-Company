@@ -8,11 +8,11 @@
     <div class="btn-toolbar mb-2 mb-md-0 d-flex align-items-center">
         <form method="get" class="mr-3">
             <div class="form-check">
-                <input style="transform: translateY(2px)" onchange="$(this).closest('form').submit()" asp-for="ShowClosed" class="form-check-input">
-                <label asp-for="ShowClosed"> Show Closed</label>
+                <input style="transform: translateY(2px)" onchange="$(this).closest('form').submit()" asp-for="ShowHidden" class="form-check-input">
+                <label asp-for="ShowHidden"> Show Hidden</label>
             </div>
         </form>
-        <a class="btn btn-success ml-auto" asp-action="New"><span data-feather="plus"></span> Add</a>
+        <a class="btn btn-success ml-auto" asp-action="New" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="plus"></span> Add</a>
     </div>
 </div>
 
@@ -24,7 +24,7 @@
                 <th>Title</th>
                 <th>Author</th>
                 <th>Last Updated</th>
-                <th>Topic</th>
+                <th>Category</th>
                 <th class="no-ordering">Action</th>
             </tr>
         </thead>
@@ -32,24 +32,23 @@
             @foreach (var post in Model.Posts)
             {
                 <tr>
-                    <td><a asp-action="Detail" asp-route-id="@post.ID">
-                             @post.Title @if (!post.IsDeleted)
-                             {
-                                  <span class="badge badge-danger">Closed</span>
-                         }
-                        </a>
+                    <td>
+                        @post.Title @if (post.IsSoftDeleted)
+                        {
+                            <span class="badge badge-danger">Hidden</span>
+                        }
                     </td>
                     <td>@post.Author.UserName</td>
-                    <td>@post.LastUpdated</td>
-                    <td>@post.</td>
+                    <td>@post.LastUpdated.ToShortDateString()</td>
+                    <td>@post.Category</td>
                     <td class="border-top d-flex">
                         <a class="mr-3 text-primary" asp-action="Detail" asp-route-id="@post.ID"><span data-feather="navigation" /></a>
-                        <a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@post.ID"><span data-feather="edit" /></a>
-                        <form style="cursor: pointer" class="d-inline" asp-action="ToggleClose" asp-route-id="@post.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
-                            @if (post.IsDeleted)
-                            {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="trash" /></a> }
+                        <a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@post.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="edit" /></a>
+                        <form style="cursor: pointer" class="d-inline" asp-action="ToggleVisibility" asp-route-id="@post.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
+                            @if (!post.IsSoftDeleted)
+                            {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="eye-off" /></a> }
                             else
-                            { <a onclick="$(this).closest('form').submit()" class="text-success d-inline"><span data-feather="refresh-cw" /></a>}
+                            { <a onclick="$(this).closest('form').submit()" class="text-success d-inline"><span data-feather="eye" /></a>}
                         </form>
                     </td>
                 </tr>
@@ -58,4 +57,4 @@
     </table>
 </div>
 
-<partial name="_DataTable" model="@tblID"/>
+<partial name="_DataTable" model="@tblID" />

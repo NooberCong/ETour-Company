@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Company.Models.Blog
+namespace Company.Models
 {
     public class BlogListModel
     {
         public IEnumerable<Post> Posts { get; set; }
-        public bool ShowClosed { get; set; }
+        public bool ShowHidden { get; set; }
     }
 }

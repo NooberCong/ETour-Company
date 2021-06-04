@@ -1,8 +1,11 @@
-﻿@model BlogFormModel
+﻿@using Infrastructure.InterfaceImpls
+@model BlogFormModel
 
 
 @{
+    ViewData["Title"] = "New Post";
 }
+
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
     <h1 class="h2">New Post</h1>
 </div>
@@ -11,32 +14,47 @@
     <div class="form-group">
         <label asp-for="Post.Title"></label>
         <input class="form-control" asp-for="Post.Title" />
-        <!--<span asp-validation-for="Tour.Title" class="text-danger"></span>-->
+        <span asp-validation-for="Post.Title" class="text-danger"></span>
+    </div>
+
+    <div class="form-group custom-file my-3">
+        <label asp-for="CoverImg" class="custom-file-label"></label>
+        <input accept="image/*" class="custom-file-input" asp-for="CoverImg" onchange="handleFiles(this.files, 'previewContainer')" />
+        <div id="previewContainer" class="d-flex flex-wrap my-3"></div>
+        <span asp-validation-for="CoverImg" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="Post.Content"></label>
-        <textarea id="summernote" class="form-control" asp-for="Post.Content" ></textarea>
-        <!--<span asp-validation-for="Tour.Title" class="text-danger"></span>-->
+        <textarea id="summernote" class="form-control" asp-for="Post.Content"></textarea>
+        <span asp-validation-for="Post.Content" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="Post.IsDeleted">Post immediately</label>
-        <input asp-for="Post.IsDeleted" />
-        <!--<span asp-validation-for="Tour.Title" class="text-danger"></span>-->
+        <label asp-for="Post.Category"></label>
+        <select class="selectpicker" asp-items="@Html.GetEnumSelectList<IPost<Employee>.PostCategory>()"></select>
+        <span asp-validation-for="Post.Category" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="Images"></label>
-        <input accept="image/*" class="form-control-file" asp-for="Images" onchange="handleFiles(this.files, 'previewContainer')" />
-        <div id="previewContainer" class="d-flex flex-wrap my-3"></div>
-        <span asp-validation-for="Images" class="text-danger"></span>
+        <label asp-for="CommaSeparatedTags">Tags (separated by commas)</label>
+        <input type="text" class="form-control" asp-for="CommaSeparatedTags"/>
+        <span asp-validation-for="CommaSeparatedTags" class="text-danger"></span>
     </div>
+
+    <div class="form-group">
+        <input asp-for="Post.IsSoftDeleted" />
+        <label asp-for="Post.IsSoftDeleted">Hide Post</label>
+    </div>
+
     <span asp-validation-summary="ModelOnly" class="text-danger"></span>
-    <a class="btn btn-secondary" asp-action="Index">Back to list</a>
-    <a asp-action="New"><button type="submit" class="btn btn-primary">Save Post</button></a>
-
+    <a class="btn btn-secondary" asp-action="Index"><span data-feather="arrow-left"></span> Back to list</a>
+    <button class="btn btn-primary"><span data-feather="save"></span> Save Post</button>
 </form>
 
 
 <partial name="_SummerNote" />
+
+@section Scripts {
+    <script src="~/js/formfiles.js"></script>
+}

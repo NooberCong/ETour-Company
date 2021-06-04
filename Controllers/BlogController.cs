@@ -1,5 +1,5 @@
 ﻿using Company.Models;
-using Company.Models.Blog;
+using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.InterfaceImpls;
 using Microsoft.AspNetCore.Http;
@@ -15,27 +15,25 @@ namespace Company.Controllers
     public class BlogController : Controller
     {
         private readonly IPostRepository<Post, Employee> _blogRepository;
-        private readonly IRemoteFileStorageHandler _remoteFileStorageHandler;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IETourLogger _eTourLogger;
 
-
-        public BlogController(IPostRepository<Post, Employee> blogRepository, IRemoteFileStorageHandler remoteFileStorageHandler, IUnitOfWork unitOfWork)
+        public BlogController(IPostRepository<Post, Employee> blogRepository, IUnitOfWork unitOfWork, IETourLogger eTourLogger)
         {
             _blogRepository = blogRepository;
-            _remoteFileStorageHandler = remoteFileStorageHandler;
             _unitOfWork = unitOfWork;
+            _eTourLogger = eTourLogger;
         }
 
-        public IActionResult Index(bool showClosed = false)
+        public IActionResult Index(bool showHidden = false)
         {
             IEnumerable<Post> bloglist = _blogRepository.Queryable.Include(p => p.Author)
-                .Where(post => showClosed || post.IsDeleted == true).AsEnumerable();
-            //  .QueryFiltered(post => showClosed || post.IsDeleted == true);
+                .Where(post => showHidden || !post.IsSoftDeleted).AsEnumerable();
 
             return View(new BlogListModel
             {
                 Posts = bloglist,
-                ShowClosed = showClosed
+                ShowHidden = showHidden
             });
         }
 
@@ -46,42 +44,47 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> New(Post post, IFormFileCollection images)
+        public async Task<IActionResult> New(Post post, IFormFile coverImg, string commaSeparatedTags, string returnUrl)
         {
-            //Lấy ID
+            returnUrl ??= Url.Action("Index");
+
             string empID = User.Claims.First(cl => cl.Type == ClaimTypes.NameIdentifier).Value;
             post.AuthorID = empID;
+            post.Tags = commaSeparatedTags.Split(",", System.StringSplitOptions.TrimEntries | System.StringSplitOptions.RemoveEmptyEntries).ToList();
+
             if (!ModelState.IsValid)
             {
                 return View(new BlogFormModel
                 {
                     Post = post,
-                    Images = images
+                    CoverImg = coverImg
                 });
             }
-            await _blogRepository.AddAsync(post);
+            await _blogRepository.AddAsync(post, coverImg);
+            await _eTourLogger.LogAsync(Log.LogType.Creation, $"{User.Identity.Name} created post {post.Title}");
             await _unitOfWork.CommitAsync();
             TempData["StatusMessage"] = "Blog created sucessfully";
 
-            return RedirectToAction("Index");
+            return LocalRedirect(returnUrl);
         }
 
         public async Task<IActionResult> Detail(int id)
         {
-            Post post = await _blogRepository.FindAsync(id);
-            return View(new BlogFormModel
+            Post post = await _blogRepository.Queryable.Include(p => p.Author)
+                .FirstOrDefaultAsync(p => p.ID == id);
+
+            if (post == null)
             {
-                Post = post
-            });
+                return NotFound();
+            }
+
+            return View(post);
         }
 
 
         public async Task<IActionResult> Edit(int id)
         {
             Post post = await _blogRepository.FindAsync(id);
-
-            //Post post = _blogRepository.Queryable.Include(p => p.Author)
-            //    .Where().AsEnumerable();
 
             if (post == null)
             {
@@ -91,16 +94,18 @@ namespace Company.Controllers
             return View(new BlogFormModel
             {
                 Post = post,
-
+                CommaSeparatedTags = string.Join(", ", post.Tags)
             });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Post post)
+        public async Task<IActionResult> Edit(Post post, IFormFile coverImg, string commaSeparatedTags, string returnUrl)
         {
-            string returnUrl = Url.Action("Index");
+            returnUrl ??= Url.Action("Index");
 
-            if ((await _blogRepository.FindAsync(post.ID)) == null)
+            var existingPost = await _blogRepository.FindAsync(post.ID);
+
+            if (existingPost == null)
             {
                 return NotFound();
             }
@@ -110,24 +115,51 @@ namespace Company.Controllers
                 return View(new BlogFormModel
                 {
                     Post = post,
-                    //Images = images
+                    CoverImg = coverImg,
+                    CommaSeparatedTags = commaSeparatedTags
                 });
             }
 
-            await _blogRepository.UpdateAsync(post);
-            // await _eTourLogger.LogAsync(Log.LogType.Modification, $"{User.Identity.Name} updated tour {tour.Title}");
+            post.AuthorID = existingPost.AuthorID;
+            post.Tags = commaSeparatedTags.Split(",", System.StringSplitOptions.TrimEntries | System.StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            await _blogRepository.UpdateAsync(post, coverImg);
+            await _eTourLogger.LogAsync(Log.LogType.Modification, $"{User.Identity.Name} updated post {post.Title}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Blog updated sucessfully";
 
             return LocalRedirect(returnUrl);
         }
-        //[HttpPost]
-        // public Task<IActionResult> Delete(int id)
-        //{
 
-        //return RedirectToAction("Index");
-        //}
+        [HttpPost]
+        public async Task<IActionResult> ToggleVisibility(int id, string returnUrl)
+        {
+            returnUrl ??= Url.Action("Index");
+
+            var post = await _blogRepository.FindAsync(id);
+
+            if (post == null)
+            {
+                return NotFound();
+            }
+
+            if (post.IsSoftDeleted)
+            {
+                post.Show();
+            }
+            else
+            {
+                post.Hide();
+            }
+
+            await _blogRepository.UpdateAsync(post, null);
+            await _eTourLogger.LogAsync(post.IsSoftDeleted ? Log.LogType.Deletion : Log.LogType.Creation, $"{User.Identity.Name} changed state to {(post.IsSoftDeleted ? "hidden" : "visible")} for post {post.Title}");
+            await _unitOfWork.CommitAsync();
+            TempData["StatusMessage"] = post.IsSoftDeleted ? "Post hidden successfully" : "Post shown successfullly";
+
+            return LocalRedirect(returnUrl);
+        }
 
 
     }

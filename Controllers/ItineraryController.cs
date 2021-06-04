@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Company.Models;
 using Core.Entities;
 using Core.Interfaces;
-using HtmlAgilityPack;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,17 +14,13 @@ namespace Company.Controllers
     {
         private readonly ITripRepository _tripRepository;
         private readonly IItineraryRepository _itineraryRepository;
-        private readonly IRemoteFileStorageHandler _remoteFileStorageHandler;
-        private readonly HtmlDocument _doc;
         private readonly IETourLogger _eTourLogger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public ItineraryController(ITripRepository tripRepository, IItineraryRepository itineraryRepository, IRemoteFileStorageHandler remoteFileStorageHandler, HtmlDocument doc, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
+        public ItineraryController(ITripRepository tripRepository, IItineraryRepository itineraryRepository, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
         {
             _tripRepository = tripRepository;
             _itineraryRepository = itineraryRepository;
-            _remoteFileStorageHandler = remoteFileStorageHandler;
-            _doc = doc;
             _eTourLogger = eTourLogger;
             _unitOfWork = unitOfWork;
         }
@@ -73,8 +68,6 @@ namespace Company.Controllers
                     Itinerary = itinerary
                 });
             }
-
-            await ProcessDetail(itinerary);
 
             await _itineraryRepository.AddAsync(itinerary);
             await _eTourLogger.LogAsync(Log.LogType.Creation, $"{User.Identity.Name} created itinerary #{itinerary.Title} - Trip {trip.ID}");
@@ -131,15 +124,6 @@ namespace Company.Controllers
                 });
             }
 
-            await ProcessDetail(itinerary);
-
-            foreach (var imageUrl in existingItinerary
-                .GetUnusedImageUrls(itinerary.ImageUrls)
-                .Where(_remoteFileStorageHandler.IsHostedFile))
-            {
-                await _remoteFileStorageHandler.DeleteAsync(imageUrl);
-            }
-
             await _itineraryRepository.UpdateAsync(itinerary);
             await _eTourLogger.LogAsync(Log.LogType.Modification, $"{User.Identity.Name} updated itinerary #{itinerary.Title} - Trip {itinerary.TripID}");
             await _unitOfWork.CommitAsync();
@@ -158,11 +142,6 @@ namespace Company.Controllers
                 return NotFound();
             }
 
-            foreach (var imageUrl in itinerary.ImageUrls.Where(_remoteFileStorageHandler.IsHostedFile))
-            {
-                await _remoteFileStorageHandler.DeleteAsync(imageUrl);
-            }
-
             returnUrl ??= Url.Action("Detail", "Trip", new { id = itinerary.TripID });
 
             await _itineraryRepository.DeleteAsync(itinerary);
@@ -173,31 +152,5 @@ namespace Company.Controllers
             return LocalRedirect(returnUrl);
         }
 
-        private async Task ProcessDetail(Itinerary itinerary)
-        {
-            _doc.LoadHtml(itinerary.Detail);
-            var images = _doc.DocumentNode.SelectNodes("//img");
-
-            if (images == null)
-            {
-                return;
-            }
-
-            foreach (var img in _doc.DocumentNode.SelectNodes("//img"))
-            {
-
-                var src = img.Attributes["src"].Value;
-                // Upload image and set src to the image url
-                if (src.StartsWith("data:image"))
-                {
-                    var stream = new MemoryStream(Convert.FromBase64String(src.Split(";base64,")[1]));
-                    src = await _remoteFileStorageHandler.UploadAsync(stream, "jpg");
-                    img.Attributes["src"].Value = src;
-                }
-                itinerary.ImageUrls.Add(src);
-            }
-
-            itinerary.Detail = _doc.DocumentNode.InnerHtml;
-        }
     }
 }

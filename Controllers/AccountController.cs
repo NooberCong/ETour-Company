@@ -20,8 +20,8 @@ namespace Company.Controllers
         {
             return View(new AccountListModel
             {
-                Customers = _customerRepository.QueryFiltered(cus => showBanned || !cus.Banned),
-                Employees = _employeeRepository.QueryFiltered(emp => showBanned || !emp.Banned),
+                Customers = _customerRepository.QueryFiltered(cus => showBanned || !cus.IsSoftDeleted),
+                Employees = _employeeRepository.QueryFiltered(emp => showBanned || !emp.IsSoftDeleted),
                 ShowBanned = showBanned
             });
         }
