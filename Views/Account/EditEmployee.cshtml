@@ -48,8 +48,13 @@
             <h4>Roles</h4>
             @foreach (var role in Model.Roles)
             {
+                var isAdminRole = role.ID == IRole.ADMIN_ID;
+                if (isAdminRole)
+                {
+                    <input type="hidden" name="roles" value="@role.ID">
+                }
                 <div class="custom-control custom-switch">
-                    <input readonly="@(role.ID == IRole.ADMIN_ID)" id="@role.ID" type="checkbox" class="form-check-input" name="roles" value="@role.ID" checked="@Model.Employee.Roles.Any(r => r.Name == role.Name)" onchange="handleRoleToggle(this)">
+                    <input disabled="@isAdminRole" id="@role.ID" type="checkbox" class="form-check-input" name="roles" value="@role.ID" checked="@Model.Employee.Roles.Any(r => r.Name == role.Name)" onchange="handleRoleToggle(this)">
                     <label class="form-check-label" for="@role.ID">@role.Name</label>
                 </div>
                 <ul style="transition: .25s" id="@role.ID" class="mt-2 alert alert-@(Model.Employee.Roles.Any(r => r.Name == role.Name)? "primary": "light")">
