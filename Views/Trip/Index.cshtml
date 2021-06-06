@@ -29,6 +29,8 @@
                 <th>@Html.DisplayNameFor(_ => Model.Trips.First().Capacity)</th>
                 <th>@Html.DisplayNameFor(_ => Model.Trips.First().Price)</th>
                 <th>Sale Price</th>
+                <th>Deposit</th>
+                <th>Status</th>
                 <th class="no-ordering">Action</th>
             </tr>
         </thead>
@@ -36,16 +38,23 @@
             @foreach (var trip in Model.Trips)
             {
                 <tr>
-                    @*@if (!trip.IsOpen)
-                            {
-                        <span class="badge badge-danger">Closed</span>
-                            }*@
                     <td>@trip.Tour.Title</td>
-                    <td>@trip.StartTime</td>
-                    <td>@trip.EndTime</td>
+                    <td>@trip.StartTime.ToShortDateString()</td>
+                    <td>@trip.EndTime.ToShortDateString()</td>
                     <td class="text-right">@trip.Capacity</td>
-                    <td class="text-right">$@trip.Price</td>
-                    <td class="text-success">$@trip.GetSalePrice()<span class="d-none d-md-inline" data-feather="chevrons-down"></span></td>
+                    <td class="text-right">@trip.Price.ToString("C2")</td>
+                    <td class="text-right text-success">@trip.GetSalePrice().ToString("C2")<span class="d-none d-md-inline" data-feather="chevrons-down"></span></td>
+                    <td class="text-right">@trip.Deposit%</td>
+                    <td>
+                        @if (trip.IsOpen)
+                        {
+                            <span class="badge badge-success">Open</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-danger">Closed</span>
+                        }
+                    </td>
                     <td class="row">
                         <a class="mr-3 text-primary mb-3 mb-md-0" asp-controller="Trip" asp-action="Detail" asp-route-id="@trip.ID"><span data-feather="navigation" /></a>
                         <a class="mr-3 text-info mb-3 mb-md-0" asp-controller="Tour" asp-action="Detail" asp-route-id="@trip.TourID"><span data-feather="map" /></a>

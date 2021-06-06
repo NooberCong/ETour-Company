@@ -39,11 +39,11 @@
                 <!-- Preview image figure-->
                 <figure class="mb-5"><img class="img-fluid rounded" src="@Model.CoverImgUrl" alt="coverImg" /></figure>
                 <!-- Post content-->
-                <section class="mb-3">
+                <section class="mb-3 overflow-hidden">
                     @Html.Raw(Model.Content)
                 </section>
                 <!-- Comments section-->
-                <section class="mb-3">
+                <section>
                     <div class="card bg-light">
                         <div class="card-body">
                             <!-- Comment form-->

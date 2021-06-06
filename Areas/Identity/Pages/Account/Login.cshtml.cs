@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Core.Interfaces;
+using Core.Entities;
 
 namespace Company.Areas.Identity.Pages.Account
 {
@@ -19,13 +21,16 @@ namespace Company.Areas.Identity.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly SignInManager<Employee> _signInManager;
-        private readonly ILogger<LoginModel> _logger;
+        private readonly IETourLogger _eTourLogger;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public LoginModel(SignInManager<Employee> signInManager, 
-            ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<Employee> signInManager,
+            IETourLogger eTourLogger,
+            IUnitOfWork unitOfWork)
         {
             _signInManager = signInManager;
-            _logger = logger;
+            _eTourLogger = eTourLogger;
+            _unitOfWork = unitOfWork;
         }
 
         [BindProperty]
@@ -73,16 +78,25 @@ namespace Company.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
 
+            var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
+
+            if (user?.IsSoftDeleted == true)
+            {
+                await _eTourLogger.LogAsync(Log.LogType.Warning, $"{HttpContext.Connection.RemoteIpAddress} attempted to login with a banned account");
+                ModelState.AddModelError(string.Empty, "This account is banned, contact admin for more information");
+                await _unitOfWork.CommitAsync();
+                return Page();
+            }
+
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-        
+
             if (ModelState.IsValid)
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
@@ -91,11 +105,12 @@ namespace Company.Areas.Identity.Pages.Account
                 }
                 if (result.IsLockedOut)
                 {
-                    _logger.LogWarning("User account locked out.");
-                    return RedirectToPage("./Lockout");
+                    ModelState.AddModelError(string.Empty, "Your account was locked due to multiple invalid login attempt.\nPlease wait before you can login in again");
                 }
                 else
                 {
+                    await _eTourLogger.LogAsync(Log.LogType.Warning, $"{HttpContext.Connection.RemoteIpAddress} attempted to login with incorrect credentials");
+                    await _unitOfWork.CommitAsync();
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return Page();
                 }

@@ -1,4 +1,4 @@
-﻿@*@model Customer
+﻿@model Customer
 
 @{
     ViewData["Title"] = Model.Name;
@@ -20,15 +20,18 @@
 
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-    <h1 class="h2">Customer @Model.Name</h1>
+    <h1 class="h2">
+        Customer @Model.Name @if (Model.IsSoftDeleted)
+        {
+            <span class="badge badge-danger">Banned</span>
+        }
+    </h1>
     <div class="btn-toolbar mb-2 mb-md-0">
         <a class="btn btn-secondary ml-auto mr-2" asp-action="Index"><span data-feather="arrow-left"></span> Back to list</a>
-        <a class="btn btn-primary ml-auto mr-2" asp-action="Edit" asp-route-id="@Model.ID"><span data-feather="edit"></span> Edit</a>
-        <form class="text-white" style="cursor: pointer" asp-action="ToggleClose" method="post" asp-route-id="@Model.ID" asp-route-returnUrl="@Context.Request.Path">
-            @if (!Model.IsDeleted)
+        <form class="text-white" style="cursor: pointer" asp-action="ToggleBanCustomer" method="post" asp-route-id="@Model.ID" asp-route-returnUrl="@Context.Request.Path">
+            @if (!Model.IsSoftDeleted)
             {
                 <a onclick="$(this).closest('form').submit()" class="btn btn-danger"><span data-feather="slash"></span> Ban</a>
-
             }
             else
             {
@@ -47,6 +50,9 @@
     </li>
     <li class="nav-item">
         <a class="nav-link" id="reviews-tab" data-toggle="tab" href="#reviews" role="tab" aria-controls="reviews" aria-selected="false">Reviews (@Model.Reviews.Count)</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="pointlogs-tab" data-toggle="tab" href="#pointlogs" role="tab" aria-controls="pointlogs" aria-selected="false">Point logs (@Model.Reviews.Count)</a>
     </li>
 </ul>
 <div class="tab-content" id="advancedTabContent">
@@ -76,7 +82,7 @@
                     </tr>
                     <tr>
                         <th>@Html.DisplayNameFor(m => m.ImgUrl)</th>
-                        <td class="w-100">
+                        <td>
                             <img src="@Model.ImgUrl" class="img-fluid rounded" />
                         </td>
                     </tr>
@@ -92,44 +98,27 @@
                         <th>Date Paid</th>
                         <th>Total Paid</th>
                         <th>No. Bookings</th>
-                        <th>Sale Price</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var trip in Model.Trips)
+                    @foreach (var order in Model.Orders)
                     {
                         <tr>
-                            <td>
-                                @trip.ID
-                                @if (!trip.IsOpen)
-                                {
-                                    <span class="badge badge-danger">Closed</span>
-                                }
-                            </td>
-                            <td>@trip.StartTime</td>
-                            <td>@trip.EndTime</td>
-                            <td>@trip.Capacity</td>
-                            <td>$@trip.Price</td>
-                            <td class="text-success">$@trip.GetSalePrice()<span class="d-none d-md-inline" data-feather="chevrons-down"></span></td>
+                            <td>@order.DateCompleted</td>
+                            <td class="text-right">$@order.Total</td>
+                            <td class="text-right">@order.Bookings.Count</td>
                             <td class="row">
-                                <a class="mr-3 text-primary mb-3 mb-md-0" asp-controller="Trip" asp-action="Detail" asp-route-id="@trip.ID"><span data-feather="navigation" /></a>
-                                <a class="mr-3 text-warning mb-3 mb-md-0" asp-controller="Trip" asp-action="Edit" asp-route-id="@trip.ID" asp-route-returnUrl="@Context.Request.Path"><span data-feather="edit" /></a>
-                                <form style="cursor: pointer" class="d-inline" asp-controller="Trip" asp-action="ToggleClose" asp-route-id="@trip.ID" asp-route-returnUrl="@Context.Request.Path" method="post">
-                                    @if (trip.IsOpen)
-                                    {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="trash" /></a> }
-                                    else
-                                    { <a onclick="$(this).closest('form').submit()" class="text-success d-inline"><span data-feather="refresh-cw" /></a>}
-                                </form>
+                                <a class="mr-3 text-primary mb-3 mb-md-0" asp-controller="Trip" asp-action="Detail" asp-route-id="@order.ID"><span data-feather="navigation" /></a>
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
-        @if (!Model.Trips.Any())
+        @if (!Model.Orders.Any())
         {
-            <p class="text-muted text-center">No trips are available for this tour</p>
+            <p class="text-muted text-center">This customer hasn't ordered anything</p>
         }
     </div>
     <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
@@ -137,7 +126,7 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Reviewer</th>
+                        <th>Tour</th>
                         <th>Stars</th>
                         <th>Date Reviewed</th>
                         <th>Content (Shortened)</th>
@@ -148,7 +137,7 @@
                     @foreach (var review in Model.Reviews)
                     {
                         <tr>
-                            <td>@review.Author.Name</td>
+                            <td>@review.Tour.Title</td>
                             <td>
                                 @for (int i = 0; i < review.Stars; i++)
                                 {
@@ -170,11 +159,40 @@
         </div>
         @if (!Model.Reviews.Any())
         {
-            <p class="text-muted text-center">No reviews are available for this tour</p>
+            <p class="text-muted text-center">This customer hasn't writen any reviews</p>
+        }
+    </div>
+    <div class="tab-pane fade" id="pointlogs" role="tabpanel" aria-labelledby="pointlogs-tab">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Time logged</th>
+                        <th>Amount</th>
+                        <th>Trigger</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in Model.PointLogs)
+                    {
+                        <tr>
+                            <td>@log.LastUpdated</td>
+                            <td class="text-right text-@(log.Amount > 0 ? "success": "danger")">@(log.Amount > 0 ? "+": "")@log.Amount</td>
+                            <td>@log.Trigger</td>
+                            <td>@log.Description</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        @if (!Model.PointLogs.Any())
+        {
+            <p class="text-muted text-center">No point log was found for this customer</p>
         }
     </div>
 </div>
 
 @section Scripts {
     <script src="~/lib/lightbox2/js/lightbox.min.js"></script>
-}*@  
+}  

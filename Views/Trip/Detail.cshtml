@@ -4,8 +4,6 @@
     ViewData["Title"] = $"Trip #{Model.ID}";
 }
 
-<link href="~/lib/lightbox2/css/lightbox.min.css" rel="stylesheet" />
-
 <style>
     #advancedTab .nav-link {
         color: grey;
@@ -83,6 +81,10 @@
                     <tr>
                         <th>Sale Price</th>
                         <td class="text-success">$@Model.GetSalePrice()</td>
+                    </tr>
+                    <tr>
+                        <th>Deposit</th>
+                        <td>@Model.Deposit%</td>
                     </tr>
                 </tbody>
             </table>
@@ -174,9 +176,7 @@
                     <tr>
                         <th>Order ID</th>
                         <th>Quantity</th>
-                        <th>Note</th>
-                        <th>Status</th>
-                        <th>Total Price</th>
+                        <th>Date booked</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -186,30 +186,26 @@
                             <td>@booking.OrderID</td>
                             <td>@booking.Quantity</td>
                             <td>@booking.Note</td>
-                            <td>@booking.Status</td>
-                            <td>$@booking.CalculatePrice()</td>
+                            <td>$@booking.Order.DateDeposited</td>
                         </tr>
                     }
                     <tr>
                         <td>1</td>
                         <td>3</td>
                         <td>Pick me up at Times Square</td>
-                        <td><span class="badge badge-primary">Pending</span></td>
-                        <td>$150</td>
+                        <td>@DateTime.Now.ToShortDateString()</td>
                     </tr>
                     <tr>
                         <td>2</td>
                         <td>2</td>
-                        <td>I need extra water during the trip</td>
-                        <td><span class="badge badge-success">Active</span></td>
-                        <td>$200</td>
+                        <td>Pick me up at Times Square</td>
+                        <td>@DateTime.Now.ToShortDateString()</td>
                     </tr>
                     <tr>
                         <td>2</td>
                         <td>1</td>
-                        <td>I need extra food during the trip</td>
-                        <td><span class="badge badge-danger">Expired</span></td>
-                        <td>$99</td>
+                        <td>Pick me up at Times Square</td>
+                        <td>@DateTime.Now.ToShortDateString()</td>
                     </tr>
                 </tbody>
             </table>

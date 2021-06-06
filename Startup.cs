@@ -1,12 +1,8 @@
-using Company.Areas.Identity;
-using HtmlAgilityPack;
 using Infrastructure.Extentions;
 using Infrastructure.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
@@ -32,26 +28,18 @@ namespace Company
                 var policy = new AuthorizationPolicyBuilder()
                      .RequireAuthenticatedUser()
                      .Build();
+
                 config.Filters.Add(new AuthorizeFilter(policy));
                 config.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             });
             services.AddRazorPages();
             services.AddControllersWithViews();
-            services.AddDatabase();
-            services.AddAzureStorage();
+            services.AddBaseDb();
+            services.AddCompanyDb();
             services.AddAuthorization();
-            services.AddEmployeesIdentity(op => {
-                op.SignIn.RequireConfirmedEmail = true;
-                op.SignIn.RequireConfirmedAccount = true;
-                op.Password.RequireNonAlphanumeric = false;
-                op.Password.RequireUppercase = false;
-                op.User.RequireUniqueEmail = true;
-            }).AddDefaultUI();
             services.AddEmailService();
             services.AddSignalR();
             services.AddETourLogging();
-            services.AddTransient<IEmailSender, EmailSender>();
-            services.AddTransient<HtmlDocument>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,6 +55,9 @@ namespace Company
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseStatusCodePagesWithReExecute("/Status", "?code={0}");
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

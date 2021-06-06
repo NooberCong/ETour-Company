@@ -1,0 +1,79 @@
+﻿@model EmployeeFormModel
+
+@{
+    ViewData["Title"] = "Edit employee info";
+}
+
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+    <h1 class="h2">
+        Employee @Model.Employee.FullName @if (Model.Employee.IsSoftDeleted)
+        {
+            <span class="badge badge-danger">Banned</span>
+        }
+    </h1>
+</div>
+
+<form method="post">
+    <input type="hidden" asp-for="Employee.IsSoftDeleted" />
+    <input type="hidden" asp-for="Employee.ID" />
+    <div class="row p-0">
+        <div class="col-md-6">
+            <h4>Basic information</h4>
+            <div class="form-group">
+                <label asp-for="Employee.FullName"></label>
+                <input class="form-control" asp-for="Employee.FullName" />
+                <span asp-validation-for="Employee.FullName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Employee.Email"></label>
+                <input class="form-control" asp-for="Employee.Email" />
+                <span asp-validation-for="Employee.Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Employee.DOB"></label>
+                <input class="form-control" asp-for="Employee.DOB" />
+                <span asp-validation-for="Employee.DOB" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Employee.PhoneNumber"></label>
+                <input class="form-control" asp-for="Employee.PhoneNumber" />
+                <span asp-validation-for="Employee.PhoneNumber" class="text-danger"></span>
+            </div>
+            <span asp-validation-summary="ModelOnly" class="text-danger"></span>
+            <a class="btn btn-secondary" asp-action="Index"><span data-feather="arrow-left"></span> Back to list</a>
+            <button class="btn btn-primary"><span data-feather="save"></span> Save Employee</button>
+        </div>
+        <div class="offset-md-1 col-md-5">
+            <h4>Roles</h4>
+            @foreach (var role in Model.Roles)
+            {
+                <div class="custom-control custom-switch">
+                    <input readonly="@(role.ID == IRole.ADMIN_ID)" id="@role.ID" type="checkbox" class="form-check-input" name="roles" value="@role.ID" checked="@Model.Employee.Roles.Any(r => r.Name == role.Name)" onchange="handleRoleToggle(this)">
+                    <label class="form-check-label" for="@role.ID">@role.Name</label>
+                </div>
+                <ul style="transition: .25s" id="@role.ID" class="mt-2 alert alert-@(Model.Employee.Roles.Any(r => r.Name == role.Name)? "primary": "light")">
+                    @foreach (var permission in role.Permissions)
+                    {
+                        <li class="ml-3">@permission</li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        function handleRoleToggle(inputElement) {
+            let ul = inputElement.parentNode.nextSibling.nextSibling;
+            if (inputElement.checked) {
+                ul.classList.remove('alert-light');
+                ul.classList.add('alert-primary');
+            } else {
+                ul.classList.remove('alert-primary');
+                ul.classList.add('alert-light');
+            }
+        }
+    </script>
+}

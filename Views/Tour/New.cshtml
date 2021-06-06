@@ -38,9 +38,9 @@
                 asp-items="Html.GetEnumSelectList<Tour.TourType>()">
         </select>
     </div>
-    <div class="form-group">
-        <label asp-for="Images"></label>
-        <input accept="image/*" class="form-control-file" asp-for="Images" onchange="handleFiles(this.files, 'previewContainer')" />
+    <div class="form-group custom-file my-3">
+        <label asp-for="Images" class="custom-file-label"></label>
+        <input accept="image/*" class="custom-file-input" asp-for="Images" onchange="handleFiles(this.files, 'previewContainer')" />
         <div id="previewContainer" class="d-flex flex-wrap my-3"></div>
         <span asp-validation-for="Images" class="text-danger"></span>
     </div>

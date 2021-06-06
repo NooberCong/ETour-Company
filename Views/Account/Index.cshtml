@@ -58,15 +58,24 @@
                     @foreach (var customer in Model.Customers)
                     {
                         <tr>
-                            <td>@customer.Name</td>
+                            <td>
+                                @customer.Name @if (customer.IsSoftDeleted)
+                                {
+                                    <span class="badge badge-danger">Banned</span>
+                                }
+                            </td>
                             <td>@customer.Email</td>
                             <td>@customer.Points</td>
                             <td>@customer.LastSignIn</td>
                             <td class="row">
                                 <a class="mr-3 text-primary mb-3 mb-md-0" asp-action="DetailCustomer" asp-route-id="@customer.ID"><span data-feather="navigation" /></a>
-                                <a class="mr-3 text-warning mb-3 mb-md-0" asp-action="EditEmployee" asp-route-id="@customer.ID"><span data-feather="edit" /></a>
-                                <form style="cursor: pointer" class="d-inline" asp-action="Ban" asp-route-id="@customer.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
-                                    <a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="slash" /></a>
+                                <form style="cursor: pointer" class="d-inline" asp-action="ToggleBanCustomer" asp-route-id="@customer.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
+                                    @if (!customer.IsSoftDeleted)
+                                    {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="slash" /></a> }
+                                    else
+                                    {
+                                        <a onclick="$(this).closest('form').submit()" class="text-success d-inline"><span data-feather="refresh-cw" /></a>
+                                    }
                                 </form>
                             </td>
                         </tr>
@@ -86,8 +95,8 @@
                     <tr>
                         <th>Full Name</th>
                         <th>Email</th>
-                        <th>Roles</th>
-                        <th>Date Of Birth</th>
+                        <th>Phone</th>
+                        <th>Date of birth</th>
                         <th>Started Work</th>
                         <th class="no-ordering">Action</th>
                     </tr>
@@ -96,17 +105,35 @@
                     @foreach (var emp in Model.Employees)
                     {
                         <tr>
-                            <td>@emp.FullName</td>
+                            <td>
+                                @emp.FullName @if (emp.IsSoftDeleted)
+                                {
+                                    <span class="badge badge-danger">Banned</span>
+                                }
+                            </td>
                             <td>@emp.Email</td>
-                            <td>@string.Join(", ", emp.Roles)</td>
+                            <td>@emp.PhoneNumber</td>
                             <td>@Html.DisplayFor(_ => emp.DOB)</td>
                             <td>@Html.DisplayFor(_ => emp.StartWork)</td>
                             <td class="row">
                                 <a class="mr-3 mb-3 mb-md-0 text-primary" asp-action="DetailEmployee" asp-route-id="@emp.ID"><span data-feather="navigation" /></a>
                                 <a class="mr-3 mb-3 mb-md-0 text-warning" asp-action="EditEmployee" asp-route-id="@emp.ID"><span data-feather="edit" /></a>
-                                <form style="cursor: pointer" class="d-inline" asp-action="BanEmployee" asp-route-id="@emp.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
-                                    <a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="slash" /></a>
-                                </form>
+                                @if (!emp.IsAdmin())
+                                {
+                                    <form style="cursor: pointer" class="d-inline" asp-action="ToggleBanEmployee" asp-route-id="@emp.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
+                                        @if (!emp.IsSoftDeleted)
+                                        {
+                                            <a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="slash" /></a> }
+                                        else
+                                        {
+                                            <a onclick="$(this).closest('form').submit()" class="text-success d-inline"><span data-feather="refresh-cw" /></a>
+                                        }
+                                    </form>
+                                }
+                                else
+                                {
+                                    <a style="cursor: not-allowed" class="text-danger d-inline"><span data-feather="slash" /></a>
+                                }
                             </td>
                         </tr>
                     }
