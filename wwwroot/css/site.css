@@ -17,6 +17,13 @@ a.navbar-brand {
     position: sticky;
 }
 
+.back-to-top {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    display: none;
+}
+
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
     color: #fff;

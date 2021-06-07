@@ -6,15 +6,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ETourCorp</title>
-    <link rel="stylesheet" href="~/lib/bootstrap-select/css/bootstrap-select.min.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/bootstrap-select/css/bootstrap-select.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
-    <script src="~/lib/bootstrap-select/js/bootstrap-select.min.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/bootstrap-select/js/bootstrap-select.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <!-- Icons -->
-    <script src="https://unpkg.com/feather-icons/dist/feather.min.js" asp-append-version="true"></script>
+    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
 </head>
 <body onresize="onResizeRestoreSidebar()">
     <nav class="navbar d-flex justify-content-between navbar-dark bg-dark flex-nowrap sticky-top">
@@ -68,7 +69,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @ManageNavPages.BookingNavClass(ViewContext)" asp-controller="Booking" asp-action="Index">
+                            <a class="nav-link @ManageNavPages.BookingNavClass(ViewContext)" asp-controller="Order" asp-action="Index">
                                 <span data-feather="shopping-bag"></span>
                                 Orders
                             </a>
@@ -80,7 +81,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @ManageNavPages.QuestionNavClass(ViewContext)" asp-controller="QA" asp-action="Index">
+                            <a class="nav-link @ManageNavPages.QuestionNavClass(ViewContext)" asp-controller="Question" asp-action="Index">
                                 <span data-feather="message-square"></span>
                                 Questions
                             </a>
@@ -116,6 +117,7 @@
             </main>
         </div>
     </div>
+    <a id="back-to-top" href="#" class="btn btn-secondary btn-lg back-to-top" role="button"><i class="fas fa-chevron-up"></i></a>
     <script>
         feather.replace()
     </script>

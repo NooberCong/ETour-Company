@@ -1,0 +1,82 @@
+﻿@model QuestionListModel
+@{
+    ViewData["Title"] = "Questions";
+    string tblID = "questionTbl";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+    <h1 class="h2">Manage Questions</h1>
+    <div class="btn-toolbar mb-2 mb-md-0 d-flex align-items-center">
+        <button data-toggle="modal" data-target="#notification" class="btn btn-outline-dark border-0 mr-3" style="transform: translateY(-2px)">
+            <span><span data-feather="bell"></span> Notifications</span>
+            <span class="badge badge-md badge-circle badge-floating badge-danger border-white">4</span>
+        </button>
+        <form method="get" class="mr-3">
+            <div class="form-check">
+                <input style="transform: translateY(2px)" onchange="$(this).closest('form').submit()" asp-for="ShowClosed" class="form-check-input">
+                <label asp-for="ShowClosed"> Show Closed</label>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="table-responsive">
+    <table id="@tblID" class="table">
+        <thead>
+            <tr>
+                <th>Questioner</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Updated</th>
+                <th class="no-ordering">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var question in Model.Questions)
+            {
+                <tr>
+                    <td>@question.Author.Name</td>
+                    <td>@question.Title</td>
+                    <td>@question.Category</td>
+                    <td>@question.Priority</td>
+                    <td>@question.Status</td>
+                    <td>@question.LastUpdated.ToShortDateString()</td>
+                    <td class="border-top d-flex">
+                        <a class="mr-3 text-primary" asp-action="Detail" asp-route-id="@question.ID"><span data-feather="navigation" /></a>
+                        <a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@question.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="edit" /></a>
+                        <form style="cursor: pointer" class="d-inline" asp-action="ToggleVisibility" asp-route-id="@question.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="question">
+                            @if (question.Status != Question.QuestionStatus.Closed)
+                            {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="x-square" /></a> }
+                            else
+                            { <a onclick="$(this).closest('form').submit()" class="text-success d-inline"><span data-feather="refresh-cw" /></a>}
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="notification" tabindex="-1" role="dialog" aria-labelledby="notificationLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notificationLabel">Notifications</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body list-group list-group-flush">
+                <a href="#" class="list-group-item list-group-item-action">Dapibus ac facilisis in</a>
+                <a href="#" class="list-group-item list-group-item-action">Morbi leo risus</a>
+                <a href="#" class="list-group-item list-group-item-action">Porta ac consectetur ac</a>
+                <a href="#" class="list-group-item list-group-item-action disabled">Vestibulum at eros</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_DataTable" model="@tblID" />

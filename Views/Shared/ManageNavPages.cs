@@ -24,7 +24,7 @@ namespace Company.Views.Shared
 
         public static string Blog => "Blog";
 
-        public static string Question => "QA";
+        public static string Question => "Question";
 
         public static string AnalyticNavClass(ViewContext viewContext) => PageNavClass(viewContext, Analytic);
 
