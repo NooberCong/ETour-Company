@@ -67,9 +67,9 @@ namespace Company.Controllers
                 .Include(d => d.TripDiscounts)
                 .AsEnumerable()
                 .Where(d => d.TripDiscounts.Any(trd =>
-                (trip == null && !d.IsValid(DateTime.Now))
+                (trip == null && !d.IsExpired(DateTime.Now))
                 || trd.TripID == trip.ID)
-                || !d.IsValid(DateTime.Now));
+                || !d.IsExpired(DateTime.Now));
         }
 
         [HttpPost]
@@ -216,6 +216,7 @@ namespace Company.Controllers
                 .Include(tr => tr.TripDiscounts)
                 .ThenInclude(trd => trd.Discount)
                 .Include(tr => tr.Bookings)
+                .ThenInclude(bk => bk.Author)
                 .Include(tr => tr.Itineraries)
                 .FirstOrDefaultAsync(tr => tr.ID == id);
 

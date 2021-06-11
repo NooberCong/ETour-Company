@@ -46,7 +46,7 @@
         <a class="nav-link active show" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true">Information</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="order-tab" data-toggle="tab" href="#order" role="tab" aria-controls="order" aria-selected="false">Orders (@Model.Orders.Count)</a>
+        <a class="nav-link" id="order-tab" data-toggle="tab" href="#order" role="tab" aria-controls="order" aria-selected="false">Bookings (@Model.Bookings.Count)</a>
     </li>
     <li class="nav-item">
         <a class="nav-link" id="reviews-tab" data-toggle="tab" href="#reviews" role="tab" aria-controls="reviews" aria-selected="false">Reviews (@Model.Reviews.Count)</a>
@@ -95,28 +95,37 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Date Paid</th>
-                        <th>Total Paid</th>
-                        <th>No. Bookings</th>
-                        <th>Action</th>
+                        <th>Tour</th>
+                        <th>Start</th>
+                        <th class="text-right">Total</th>
+                        <th class="text-right">Deposit</th>
+                        <th>Deposited</th>
+                        <th>Deadline</th>
+                        <th>Status</th>
+                        <th class="no-ordering">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var order in Model.Orders)
+                    @foreach (var booking in Model.Bookings)
                     {
                         <tr>
-                            <td>@order.DateCompleted</td>
-                            <td class="text-right">$@order.Total</td>
-                            <td class="text-right">@order.Bookings.Count</td>
-                            <td class="row">
-                                <a class="mr-3 text-primary mb-3 mb-md-0" asp-controller="Trip" asp-action="Detail" asp-route-id="@order.ID"><span data-feather="navigation" /></a>
+                            <td>@booking.Trip.Tour.Title</td>
+                            <td>@booking.Trip.StartTime.ToShortDateString()</td>
+                            <td class="text-right">$@booking.Total</td>
+                            <td class="text-right">$@booking.Deposited</td>
+                            <td>@booking.DateDeposited</td>
+                            <td>@booking.PaymentDeadline</td>
+                            <td>@booking.Status</td>
+                            <td class="border-top d-flex">
+                                <a class="mr-3 text-primary" asp-action="Detail" asp-route-id="@booking.ID"><span data-feather="navigation" /></a>
+                                <a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@booking.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="edit" /></a>
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
-        @if (!Model.Orders.Any())
+        @if (!Model.Bookings.Any())
         {
             <p class="text-muted text-center">This customer hasn't ordered anything</p>
         }

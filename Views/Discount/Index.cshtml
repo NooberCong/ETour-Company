@@ -34,7 +34,7 @@
             {
                 <tr>
                     <td>
-                        @disc.Title @if (disc.IsValid(DateTime.Now))
+                        @disc.Title @if (disc.IsExpired(DateTime.Now))
                         {
                             <span class="badge badge-danger">Expired</span>
                         }

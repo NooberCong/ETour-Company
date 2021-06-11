@@ -1,0 +1,60 @@
+﻿@model BookingListModel
+
+@{
+    ViewData["Title"] = "Bookings";
+    var tblID = "BookingTbl";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+    <h1 class="h2">Manage Bookings</h1>
+    <div class="btn-toolbar mb-2 mb-md-0 d-flex align-items-center">
+        <form method="get" class="mr-3">
+            <div class="d-flex align-items-center">
+                <label class="mx-3" asp-for="Status"></label>
+                <select onchange="$(this).closest('form').submit()" asp-for="Status" class="form-control" asp-items="Html.GetEnumSelectList<Booking.BookingStatus>()">
+                    <option value="All">All</option>
+                </select>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="table-responsive">
+    <table id="@tblID" class="table">
+        <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Tour</th>
+                <th>Start</th>
+                <th class="text-right">Total</th>
+                <th class="text-right">Deposit</th>
+                <th>Deposited</th>
+                <th>Deadline</th>
+                <th>Status</th>
+                <th class="no-ordering">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in Model.Bookings)
+            {
+                <tr>
+                    <td>@booking.Author.Name</td>
+                    <td>@booking.Trip.Tour.Title</td>
+                    <td>@booking.Trip.StartTime.ToShortDateString()</td>
+                    <td class="text-right">$@booking.Total</td>
+                    <td class="text-right">$@booking.Deposited</td>
+                    <td>@booking.DateDeposited</td>
+                    <td>@booking.PaymentDeadline</td>
+                    <td>@booking.Status</td>
+                    <td class="border-top d-flex">
+                        <a class="mr-3 text-primary" asp-action="Detail" asp-route-id="@booking.ID"><span data-feather="navigation" /></a>
+                        <a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@booking.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="edit" /></a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<partial name="_DataTable" model="@tblID" />

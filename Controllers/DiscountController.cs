@@ -31,7 +31,7 @@ namespace Company.Controllers
                 .ThenInclude(trd => trd.Trip)
                 .ThenInclude(t => t.Tour)
                 .AsEnumerable()
-                .Where(d => showExpired || !d.IsValid(DateTime.Now));
+                .Where(d => showExpired || !d.IsExpired(DateTime.Now));
 
             return View(new DiscountListModel
             {

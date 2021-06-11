@@ -49,9 +49,9 @@
             @foreach (var role in Model.Roles)
             {
                 var isAdminRole = role.ID == IRole.ADMIN_ID;
-                if (isAdminRole)
+                if (isAdminRole && Model.Employee.IsAdmin())
                 {
-                    <input type="hidden" name="roles" value="@role.ID">
+                    <input type="hidden" name="roles" value="@role.ID" >
                 }
                 <div class="custom-control custom-switch">
                     <input disabled="@isAdminRole" id="@role.ID" type="checkbox" class="form-check-input" name="roles" value="@role.ID" checked="@Model.Employee.Roles.Any(r => r.Name == role.Name)" onchange="handleRoleToggle(this)">

@@ -71,10 +71,6 @@
                         <td>@Html.DisplayFor(m => m.Capacity)</td>
                     </tr>
                     <tr>
-                        <th>@Html.DisplayNameFor(m => m.Description)</th>
-                        <td>@Html.DisplayFor(m => m.Description)</td>
-                    </tr>
-                    <tr>
                         <th>@Html.DisplayNameFor(m => m.Price)</th>
                         <td>$@Html.DisplayFor(m => m.Price)</td>
                     </tr>
@@ -106,7 +102,7 @@
                     {
                         <tr>
                             <td>
-                                @disc.Title @if (disc.IsValid(DateTime.Now))
+                                @disc.Title @if (disc.IsExpired(DateTime.Now))
                                 {
                                     <span class="badge badge-danger">Expired</span>
                                 }
@@ -174,39 +170,31 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Order ID</th>
-                        <th>Quantity</th>
-                        <th>Date booked</th>
+                        <th>Customer</th>
+                        <th>Total</th>
+                        <th>Deposited</th>
+                        <th>Deposited On</th>
+                        <th>Payment Deadline</th>
+                        <th>Status</th>
+                        <th class="no-ordering">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var booking in Model.Bookings)
                     {
                         <tr>
-                            <td>@booking.OrderID</td>
-                            <td>@booking.Quantity</td>
-                            <td>@booking.Note</td>
-                            <td>$@booking.Order.DateDeposited</td>
+                            <td>@booking.Author.Name</td>
+                            <td>@booking.Total</td>
+                            <td>@booking.Deposited</td>
+                            <td>@booking.DateDeposited</td>
+                            <td>@booking.PaymentDeadline</td>
+                            <td>@booking.Status</td>
+                            <td class="border-top d-flex">
+                                <a class="mr-3 text-primary" asp-action="Detail" asp-route-id="@booking.ID"><span data-feather="navigation" /></a>
+                                <a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@booking.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="edit" /></a>
+                            </td>
                         </tr>
                     }
-                    <tr>
-                        <td>1</td>
-                        <td>3</td>
-                        <td>Pick me up at Times Square</td>
-                        <td>@DateTime.Now.ToShortDateString()</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>2</td>
-                        <td>Pick me up at Times Square</td>
-                        <td>@DateTime.Now.ToShortDateString()</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>1</td>
-                        <td>Pick me up at Times Square</td>
-                        <td>@DateTime.Now.ToShortDateString()</td>
-                    </tr>
                 </tbody>
             </table>
             @if (!Model.Bookings.Any())

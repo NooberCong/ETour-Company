@@ -49,7 +49,7 @@
                     <tr>
                         <th>Name</th>
                         <th>Email</th>
-                        <th>Points</th>
+                        <th class="text-right">Points</th>
                         <th>Last Login</th>
                         <th class="no-ordering">Action</th>
                     </tr>
@@ -65,7 +65,7 @@
                                 }
                             </td>
                             <td>@customer.Email</td>
-                            <td>@customer.Points</td>
+                            <td class="text-right">@customer.Points</td>
                             <td>@customer.LastSignIn</td>
                             <td class="row">
                                 <a class="mr-3 text-primary mb-3 mb-md-0" asp-action="DetailCustomer" asp-route-id="@customer.ID"><span data-feather="navigation" /></a>

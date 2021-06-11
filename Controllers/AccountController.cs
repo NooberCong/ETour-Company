@@ -3,6 +3,7 @@ using Core.Interfaces;
 using Infrastructure.InterfaceImpls;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Company.Controllers
@@ -10,13 +11,15 @@ namespace Company.Controllers
     public class AccountController : Controller
     {
         private readonly ICustomerRepository _customerRepository;
+        private readonly IBookingRepository _bookingRepository;
         private readonly IEmployeeRepository<Employee> _employeeRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public AccountController(ICustomerRepository customerRepository, IEmployeeRepository<Employee> employeeRepository, IUnitOfWork unitOfWork)
+        public AccountController(ICustomerRepository customerRepository, IBookingRepository bookingRepository, IEmployeeRepository<Employee> employeeRepository, IUnitOfWork unitOfWork)
         {
             _customerRepository = customerRepository;
             _employeeRepository = employeeRepository;
+            _bookingRepository = bookingRepository;
             _unitOfWork = unitOfWork;
         }
 
@@ -35,7 +38,8 @@ namespace Company.Controllers
             var customer = await _customerRepository.Queryable
                 .Include(c => c.Reviews)
                 .ThenInclude(rv => rv.Tour)
-                .Include(c => c.Orders)
+                .Include(c => c.Bookings)
+                .ThenInclude(bk => bk.CustomerInfos)
                 .Include(c => c.PointLogs)
                 .FirstOrDefaultAsync(c => c.ID == id);
 
@@ -43,6 +47,13 @@ namespace Company.Controllers
             {
                 return NotFound();
             }
+
+            customer.Bookings = await _bookingRepository.Queryable
+                .Where(bk => bk.AuthorID == customer.ID)
+                .Include(bk => bk.Trip)
+                .ThenInclude(tr => tr.Tour)
+                .Include(bk => bk.CustomerInfos)
+                .ToListAsync();
 
             return View(customer);
         }

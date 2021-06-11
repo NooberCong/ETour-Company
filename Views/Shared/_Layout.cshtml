@@ -69,9 +69,9 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @ManageNavPages.BookingNavClass(ViewContext)" asp-controller="Order" asp-action="Index">
+                            <a class="nav-link @ManageNavPages.BookingNavClass(ViewContext)" asp-controller="Booking" asp-action="Index">
                                 <span data-feather="shopping-bag"></span>
-                                Orders
+                                Bookings
                             </a>
                         </li>
                         <li class="nav-item">
@@ -111,7 +111,7 @@
                 </div>
             </nav>
 
-            <main onclick="closeSideNavOnClickOutside(event)" id="mainContent" role="main" class="col-md-9 ml-sm-auto bg-white col-lg-10 pt-3 px-4">
+            <main onclick="closeSideNavOnClickOutside(event)" id="mainContent" role="main" class="col-md-9 ml-sm-auto bg-white col-lg-10 pt-3 px-4 position-relative">
                 <partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
                 @RenderBody()
             </main>

@@ -25,10 +25,10 @@ namespace Company.Controllers
             _eTourLogger = eTourLogger;
         }
 
-        public IActionResult Index(bool showHidden = false)
+        public IActionResult Index(IPost<Employee>.PostCategory? category, bool showHidden = false)
         {
             IEnumerable<Post> bloglist = _blogRepository.Queryable.Include(p => p.Author)
-                .Where(post => showHidden || !post.IsSoftDeleted).AsEnumerable();
+                .Where(post => showHidden || !post.IsSoftDeleted && category == null || post.Category == category).AsEnumerable();
 
             return View(new BlogListModel
             {

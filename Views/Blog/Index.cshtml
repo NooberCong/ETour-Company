@@ -1,4 +1,6 @@
-﻿@model BlogListModel
+﻿@using Infrastructure.InterfaceImpls;
+
+@model BlogListModel
 @{
     ViewData["Title"] = "Blog";
     string tblID = "blogTbl";
@@ -7,10 +9,15 @@
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
     <h1 class="h2">Manage Blogs</h1>
     <div class="btn-toolbar mb-2 mb-md-0 d-flex align-items-center">
-        <form method="get" class="mr-3">
+        <form method="get" class="mr-3 d-flex align-items-center">
             <div class="form-check">
                 <input style="transform: translateY(2px)" onchange="$(this).closest('form').submit()" asp-for="ShowHidden" class="form-check-input">
                 <label asp-for="ShowHidden"> Show Hidden</label>
+            </div>
+            <div class="form-group mt-3 ml-3">
+                <select onchange="$(this).closest('form').submit()" class="form-control" asp-for="Category" asp-items="@Html.GetEnumSelectList<IPost<Employee>.PostCategory>()">
+                    <option value="All">All Categories</option>
+                </select>
             </div>
         </form>
         <a class="btn btn-success ml-auto" asp-action="New" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="plus"></span> Add</a>

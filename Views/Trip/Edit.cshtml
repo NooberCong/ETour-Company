@@ -55,11 +55,6 @@
         <span asp-validation-for="Trip.Deposit" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Trip.Description"></label>
-        <textarea class="form-control" asp-for="Trip.Description"></textarea>
-        <span asp-validation-for="Trip.Description" class="text-danger"></span>
-    </div>
-    <div class="form-group">
         <label asp-for="Trip.RewardPoints"></label>
         <input class="form-control" asp-for="Trip.RewardPoints" />
         <span asp-validation-for="Trip.RewardPoints" class="text-danger"></span>
@@ -70,9 +65,9 @@
         @foreach (var disc in Model.Discounts)
         {
             <div class="form-check">
-                <input class="form-check-input" disabled="@disc.IsValid(DateTime.Now)" style="transform: translateY(3px)" type="checkbox" name="discounts" checked="@(Model.AppliedDiscounts.Contains(disc.ID) && !disc.IsValid(DateTime.Now))" id="@disc.ID" value="@disc.ID" />
+                <input class="form-check-input" disabled="@disc.IsExpired(DateTime.Now)" style="transform: translateY(3px)" type="checkbox" name="discounts" checked="@(Model.AppliedDiscounts.Contains(disc.ID) && !disc.IsExpired(DateTime.Now))" id="@disc.ID" value="@disc.ID" />
                 <label class="form-check-label" for="@disc.ID">
-                    @disc.Title @if (disc.IsValid(DateTime.Now))
+                    @disc.Title @if (disc.IsExpired(DateTime.Now))
                     {
                         <span class="badge badge-danger">Expired</span>
                     }
