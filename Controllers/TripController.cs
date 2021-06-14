@@ -225,7 +225,12 @@ namespace Company.Controllers
                 return NotFound();
             }
 
-            return View(trip);
+            return View(new TripDetailModel
+            {
+                Trip = trip,
+                ItineraryImportTrips = _tripRepository.QueryFilteredPaged(tr => tr.ID != trip.ID && tr.TourID == trip.TourID, 1, 5)
+            }); ;
         }
+
     }
 }

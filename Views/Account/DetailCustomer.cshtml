@@ -112,7 +112,7 @@
                             <td>@booking.Trip.Tour.Title</td>
                             <td>@booking.Trip.StartTime.ToShortDateString()</td>
                             <td class="text-right">$@booking.Total</td>
-                            <td class="text-right">$@booking.Deposited</td>
+                            <td class="text-right">$@booking.GetDeposit()</td>
                             <td>@booking.DateDeposited</td>
                             <td>@booking.PaymentDeadline</td>
                             <td>@booking.Status</td>

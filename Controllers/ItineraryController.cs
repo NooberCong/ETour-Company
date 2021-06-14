@@ -152,5 +152,32 @@ namespace Company.Controllers
             return LocalRedirect(returnUrl);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Import(int destinationTripID, int sourceTripID, string returnUrl)
+        {
+            returnUrl ??= Url.Action("Detail", "Trip", new { id = destinationTripID });
+
+            var sourceTrip = await _tripRepository.Queryable
+                .Include(tr => tr.Itineraries)
+                .FirstOrDefaultAsync(tr => tr.ID == sourceTripID);
+
+            var destinationTrip = await _tripRepository.FindAsync(destinationTripID);
+
+            if (sourceTrip == null || destinationTrip == null)
+            {
+                return NotFound();
+            }
+
+            foreach (var itinerary in sourceTrip.Itineraries)
+            {
+                await _itineraryRepository.CopyTo(destinationTripID, itinerary);
+            }
+
+            await _unitOfWork.CommitAsync();
+
+            TempData["StatusMessage"] = "Itineraries imported successfully";
+            return LocalRedirect(returnUrl);
+        }
+
     }
 }

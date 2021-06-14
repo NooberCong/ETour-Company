@@ -1,7 +1,7 @@
-﻿@model Trip
+﻿@model TripDetailModel
 
 @{
-    ViewData["Title"] = $"Trip #{Model.ID}";
+    ViewData["Title"] = $"Trip #{Model.Trip.ID}";
 }
 
 <style>
@@ -19,19 +19,19 @@
 </style>
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-    <h1 class="h2">Trip #@Model.ID - @Model.Tour.Title</h1>
+    <h1 class="h2">Trip #@Model.Trip.ID - @Model.Trip.Tour.Title</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
         <a class="btn btn-secondary ml-auto mr-2" asp-action="Index"><span data-feather="arrow-left"></span> Back to list</a>
-        <a class="btn btn-primary ml-auto mr-2" asp-action="Edit" asp-route-id="@Model.ID"><span data-feather="edit"></span> Edit</a>
-        <form class="text-white" style="cursor: pointer" asp-action="ToggleClose" method="post" asp-route-id="@Model.ID" asp-route-returnUrl="@Context.Request.Path">
-            @if (Model.IsOpen)
+        <a class="btn btn-primary ml-auto mr-2" asp-action="Edit" asp-route-id="@Model.Trip.ID"><span data-feather="edit"></span> Edit</a>
+        <form class="text-white" style="cursor: pointer" asp-action="ToggleClose" method="post" asp-route-id="@Model.Trip.ID" asp-route-returnUrl="@Context.Request.Path">
+            @if (Model.Trip.IsOpen)
             {
                 <button onclick="$(this).closest('form').submit()" class="btn btn-danger"><span data-feather="trash"></span> Close</button>
 
             }
             else
             {
-                <button disabled="@(!Model.Tour.IsOpen)" onclick="$(this).closest('form').submit()" class="btn btn-success"><span data-feather="refresh-cw"></span> Open</button>
+                <button disabled="@(!Model.Trip.Tour.IsOpen)" onclick="$(this).closest('form').submit()" class="btn btn-success"><span data-feather="refresh-cw"></span> Open</button>
             }
         </form>
     </div>
@@ -55,32 +55,32 @@
             <table class="table">
                 <tbody>
                     <tr>
-                        <th>@Html.DisplayNameFor(m => m.ID)</th>
-                        <td>@Html.DisplayFor(m => m.ID)</td>
+                        <th>@Html.DisplayNameFor(m => m.Trip.ID)</th>
+                        <td>@Html.DisplayFor(m => m.Trip.ID)</td>
                     </tr>
                     <tr>
-                        <th>@Html.DisplayNameFor(m => m.StartTime)</th>
-                        <td>@Html.DisplayFor(m => m.StartTime)</td>
+                        <th>@Html.DisplayNameFor(m => m.Trip.StartTime)</th>
+                        <td>@Html.DisplayFor(m => m.Trip.StartTime)</td>
                     </tr>
                     <tr>
-                        <th>@Html.DisplayNameFor(m => m.EndTime)</th>
-                        <td>@Html.DisplayFor(m => m.EndTime)</td>
+                        <th>@Html.DisplayNameFor(m => m.Trip.EndTime)</th>
+                        <td>@Html.DisplayFor(m => m.Trip.EndTime)</td>
                     </tr>
                     <tr>
-                        <th>@Html.DisplayNameFor(m => m.Capacity)</th>
-                        <td>@Html.DisplayFor(m => m.Capacity)</td>
+                        <th>@Html.DisplayNameFor(m => m.Trip.Capacity)</th>
+                        <td>@Html.DisplayFor(m => m.Trip.Capacity)</td>
                     </tr>
                     <tr>
-                        <th>@Html.DisplayNameFor(m => m.Price)</th>
-                        <td>$@Html.DisplayFor(m => m.Price)</td>
+                        <th>@Html.DisplayNameFor(m => m.Trip.Price)</th>
+                        <td>$@Html.DisplayFor(m => m.Trip.Price)</td>
                     </tr>
                     <tr>
                         <th>Sale Price</th>
-                        <td class="text-success">$@Model.GetSalePrice()</td>
+                        <td class="text-success">$@Model.Trip.GetSalePrice()</td>
                     </tr>
                     <tr>
                         <th>Deposit</th>
-                        <td>@Model.Deposit%</td>
+                        <td>@Model.Trip.Deposit%</td>
                     </tr>
                 </tbody>
             </table>
@@ -98,7 +98,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var disc in Model.TripDiscounts.Select(trd => trd.Discount))
+                    @foreach (var disc in Model.Trip.TripDiscounts.Select(trd => trd.Discount))
                     {
                         <tr>
                             <td>
@@ -115,14 +115,17 @@
                     }
                 </tbody>
             </table>
-            @if (!Model.TripDiscounts.Any())
+            @if (!Model.Trip.TripDiscounts.Any())
             {
                 <p class="text-muted">There is no discount applied to this trip</p>
             }
         </div>
     </div>
     <div class="tab-pane fade" id="itineraries" role="tabpanel" aria-labelledby="itineraries-tab">
-        <a asp-controller="Itinerary" asp-action="New" asp-route-tripID="@Model.ID" class="btn btn-success mb-3">
+        <button disabled="@(!Model.ItineraryImportTrips.Any())" data-toggle="modal" data-target="#importSelector" class="btn btn-primary mb-3 mr-1">
+            <span data-feather="download"></span> Import
+        </button>
+        <a asp-controller="Itinerary" asp-action="New" asp-route-tripID="@Model.Trip.ID" class="btn btn-success mb-3">
             <span data-feather="plus"></span> New Itinerary
         </a>
         <div class="table-responsive">
@@ -139,7 +142,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var itin in Model.Itineraries)
+                    @foreach (var itin in Model.Trip.Itineraries)
                     {
                         <tr>
                             <td>@itin.Title</td>
@@ -160,7 +163,7 @@
                 </tbody>
             </table>
         </div>
-        @if (!Model.Itineraries.Any())
+        @if (!Model.Trip.Itineraries.Any())
         {
             <p class="text-muted text-center">No itinerary is found for this trip</p>
         }
@@ -180,12 +183,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var booking in Model.Bookings)
+                    @foreach (var booking in Model.Trip.Bookings)
                     {
                         <tr>
                             <td>@booking.Author.Name</td>
                             <td>@booking.Total</td>
-                            <td>@booking.Deposited</td>
+                            <td>@booking.GetDeposit()</td>
                             <td>@booking.DateDeposited</td>
                             <td>@booking.PaymentDeadline</td>
                             <td>@booking.Status</td>
@@ -197,7 +200,7 @@
                     }
                 </tbody>
             </table>
-            @if (!Model.Bookings.Any())
+            @if (!Model.Trip.Bookings.Any())
             {
                 <p class="text-muted">There is no booking for this trip</p>
             }
@@ -205,7 +208,9 @@
     </div>
 </div>
 
-@foreach (var itin in Model.Itineraries)
+
+
+@foreach (var itin in Model.Trip.Itineraries)
 {
     <div class="modal fade" id="itin-@itin.ID" tabindex="-1" role="dialog" aria-labelledby="itinLabel-@itin.ID" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
@@ -223,3 +228,30 @@
         </div>
     </div>
 }
+
+<div class="modal fade" id="importSelector" tabindex="-1" role="dialog" aria-labelledby="selectTourLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select trip to import from</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-controller="Itinerary" asp-action="Import" asp-route-destinationTripID="@Model.Trip.ID" method="post">
+                <div class="modal-body form-group">
+                    <label for="tripSelect" class="form-label">Target:</label>
+                    <select id="tripSelect" class="selectpicker" data-live-search="true" aria-label="Select trip" name="sourceTripID">
+                        @foreach (var trip in Model.ItineraryImportTrips)
+                        {
+                            <option value="@trip.ID">@trip.StartTime.ToLongDateString() - @trip.EndTime.ToLongDateString()</option>
+                        }
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary"><span data-feather="check"></span> Continue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -38,7 +38,7 @@
 
     <div class="form-group">
         <label asp-for="CommaSeparatedTags">Tags (separated by commas)</label>
-        <input type="text" class="form-control" asp-for="CommaSeparatedTags"/>
+        <input type="text" class="form-control" asp-for="CommaSeparatedTags" />
         <span asp-validation-for="CommaSeparatedTags" class="text-danger"></span>
     </div>
 
@@ -57,4 +57,6 @@
 
 @section Scripts {
     <script src="~/js/formfiles.js"></script>
+    <partial name="_ValidationScriptsPartial" />
 }
+
