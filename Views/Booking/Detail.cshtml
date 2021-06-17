@@ -1,0 +1,186 @@
+﻿@using System.Linq
+@model Booking
+
+@{
+    ViewData["Title"] = $"Booking No.{Model.ID}";
+}
+
+<style>
+    #advancedTab .nav-link {
+        color: grey;
+        font-weight: 600;
+        transition: .25s;
+        padding: 1rem;
+    }
+
+        #advancedTab .nav-link.active {
+            color: #0275d8;
+            border-bottom: 3px solid #0275d8;
+        }
+</style>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+    <h1 class="h2">Booking No.@Model.ID - @Model.Trip.Tour.Title</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a class="btn btn-secondary ml-auto mr-2" asp-action="Index"><span data-feather="arrow-left"></span> Back to list</a>
+        <a class="btn btn-primary ml-auto mr-2" asp-action="Edit" asp-route-id="@Model.ID"><span data-feather="edit"></span> Edit</a>
+    </div>
+</div>
+
+
+<ul class="nav tabs-primary nav-justified mb-3" id="advancedTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active show" id="details-tab" data-toggle="tab" href="#details" role="tab" aria-controls="details" aria-selected="true">Booking Detail</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="customer-info-tab" data-toggle="tab" href="#customer-info" role="tab" aria-controls="customer-info" aria-selected="false">Customers' Information</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="bookings-tab" data-toggle="tab" href="#bookings" role="tab" aria-controls="bookings" aria-selected="false">Trip Detail</a>
+    </li>
+</ul>
+<div class="tab-content" id="advancedTabContent">
+    <div class="tab-pane fade show active" id="details" role="tabpanel" aria-labelledby="details-tab">
+        <div class="table-responsive">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>ID</th>
+                        <td>@Model.ID</td>
+                    </tr>
+                    <tr>
+                        <th>Tour</th>
+                        <td>@Model.Trip.Tour.Title</td>
+                    </tr>
+                    <tr>
+                        <th>Status</th>
+                        <td><span class="@Model.Status.Badge()">@Model.Status</span></td>
+                    </tr>
+                    <tr>
+                        <th>No Tickets</th>
+                        <td>
+                            @Model.TicketCount (@foreach (CustomerInfo.CustomerAgeGroup ageGroup in Enum.GetValues(typeof(CustomerInfo.CustomerAgeGroup)))
+                            {
+                                <span>@Model.GetMemberCountByAgeGroup(ageGroup) @ageGroup </span>
+                            })
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Total</th>
+                        <td>@Model.Total.ToCurrencyString()</td>
+                    </tr>
+                    <tr>
+                        <th>Deposit</th>
+                        <td>@Model.GetDeposit().ToCurrencyString()</td>
+                    </tr>
+                    <tr>
+                        <th>Date Deposited</th>
+                        <td>@Model.DateDeposited</td>
+                    </tr>
+                    <tr>
+                        <th>Date Completed</th>
+                        <td>@Model.DateCompleted</td>
+                    </tr>
+                    <tr>
+                        <th>Payment Deadline</th>
+                        <td>@Model.PaymentDeadline @Html.Raw(Model.PaymentDeadline.OverdueBadge())</td>
+                    </tr>
+                    <tr>
+                        <th>Contact Name</th>
+                        <td>@Model.ContactName</td>
+                    </tr>
+                    <tr>
+                        <th>Contact Email</th>
+                        <td>@Model.ContactEmail</td>
+                    </tr>
+                    <tr>
+                        <th>Contact Phone</th>
+                        <td>@Model.ContactPhone</td>
+                    </tr>
+                    <tr>
+                        <th>Contact Address</th>
+                        <td>@Model.ContactAddress</td>
+                    </tr>
+                    <tr>
+                        <th>Most Valued</th>
+                        <td>@Model.MostValued</td>
+                    </tr>
+                    <tr>
+                        <th>Note</th>
+                        <td>@Model.Note</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="customer-info" role="tabpanel" aria-labelledby="customer-info-tab">
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Sex</th>
+                        <th>Dob</th>
+                        <th>Age Group</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var info in Model.CustomerInfos)
+                    {
+                        <tr>
+                            <td>@info.Name</td>
+                            <td>@info.Sex</td>
+                            <td>@info.DOB</td>
+                            <td>@info.AgeGroup</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="bookings" role="tabpanel" aria-labelledby="bookings-tab">
+        <div class="table-responsive">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>Title</th>
+                        <td>@Model.Trip.Tour.Title</td>
+                    </tr>
+                    <tr>
+                        <th>Start Place</th>
+                        <td>@Model.Trip.Tour.StartPlace</td>
+                    </tr>
+                    <tr>
+                        <th>Destination</th>
+                        <td>@Model.Trip.Tour.Destination</td>
+                    </tr>
+                    <tr>
+                        <th>Start Time</th>
+                        <td>@Model.Trip.StartTime</td>
+                    </tr>
+                    <tr>
+                        <th>End Time</th>
+                        <td>@Model.Trip.EndTime</td>
+                    </tr>
+                    <tr>
+                        <th>Sale Price</th>
+                        <td>@Model.Trip.GetSalePrice()</td>
+                    </tr>
+                    <tr>
+                        <th>Deposit</th>
+                        <td>@Model.Trip.Deposit%</td>
+                    </tr>
+                    <tr>
+                        <th>Capacity</th>
+                        <td>@Model.Trip.Capacity</td>
+                    </tr>
+                    <tr>
+                        <th>Vacancies</th>
+                        <td>@Model.Trip.Vacancies</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

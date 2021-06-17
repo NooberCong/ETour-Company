@@ -1,0 +1,32 @@
+﻿@model ValidUpdateStatusesModel
+
+@{
+    Layout = null;
+}
+
+@if (Model.BookingStatuses.Count() == 1)
+{
+    <div class="modal-body">
+
+        <p class="text-muted">This booking status is already final, you can no longer make changes to it</p>
+    </div>
+}
+else
+{
+    <form asp-action="UpdateStatus" asp-route-id="@Model.BookingID" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+        <div class="form-group modal-body">
+            <label for="booking-status">Status</label>
+            <select class="form-control" id="booking-status" name="status">
+                @foreach (var status in Model.BookingStatuses)
+                {
+                    <option value="@((int)status)">@status</option>
+                }
+            </select>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary"><span data-feather="check"></span> Save</button>
+        </div>
+    </form>
+}
+
+

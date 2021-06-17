@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Company.Controllers
@@ -125,7 +126,7 @@ namespace Company.Controllers
         {
             returnUrl ??= Url.Action("Index");
 
-            Discount discount = await _discountRepository.Queryable
+            var discount = await _discountRepository.Queryable
                 .Include(d => d.TripDiscounts)
                 .ThenInclude(td => td.Trip)
                 .FirstOrDefaultAsync(d => d.ID == id);
@@ -143,6 +144,25 @@ namespace Company.Controllers
             return LocalRedirect(returnUrl);
         }
 
+        public async Task<IActionResult> AppliedTrips(int id, string returnUrl)
+        {
+            returnUrl ??= Url.Action("Index");
 
+            var discount = await _discountRepository.Queryable
+                .Include(d => d.TripDiscounts)
+                .ThenInclude(td => td.Trip)
+                .ThenInclude(tr => tr.Tour)
+                .FirstOrDefaultAsync(d => d.ID == id);
+
+            if (discount == null)
+            {
+                return NotFound();
+            }
+
+            return View(new AppliedTripsModel { 
+                ReturnUrl = returnUrl,
+                Discount = discount
+            });
+        }
     }
 }
