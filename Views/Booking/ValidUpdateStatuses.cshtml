@@ -4,7 +4,7 @@
     Layout = null;
 }
 
-@if (Model.BookingStatuses.Count() == 1)
+@if (!Model.BookingStatuses.Any())
 {
     <div class="modal-body">
 
