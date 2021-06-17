@@ -65,6 +65,17 @@ namespace Company
             app.UseAuthentication();
             app.UseAuthorization();
 
+
+            app.UseCors(builder =>
+            {
+                builder.WithOrigins("https://localhost:44323/")
+                .AllowAnyHeader()
+                .WithMethods("GET", "POST")
+                .AllowCredentials();
+            });
+
+          
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<LogHub>("/logs");
@@ -72,6 +83,7 @@ namespace Company
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapHub<QAHub>("/qa");     
             });
         }
     }

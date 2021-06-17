@@ -7,9 +7,9 @@
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
     <h1 class="h2">Manage Questions</h1>
     <div class="btn-toolbar mb-2 mb-md-0 d-flex align-items-center">
-        <button data-toggle="modal" data-target="#notification" class="btn btn-outline-dark border-0 mr-3" style="transform: translateY(-2px)">
+        <button id="btnNoti" onclick="clicked()" data-toggle="modal" data-target="#notification" class="btn btn-outline-dark border-0 mr-3" style="transform: translateY(-2px)">
             <span><span data-feather="bell"></span> Notifications</span>
-            <span class="badge badge-md badge-circle badge-floating badge-danger border-white">4</span>
+            <span class="badge badge-md badge-circle badge-floating badge-danger border-white" id="noti-time">8</span>
         </button>
         <form method="get" class="mr-3">
             <div class="form-check">
@@ -44,7 +44,7 @@
                     <td>@question.Priority</td>
                     <td>@question.Status</td>
                     <td>@question.LastUpdated.ToShortDateString()</td>
-                    <td class="border-top d-flex">
+                    <td class="border-top d-flex" id="clone-div">
                         <a class="mr-3 text-primary" asp-action="Detail" asp-route-id="@question.ID"><span data-feather="navigation" /></a>
                         <a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@question.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="edit" /></a>
                         <form style="cursor: pointer" class="d-inline" asp-action="ToggleVisibility" asp-route-id="@question.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="question">
@@ -70,13 +70,104 @@
                 </button>
             </div>
             <div class="modal-body list-group list-group-flush">
-                <a href="#" class="list-group-item list-group-item-action">Dapibus ac facilisis in</a>
-                <a href="#" class="list-group-item list-group-item-action">Morbi leo risus</a>
-                <a href="#" class="list-group-item list-group-item-action">Porta ac consectetur ac</a>
-                <a href="#" class="list-group-item list-group-item-action disabled">Vestibulum at eros</a>
+                <ul id="list">
+                   
+                </ul>
             </div>
         </div>
     </div>
 </div>
 
 <partial name="_DataTable" model="@tblID" />
+
+<script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>
+
+<script>
+
+    var connection = new signalR.HubConnectionBuilder()
+        .withUrl("/qa")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+
+    function NotiCount() {
+        var noti = document.getElementById("noti-time");
+        var ul = document.getElementById("list");
+        var i = 0, itemCount = ul.childElementCount;
+
+        noti.textContent = itemCount;
+    }
+
+    function ready(content, date) {
+        QuestionAdd(content, date);
+        NotiCount();
+
+    }
+
+    connection.on("ReceiveQuestion", test);
+
+    function test(content, date) { console.log("hello"); }
+
+    
+
+    function QuestionAdd(content, date) {
+        //add new question
+
+        if (!content) console.log("no content")
+        var table = document.getElementById("@tblID");
+
+        var tableRow = document.createElement("tr");
+        var nameCol = document.createElement("td");
+        var contentCol = document.createElement("td");
+        var cateCol = document.createElement("td");
+        var priorityCol = document.createElement("td");
+        var statusCol = document.createElement("td");
+        var dateCol = document.createElement("td");
+        var divClone = document.getElementById("clone-div");
+        var buttonCol = divClone.cloneNode();
+
+        contentCol.textContent = content;
+        dateCol.textContent = date;
+
+        tableRow.appendChild(nameCol);
+        tableRow.appendChild(titleCol);
+        tableRow.appendChild(contentCol);
+        tableRow.appendChild(cateCol);
+        tableRow.appendChild(priorityCol);
+        tableRow.appendChild(statusCol);
+        tableRow.appendChild(dateCol);
+        tableRow.appendChild(buttonCol);
+
+        table.insertBefore(tableRow, table[0]);
+
+        //add new noti
+        var ul = document.getElementById("list");
+
+        var li = document.createElement("li");
+        var a = document.createElement("a");
+        a.href = "#";
+        a.textContent = "new question";
+        
+        a.onclick = function (e) {
+            e.preventDefault();
+
+            ul.removeChild(li);
+        }
+
+        li.style = "background-color:red;";
+        li.appendChild(a);
+        ul.insertBefore(li, ul[0]);
+    }
+
+
+    
+
+
+    function clicked() {
+        var notiCount = document.getElementById("noti-time");
+
+        notiCount.textContent = 0;
+    };
+
+
+</script>
