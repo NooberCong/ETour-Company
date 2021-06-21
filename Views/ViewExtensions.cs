@@ -10,9 +10,9 @@ namespace Company.Views
         {
             return status switch
             {
-                Booking.BookingStatus.AwaitingDeposit => "badge badge-warning",
+                Booking.BookingStatus.Awaiting_Deposit => "badge badge-warning",
                 Booking.BookingStatus.Processing => "badge badge-primary",
-                Booking.BookingStatus.AwaitingPayment => "badge badge-warning",
+                Booking.BookingStatus.Awaiting_Payment => "badge badge-warning",
                 Booking.BookingStatus.Completed => "badge badge-success",
                 Booking.BookingStatus.Canceled => "badge badge-danger",
                 _ => ""
