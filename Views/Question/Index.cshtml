@@ -34,7 +34,7 @@
                 <th class="no-ordering">Action</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="table">
             @foreach (var question in Model.Questions)
             {
                 <tr>
@@ -80,7 +80,8 @@
 
 <partial name="_DataTable" model="@tblID" />
 
-<script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>
+<<script src="https://unpkg.com/@@aspnet/signalr@1.0.2/dist/browser/signalr.js"></script>
+<script src="https://unpkg.com/@@microsoft/signalr@6.0.0-preview.4.21253.5/dist/browser/signalr.min.js"></script>
 
 <script>
 
@@ -103,65 +104,14 @@
         NotiCount();
 
     }
-    connection.Start();
+    connection.start();
     connection.on("ReceiveQuestion", test);
- 
 
-    function test(content, date) { console.log("hello"); }
 
-    
 
-    function QuestionAdd(content, date) {
-        //add new question
-
-        if (!content) console.log("no content")
-        var table = document.getElementById("@tblID");
-
-        var tableRow = document.createElement("tr");
-        var nameCol = document.createElement("td");
-        var contentCol = document.createElement("td");
-        var cateCol = document.createElement("td");
-        var priorityCol = document.createElement("td");
-        var statusCol = document.createElement("td");
-        var dateCol = document.createElement("td");
-        var divClone = document.getElementById("clone-div");
-        var buttonCol = divClone.cloneNode();
-
-        contentCol.textContent = content;
-        dateCol.textContent = date;
-
-        tableRow.appendChild(nameCol);
-        tableRow.appendChild(titleCol);
-        tableRow.appendChild(contentCol);
-        tableRow.appendChild(cateCol);
-        tableRow.appendChild(priorityCol);
-        tableRow.appendChild(statusCol);
-        tableRow.appendChild(dateCol);
-        tableRow.appendChild(buttonCol);
-
-        table.insertBefore(tableRow, table[0]);
-
-        //add new noti
-        var ul = document.getElementById("list");
-
-        var li = document.createElement("li");
-        var a = document.createElement("a");
-        a.href = "#";
-        a.textContent = "new question";
-        
-        a.onclick = function (e) {
-            e.preventDefault();
-
-            ul.removeChild(li);
-        }
-
-        li.style = "background-color:red;";
-        li.appendChild(a);
-        ul.insertBefore(li, ul[0]);
+    function test(text) {
+        console.log(text);
     }
-
-
-    
 
 
     function clicked() {
