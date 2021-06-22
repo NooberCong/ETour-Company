@@ -9,7 +9,7 @@
     <div class="btn-toolbar mb-2 mb-md-0 d-flex align-items-center">
         <button id="btnNoti" onclick="clicked()" data-toggle="modal" data-target="#notification" class="btn btn-outline-dark border-0 mr-3" style="transform: translateY(-2px)">
             <span><span data-feather="bell"></span> Notifications</span>
-            <span class="badge badge-md badge-circle badge-floating badge-danger border-white" id="noti-time">8</span>
+            <span class="badge badge-md badge-circle badge-floating badge-danger border-white" id="noti-time"></span>
         </button>
         <form method="get" class="mr-3">
             <div class="form-check">
@@ -34,7 +34,7 @@
                 <th class="no-ordering">Action</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="table">
             @foreach (var question in Model.Questions)
             {
                 <tr>
@@ -80,7 +80,8 @@
 
 <partial name="_DataTable" model="@tblID" />
 
-<script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>
+<<script src="https://unpkg.com/@@aspnet/signalr@1.0.2/dist/browser/signalr.js"></script>
+<script src="https://unpkg.com/@@microsoft/signalr@6.0.0-preview.4.21253.5/dist/browser/signalr.min.js"></script>
 
 <script>
 
@@ -93,7 +94,7 @@
     function NotiCount() {
         var noti = document.getElementById("noti-time");
         var ul = document.getElementById("list");
-        var i = 0, itemCount = ul.childElementCount;
+        var itemCount = ul.childElementCount;
 
         noti.textContent = itemCount;
     }
@@ -140,35 +141,16 @@
         tableRow.appendChild(dateCol);
         tableRow.appendChild(buttonCol);
 
-        table.insertBefore(tableRow, table[0]);
 
-        //add new noti
-        var ul = document.getElementById("list");
-
-        var li = document.createElement("li");
-        var a = document.createElement("a");
-        a.href = "#";
-        a.textContent = "new question";
-        
-        a.onclick = function (e) {
-            e.preventDefault();
-
-            ul.removeChild(li);
-        }
-
-        li.style = "background-color:red;";
-        li.appendChild(a);
-        ul.insertBefore(li, ul[0]);
+    function test(text) {
+        console.log(text);
     }
-
-
-    
 
 
     function clicked() {
         var notiCount = document.getElementById("noti-time");
 
-        notiCount.textContent = 0;
+        notiCount.textContent = "";
     };
 
 
