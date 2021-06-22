@@ -1,6 +1,7 @@
 ﻿using Company.Models;
 using Core.Entities;
 using Core.Interfaces;
+using Core.Validation_Attributes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -39,7 +40,7 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> New(Tour tour, IFormFileCollection images, string returnUrl)
+        public async Task<IActionResult> New(Tour tour, [AllowedIFormFileCollectionExtensions(new string[] { ".jpg", ".png", ".jpeg" })] IFormFileCollection images, string returnUrl)
         {
             returnUrl ??= Url.Action("Index");
 

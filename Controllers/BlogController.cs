@@ -1,6 +1,7 @@
 ﻿using Company.Models;
 using Core.Entities;
 using Core.Interfaces;
+using Core.Validation_Attributes;
 using Infrastructure.InterfaceImpls;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -44,7 +45,7 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> New(Post post, IFormFile coverImg, string commaSeparatedTags, string returnUrl)
+        public async Task<IActionResult> New(Post post, [AllowedIFormFileExtensions(new string[] { ".jpg", ".png", ".jpeg" })] IFormFile coverImg, string commaSeparatedTags, string returnUrl)
         {
             returnUrl ??= Url.Action("Index");
 

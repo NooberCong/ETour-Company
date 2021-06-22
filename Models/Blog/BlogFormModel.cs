@@ -1,4 +1,5 @@
-﻿using Infrastructure.InterfaceImpls;
+﻿using Core.Validation_Attributes;
+using Infrastructure.InterfaceImpls;
 using Microsoft.AspNetCore.Http;
 
 namespace Company.Models
