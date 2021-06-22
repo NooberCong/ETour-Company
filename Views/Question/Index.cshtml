@@ -104,9 +104,11 @@
 
     }
 
+    connection.start().then(() => console.log("Connected")).catch(err => console.log("Error connecting: " + err));
+
     connection.on("ReceiveQuestion", test);
 
-    function test(content, date) { console.log("hello"); }
+    function test(content) { console.log(`Someone asked "${content}"`); }
 
     
 
