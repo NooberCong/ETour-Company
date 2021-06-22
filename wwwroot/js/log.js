@@ -85,37 +85,3 @@ if (new URLSearchParams(window.location.search).get("LogSync")?.toLowerCase() !=
         }, 250);
     });
 }
-
-
-
-function scheduleToast(toast) {
-    let container = $('.toast-container')[0];
-    container.appendChild(toast);
-    $(toast).toast('show');
-    setTimeout(() => {
-        toast.remove();
-    }, 2000);
-}
-
-function createToast(title, time, content, emoji = "✔", textClass = "success") {
-    const toast = document.createElement("div");
-    toast.classList.add("toast");
-    toast.setAttribute("data-delay", "1500");
-    toast.setAttribute("role", "alert");
-    toast.setAttribute("aria-live", "assertive");
-    toast.setAttribute("aria-atomic", "true");
-
-    toast.innerHTML =
-        `<div class="toast-header">
-            <strong class="mr-auto">${title}</strong>
-            <small>${time}</small>
-            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="toast-body">
-            <span class="text-${textClass}">${emoji}</span> ${content}
-        </div>`;
-
-    return toast;
-}

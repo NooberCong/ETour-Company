@@ -46,10 +46,10 @@
                     <td class="text-right">$@booking.Deposit</td>
                     <td>@booking.DateDeposited</td>
                     <td>@booking.PaymentDeadline</td>
-                    <td>@booking.Status</td>
+                    <td><span class="@booking.Status.Badge()">@booking.Status</span></td>
                     <td class="border-top d-flex">
                         <a class="mr-3 text-primary" asp-action="Detail" asp-route-id="@booking.ID"><span data-feather="navigation" /></a>
-                        <a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@booking.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="edit" /></a>
+                        <a style="cursor: pointer" data-id="@booking.ID" onclick="showUpdateStatusForm(this, this.getAttribute('data-id'))" class="mr-3 text-warning"><span data-feather="edit" /></a>
                     </td>
                 </tr>
             }
@@ -57,4 +57,45 @@
     </table>
 </div>
 
+<div id="updatestatus-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update booking status</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div id="updatestatus-container"></div>
+        </div>
+    </div>
+</div>
+
 <partial name="_DataTable" model="@tblID" />
+@section Scripts {
+    <script>
+        function showUpdateStatusForm(element, bookingID) {
+            let clone = $(element).clone();
+            let spinner = createSpinnerFor(element);
+            $(element).replaceWith(spinner);
+
+            $.ajax({
+                type: "GET",
+                url: 'Booking/ValidUpdateStatuses',
+                data: `id=${bookingID}&returnUrl=${encodeURI(window.location.pathname + window.location.search)}`,
+                dataType: "html",
+                success: function (data) {
+                    console.log(data);
+                    $('#updatestatus-container').html(data);
+                    $(spinner).replaceWith(clone);
+                    $('#updatestatus-modal').modal();
+                },
+                error: function () {
+                    let toast = createToast("Error", "Now", "Could not load data from server", "", "danger");
+                    scheduleToast(toast);
+                    $(spinner).replaceWith(clone);
+                }
+            });
+        }
+    </script>
+} 

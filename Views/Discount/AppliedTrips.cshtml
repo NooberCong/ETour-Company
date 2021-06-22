@@ -1,0 +1,31 @@
+﻿@model AppliedTripsModel
+
+@{
+    Layout = null;
+}
+
+<form asp-action="ToggleApply" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+    <input type="hidden" name="id" value="@Model.Discount.ID" />
+    <div class="modal-body">
+        @foreach (var tripDiscount in Model.Discount.TripDiscounts)
+        {
+            <div class="row">
+                <a target="_blank" class="font-weight-bold text-primary d-block col-11" asp-action="Detail" asp-route-id="@tripDiscount.TripID" asp-controller="Trip">
+                    @tripDiscount.Trip.Tour.Title (@tripDiscount.Trip.StartTime.ToLongCustomDateString() - @tripDiscount.Trip.EndTime.ToLongCustomDateString())
+                    @if (!tripDiscount.Trip.IsOpen)
+                    {
+                        <span class="badge badge-danger">Closed</span>
+                    }
+                </a>
+                <input style="transform: translateY(5px)" name="tripIDs" value="@tripDiscount.TripID" class="d-block col-1" type="checkbox" checked />
+            </div>
+        }
+        @if (!Model.Discount.TripDiscounts.Any())
+        {
+            <p class="text-muted">This discount is currently not applied to any trip</p>
+        }
+    </div>
+    <div class="modal-footer">
+        <button disabled="@(!Model.Discount.TripDiscounts.Any())" class="btn btn-primary"><span data-feather="save"></span> Save changes</button>
+    </div>
+</form>
