@@ -9,7 +9,7 @@
     <div class="btn-toolbar mb-2 mb-md-0 d-flex align-items-center">
         <button id="btnNoti" onclick="clicked()" data-toggle="modal" data-target="#notification" class="btn btn-outline-dark border-0 mr-3" style="transform: translateY(-2px)">
             <span><span data-feather="bell"></span> Notifications</span>
-            <span class="badge badge-md badge-circle badge-floating badge-danger border-white" id="noti-time">8</span>
+            <span class="badge badge-md badge-circle badge-floating badge-danger border-white" id="noti-time"></span>
         </button>
         <form method="get" class="mr-3">
             <div class="form-check">
@@ -93,7 +93,7 @@
     function NotiCount() {
         var noti = document.getElementById("noti-time");
         var ul = document.getElementById("list");
-        var i = 0, itemCount = ul.childElementCount;
+        var itemCount = ul.childElementCount;
 
         noti.textContent = itemCount;
     }
@@ -103,8 +103,9 @@
         NotiCount();
 
     }
-
+    connection.Start();
     connection.on("ReceiveQuestion", test);
+ 
 
     function test(content, date) { console.log("hello"); }
 
@@ -166,7 +167,7 @@
     function clicked() {
         var notiCount = document.getElementById("noti-time");
 
-        notiCount.textContent = 0;
+        notiCount.textContent = "";
     };
 
 
