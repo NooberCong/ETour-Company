@@ -39,8 +39,8 @@
             {
                 <tr>
                     <td>@trip.Tour.Title</td>
-                    <td>@trip.StartTime.ToShortDateString()</td>
-                    <td>@trip.EndTime.ToShortDateString()</td>
+                    <td>@trip.StartTime.ToCustomDateString()</td>
+                    <td>@trip.EndTime.ToCustomDateString()</td>
                     <td class="text-right">@trip.Capacity</td>
                     <td class="text-right">@trip.Price.ToString("C2")</td>
                     <td class="text-right text-success">@trip.GetSalePrice().ToString("C2")<span class="d-none d-md-inline" data-feather="chevrons-down"></span></td>
