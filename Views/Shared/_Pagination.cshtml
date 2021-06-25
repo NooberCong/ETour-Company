@@ -1,0 +1,28 @@
+﻿@model PaginationInfo
+
+@{
+    int start = !Model.HasPreviousPage ? 1 : !Model.HasNextPage ? Math.Max(Model.TotalPages - 3, 1) : Model.PageIndex - 1;
+}
+
+<nav aria-label="Trip Pagination">
+    <ul class="pagination justify-content-end">
+        <li class="page-item @(!Model.HasPreviousPage? "disabled": "")">
+            <a style="cursor: pointer" onclick="paginate(1)" class="page-link text-@(!Model.HasPreviousPage? "secondary": "primary")">Previous</a>
+        </li>
+        @for (int i = start; i <= Math.Min(start + 3, Model.TotalPages); i++)
+        {
+            <li class="page-item @(i == Model.PageIndex ? "active": "")"><a style="cursor: pointer" onclick="@(i == Model.PageIndex? "": $"paginate({i})")" class="page-link text-@(i == Model.PageIndex? "white": "primary")">@i</a></li>
+        }
+        <li class="page-item @(!Model.HasNextPage? "disabled": "")">
+            <a style="cursor: pointer" onclick="paginate(@Model.TotalPages)" class="page-link text-@(!Model.HasNextPage? "secondary": "primary")">Next</a>
+        </li>
+    </ul>
+</nav>
+
+<script>
+    function paginate(pageNumber) {
+        let searchParams = new URLSearchParams(window.location.search);
+        searchParams.set("pageNumber", pageNumber);
+        window.location.href = `${window.location.pathname}?${searchParams}`;
+    }
+</script>

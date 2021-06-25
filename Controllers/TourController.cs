@@ -26,7 +26,7 @@ namespace Company.Controllers
         public IActionResult Index(bool showClosed = false)
         {
 
-            var tourList = _tourRepository.QueryFiltered(tour => showClosed || tour.IsOpen == true);
+            var tourList = _tourRepository.Queryable.Where(tour => showClosed || tour.IsOpen == true).AsEnumerable();
             return View(new TourListModel
             {
                 Tours = tourList,

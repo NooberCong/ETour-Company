@@ -1,0 +1,47 @@
+﻿@model InvoiceFormModel
+
+@{
+    ViewData["Title"] = $"Edit Invoice - Booking No.{Model.BookingID}";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+    <h1 class="h2">Edit Invoice</h1>
+</div>
+
+<form method="post" class="col-md-8 pl-0">
+    <input type="hidden" asp-for="Invoice.ID" />
+    <input type="hidden" asp-for="Invoice.BookingID" value="@Model.BookingID" />
+    <div class="form-group">
+        <label asp-for="Invoice.Amount"></label>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">$</span>
+            </div>
+            <input class="form-control" asp-for="Invoice.Amount" />
+            <div class="input-group-append">
+                <span class="input-group-text">.00</span>
+            </div>
+        </div>
+        <span asp-validation-for="Invoice.Amount" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Invoice.Type"></label>
+        <select class="form-control" asp-for="Invoice.Type" asp-items="@Html.GetEnumSelectList<Invoice.PaymentType>()"></select>
+    </div>
+    <div class="form-group">
+        <label asp-for="Invoice.Method"></label>
+        <select class="form-control" asp-for="Invoice.Method" asp-items="@Html.GetEnumSelectList<Invoice.PaymentMethod>()"></select>
+    </div>
+    <div class="form-group">
+        <label asp-for="Invoice.Note"></label>
+        <textarea class="form-control" asp-for="Invoice.Note"></textarea>
+        <span asp-validation-for="Invoice.Note" class="text-danger"></span>
+    </div>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <a class="btn btn-secondary" asp-action="Index"><span data-feather="arrow-left"></span> Back to list</a>
+    <button type="submit" class="btn btn-primary"><span data-feather="save"></span> Save Invoice</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

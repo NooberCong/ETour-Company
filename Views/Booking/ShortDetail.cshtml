@@ -1,0 +1,49 @@
+﻿@model Booking
+
+@{ 
+    Layout = null;
+}
+
+<div class="table-responsive">
+    <table class="table table-borderless">
+        <tbody>
+            <tr>
+                <th>Customer</th>
+                <td>@Model.Owner.Name</td>
+            </tr>
+            <tr>
+                <th>Tour</th>
+                <td>@Model.Trip.Tour.Title</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td><span class="@Model.Status.Badge()">@Model.Status</span></td>
+            </tr>
+            <tr>
+                <th>No Tickets</th>
+                <td>
+                    @Model.TicketCount (@foreach (CustomerInfo.CustomerAgeGroup ageGroup in Enum.GetValues(typeof(CustomerInfo.CustomerAgeGroup)))
+                    {
+                        <span>@Model.GetMemberCountByAgeGroup(ageGroup) @ageGroup </span>
+                    })
+                </td>
+            </tr>
+            <tr>
+                <th>Total</th>
+                <td>@Model.Total.ToCurrencyString()</td>
+            </tr>
+            <tr>
+                <th>Deposit</th>
+                <td>@Model.Deposit?.ToCurrencyString()</td>
+            </tr>
+            <tr>
+                <th>Payment Deadline</th>
+                <td>@Model.PaymentDeadline @Html.Raw(Model.PaymentDeadline.OverdueBadge())</td>
+            </tr>
+            <tr>
+                <th>Note</th>
+                <td>@Model.Note</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

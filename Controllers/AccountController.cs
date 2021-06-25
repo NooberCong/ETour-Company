@@ -27,8 +27,8 @@ namespace Company.Controllers
         {
             return View(new AccountListModel
             {
-                Customers = _customerRepository.QueryFiltered(cus => showBanned || !cus.IsSoftDeleted),
-                Employees = _employeeRepository.QueryFiltered(emp => showBanned || !emp.IsSoftDeleted),
+                Customers = _customerRepository.Queryable.Where(cus => showBanned || !cus.IsSoftDeleted).AsEnumerable(),
+                Employees = _employeeRepository.Queryable.Where(emp => showBanned || !emp.IsSoftDeleted).AsEnumerable(),
                 ShowBanned = showBanned
             });
         }
@@ -49,7 +49,7 @@ namespace Company.Controllers
             }
 
             customer.Bookings = await _bookingRepository.Queryable
-                .Where(bk => bk.AuthorID == customer.ID)
+                .Where(bk => bk.OwnerID == customer.ID)
                 .Include(bk => bk.Trip)
                 .ThenInclude(tr => tr.Tour)
                 .Include(bk => bk.CustomerInfos)

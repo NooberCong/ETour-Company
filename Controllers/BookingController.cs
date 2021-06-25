@@ -25,7 +25,7 @@ namespace Company.Controllers
         {
             var bookings = await _bookingRepository.Queryable
                 .Where(bk => status == null || bk.Status == status)
-                .Include(bk => bk.Author).Include(bk => bk.Trip)
+                .Include(bk => bk.Owner).Include(bk => bk.Trip)
                 .ThenInclude(tr => tr.Tour).ToListAsync();
 
             return View(new BookingListModel
@@ -109,6 +109,21 @@ namespace Company.Controllers
                 BookingStatuses = booking.GetPossibleNextStatuses(),
                 ReturnUrl = returnUrl
             });
+        }
+
+        public async Task<IActionResult> ShortDetail(int id) {
+            var booking = await _bookingRepository.Queryable
+                .Include(bk => bk.Owner)
+                .Include(bk => bk.Trip)
+                .ThenInclude(tr => tr.Tour)
+                .FirstOrDefaultAsync(bk => bk.ID == id);
+
+            if (booking == null)
+            {
+                return NotFound();
+            }
+
+            return View(booking);
         }
     }
 }

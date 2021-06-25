@@ -1,0 +1,65 @@
+﻿@model Invoice
+
+@{
+    ViewData["Title"] = $"Invoice - Booking No.{Model.BookingID}";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+    <h1 class="h2">Invoice - Booking No.@Model.BookingID</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a class="btn btn-secondary ml-auto mr-2" asp-action="Index"><span data-feather="arrow-left"></span> Back to list</a>
+        <a class="btn btn-primary ml-auto mr-2" asp-action="Edit" asp-route-id="@Model.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="edit"></span> Edit</a>
+        <form class="text-white" style="cursor: pointer" asp-action="Delete" method="post" asp-route-id="@Model.ID">
+                <button onclick="$(this).closest('form').submit()" class="btn btn-danger"><span data-feather="trash"></span> Delete</button>
+        </form>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="table-responsive">
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th>ID</th>
+                    <td>@Model.ID</td>
+                </tr>
+                <tr>
+                    <th>Amount</th>
+                    <td>@Model.Amount.ToCurrencyString()</td>
+                </tr>
+                <tr>
+                    <th>Date Issued</th>
+                    <td>@Model.LastUpdated.ToCustomDateString()</td>
+                </tr>
+                <tr>
+                    <th>Customer</th>
+                    <td>@Model.Booking.Owner.Name</td>
+                </tr>
+                <tr>
+                    <th>Booking No.</th>
+                    <td>@Model.BookingID</td>
+                </tr>
+                <tr>
+                    <th>Tour</th>
+                    <td>@Model.Booking.Trip.Tour.Title</td>
+                </tr>
+                <tr>
+                    <th>Trip</th>
+                    <td>@Model.Booking.Trip.StartTime.ToCustomDateString() - @Model.Booking.Trip.EndTime.ToCustomDateString()</td>
+                </tr>
+                <tr>
+                    <th>Payment Type</th>
+                    <td>@Model.Type.ToCustomString()</td>
+                </tr>
+                <tr>
+                    <th>Payment Method</th>
+                    <td>@Model.Method.ToCustomString()</td>
+                </tr>
+                <tr>
+                    <th>Note</th>
+                    <td>@Model.Note</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

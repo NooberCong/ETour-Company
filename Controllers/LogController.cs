@@ -1,7 +1,9 @@
 ﻿using Company.Models;
 using Core.Entities;
+using Core.Helpers;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace Company.Controllers
 {
@@ -17,13 +19,12 @@ namespace Company.Controllers
 
         public IActionResult Index(Log.LogType? type, int pageNumber = 1, bool logSync = true)
         {
-            var logs = _logRepository.QueryFilteredPaged(log => type == null || log.Type == type, pageNumber, _pageSize);
+            var logs = _logRepository.Queryable.Where(log => type == null || log.Type == type);
+
             return View(new LogListModel
             {
-                Logs = logs,
+                Logs = PaginatedList<Log>.Create(logs, pageNumber, _pageSize),
                 Type = type,
-                PageNumber = pageNumber,
-                PageCount = _logRepository.PageCount(log => type == null || log.Type == type, _pageSize),
                 LogSync = logSync,
             });
         }

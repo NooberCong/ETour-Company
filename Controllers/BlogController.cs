@@ -28,7 +28,7 @@ namespace Company.Controllers
 
         public IActionResult Index(IPost<Employee>.PostCategory? category, bool showHidden = false)
         {
-            IEnumerable<Post> bloglist = _blogRepository.Queryable.Include(p => p.Author)
+            IEnumerable<Post> bloglist = _blogRepository.Queryable.Include(p => p.Owner)
                 .Where(post => showHidden || !post.IsSoftDeleted && category == null || post.Category == category).AsEnumerable();
 
             return View(new BlogListModel
@@ -50,7 +50,7 @@ namespace Company.Controllers
             returnUrl ??= Url.Action("Index");
 
             string empID = User.Claims.First(cl => cl.Type == ClaimTypes.NameIdentifier).Value;
-            post.AuthorID = empID;
+            post.OwnerID = empID;
             post.Tags = commaSeparatedTags.Split(",", System.StringSplitOptions.TrimEntries | System.StringSplitOptions.RemoveEmptyEntries).ToList();
 
             if (!ModelState.IsValid)
@@ -71,7 +71,7 @@ namespace Company.Controllers
 
         public async Task<IActionResult> Detail(int id)
         {
-            Post post = await _blogRepository.Queryable.Include(p => p.Author)
+            Post post = await _blogRepository.Queryable.Include(p => p.Owner)
                 .FirstOrDefaultAsync(p => p.ID == id);
 
             if (post == null)
@@ -121,7 +121,7 @@ namespace Company.Controllers
                 });
             }
 
-            post.AuthorID = existingPost.AuthorID;
+            post.OwnerID = existingPost.OwnerID;
             post.Tags = commaSeparatedTags.Split(",", System.StringSplitOptions.TrimEntries | System.StringSplitOptions.RemoveEmptyEntries).ToList();
 
             await _blogRepository.UpdateAsync(post, coverImg);

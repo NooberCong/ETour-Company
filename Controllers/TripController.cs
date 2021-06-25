@@ -35,7 +35,7 @@ namespace Company.Controllers
                 .ThenInclude(trd => trd.Discount)
                 .Where(tr => showClosed || tr.IsOpen).ToArrayAsync();
 
-            var tourList = _tourRepository.QueryFiltered(t => t.IsOpen);
+            var tourList = _tourRepository.Queryable.Where(t => t.IsOpen);
 
             return View(new TripListModel
             {
@@ -216,7 +216,7 @@ namespace Company.Controllers
                 .Include(tr => tr.TripDiscounts)
                 .ThenInclude(trd => trd.Discount)
                 .Include(tr => tr.Bookings)
-                .ThenInclude(bk => bk.Author)
+                .ThenInclude(bk => bk.Owner)
                 .Include(tr => tr.Itineraries)
                 .FirstOrDefaultAsync(tr => tr.ID == id);
 
@@ -228,8 +228,8 @@ namespace Company.Controllers
             return View(new TripDetailModel
             {
                 Trip = trip,
-                ItineraryImportTrips = _tripRepository.QueryFilteredPaged(tr => tr.ID != trip.ID && tr.TourID == trip.TourID, 1, 5)
-            }); ;
+                ItineraryImportTrips = _tripRepository.Queryable.Where(tr => tr.ID != trip.ID && tr.TourID == trip.TourID).OrderByDescending(tr => tr.StartTime).Take(10)
+            });
         }
 
     }

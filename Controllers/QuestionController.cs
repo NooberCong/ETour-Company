@@ -22,7 +22,7 @@ namespace Company.Controllers
         {
             var questions = _questionRepository.Queryable
                 .OrderBy(q => q.LastUpdated)
-                .Include(q => q.Author)
+                .Include(q => q.Owner)
                 .Where(q => showClosed || q.Status != Core.Entities.Question.QuestionStatus.Closed)
                 .AsEnumerable();
 

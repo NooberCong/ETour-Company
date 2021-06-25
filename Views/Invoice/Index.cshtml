@@ -1,0 +1,110 @@
+﻿@model InvoiceListModel
+
+@{
+    ViewData["Title"] = "Invoices";
+    var tableID = "invoicesTbl";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+    <h1 class="h2">Manage Invoices</h1>
+    <div class="btn-toolbar mb-2 mb-md-0 d-flex align-items-center">
+        <a href="#bookingSelector" data-toggle="modal" class="btn btn-success ml-auto">Add new<span data-feather="plus"></span></a>
+    </div>
+</div>
+<div class="table-responsive">
+    <table class="table" id="@tableID">
+        <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Issued</th>
+                <th>Amount</th>
+                <th>Type</th>
+                <th>Method</th>
+                <th class="no-ordering">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var inv in Model.Invoices)
+            {
+                <tr>
+                    <td>@inv.Booking.Owner.Name</td>
+                    <td>@inv.LastUpdated</td>
+                    <td class="text-right">@inv.Amount.ToCurrencyString()</td>
+                    <td>@inv.Type.ToCustomString()</td>
+                    <td>@inv.Method.ToCustomString()</td>
+                    <td class="border-top row">
+                        <a asp-action="Detail" asp-route-id="@inv.ID" class="text-primary mr-3"><span data-feather="navigation"></span></a>
+                        <a class="text-warning mr-3 mb-3 mb-md-0" asp-action="Edit" asp-route-id="@inv.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="edit" /></a>
+                        <form class="d-inline" asp-action="Delete" asp-route-id="@inv.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
+                            <a style="cursor: pointer" onclick="$(this).closest('form').submit()" class="text-danger" data-toggle="modal" data-target="#delete-modal"><span data-feather="trash" /></a>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="bookingSelector" tabindex="-1" role="dialog" aria-labelledby="selectTourLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="selectTourLabel">Enter booking number</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="New" method="get">
+                <div class="modal-body">
+                    <label for="bookingSelect" class="form-label">Booking No :</label>
+                    <div class="d-flex justify-content-between">
+                        <input class="form-control" type="text" name="bookingID" id="bookingSelect" value="" />
+                        <button onclick="checkBooking(this)" class="btn btn-primary ml-3 w-25">Check</button>
+                    </div>
+                    <div id="booking-info-container" style="min-height: 5rem;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button disabled id="continue-btn" class="btn btn-primary"><span data-feather="check"></span> Continue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        function checkBooking(button) {
+            let bookingID = $("#bookingSelect").val();
+            let bookingInfoContainer = $("#booking-info-container");
+
+            $("#continue-btn").attr("disabled");
+            bookingInfoContainer.html("");
+
+            let cloneBtn = $(button).clone();
+            let loadingBtn = createLoadingButtonFor(button);
+            $(button).replaceWith(loadingBtn);
+
+
+            $.ajax({
+                type: "GET",
+                url: '/Booking/ShortDetail',
+                data: `id=${bookingID}`,
+                dataType: "html",
+                success: function (data) {
+                    bookingInfoContainer.html(data);
+                    $(loadingBtn).replaceWith(cloneBtn);
+                    $("#continue-btn").removeAttr("disabled");
+                },
+                error: function () {
+                    bookingInfoContainer.html('<p class="text-muted text-center mt-3">Could not find booking</p>');
+                    $(loadingBtn).replaceWith(cloneBtn);
+                    $("#continue-btn").attr("disabled", "true");
+                }
+            });
+        }
+    </script>
+}
+
+<partial name="_DataTable" model="@tableID" />

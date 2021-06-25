@@ -39,7 +39,7 @@
             @foreach (var booking in Model.Bookings)
             {
                 <tr>
-                    <td>@booking.Author.Name</td>
+                    <td>@booking.Owner.Name</td>
                     <td>@booking.Trip.Tour.Title</td>
                     <td>@booking.Trip.StartTime.ToShortDateString()</td>
                     <td class="text-right">$@booking.Total</td>

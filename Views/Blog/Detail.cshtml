@@ -12,7 +12,7 @@
             <div class="col-lg-8">
                 <header class="mb-4">
                     <h1 class="fw-bolder mb-1">@Model.Title</h1>
-                    <div class="text-muted fst-italic mb-2">Posted on @Model.LastUpdated.ToLongDateString() by @Model.Author.FullName</div>
+                    <div class="text-muted fst-italic mb-2">Posted on @Model.LastUpdated.ToLongDateString() by @Model.Owner.FullName</div>
                     @foreach (var tag in Model.Tags)
                     {
                         <a style="cursor:pointer" class="badge bg-primary text-decoration-none text-white p-1 px-2">@tag</a>
@@ -22,7 +22,7 @@
             <div class="col-lg-4">
                 <div class="btn-toolbar mt-2 mb-3 mb-md-0 d-flex justify-content-md-end">
                     <a class="btn btn-secondary mr-2" asp-action="Index"><span data-feather="arrow-left"></span> Back to list</a>
-                    <a class="btn btn-primary mr-2" asp-action="Edit" asp-route-id="@Model.ID"><span data-feather="edit"></span> Edit</a>
+                    <a class="btn btn-primary mr-2" asp-action="Edit" asp-route-id="@Model.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="edit"></span> Edit</a>
                     <form class="text-white mr-2" style="cursor: pointer" asp-action="ToggleClose" method="post" asp-route-id="@Model.ID" asp-route-returnUrl="@Context.Request.Path">
                         @if (!Model.IsSoftDeleted)
                         {

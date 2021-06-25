@@ -103,3 +103,17 @@ function createToast(title, time, content, emoji = "✔", textClass = "success")
 
     return toast;
 }
+
+function createLoadingButtonFor(button) {
+    let btn = document.createElement('button');
+    btn.classList.add(...button.classList);
+    btn.disabled = true;
+    let loadingSpan = document.createElement('span');
+    loadingSpan.classList.add('spinner-grow', 'spinner-grow-sm');
+    loadingSpan.setAttribute('role', 'status');
+    loadingSpan.setAttribute('aria-hidden', 'true');
+    btn.appendChild(loadingSpan)
+    btn.append('Loading...');
+
+    return btn;
+}

@@ -53,5 +53,10 @@ namespace Company.Views
         {
             return dateTime.HasValue && DateTime.Now >= dateTime ? "<span class='badge badge-danger'>Overdue</span>" : "";
         }
+
+        public static string ToCustomString(this Enum enumValue)
+        {
+            return enumValue.ToString().Replace('_', ' ');
+        }
     }
 }
