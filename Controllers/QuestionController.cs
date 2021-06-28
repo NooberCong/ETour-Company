@@ -1,10 +1,12 @@
 ﻿using Company.Models;
+using Core.Entities;
 using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Company.Controllers
@@ -30,6 +32,28 @@ namespace Company.Controllers
                 ShowClosed = showClosed,
                 Questions = questions
             });
+        }
+
+        public async Task<IActionResult> Answer(int id)
+        {
+            Question question = await _questionRepository.Queryable.Include(p => p.Author)
+               .FirstOrDefaultAsync(p => p.ID == id);
+
+            if (post == null)
+            {
+                return NotFound();
+            }
+
+            return View(question);
+        }
+    
+
+        public async Task<IActionResult> Answer(string answer, string returnUrl)
+        {
+            returnUrl ??= Url.Action("Index");
+            string empID = User.Claims.First(cl => cl.Type == ClaimTypes.NameIdentifier).Value;
+
+            return Redirect(returnUrl);
         }
     }
 }

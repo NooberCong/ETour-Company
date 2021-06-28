@@ -45,8 +45,8 @@
                     <td>@question.Status</td>
                     <td>@question.LastUpdated.ToShortDateString()</td>
                     <td class="border-top d-flex" id="clone-div">
-                        <a class="mr-3 text-primary" asp-action="Detail" asp-route-id="@question.ID"><span data-feather="navigation" /></a>
-                        <a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@question.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="edit" /></a>
+                        <a class="mr-3 text-primary" asp-action="Answer" asp-route-id="@question.ID" id="clone-a"><span data-feather="navigation" /></a>
+                        
                         <form style="cursor: pointer" class="d-inline" asp-action="ToggleVisibility" asp-route-id="@question.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="question">
                             @if (question.Status != Question.QuestionStatus.Closed)
                             {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="x-square" /></a> }
@@ -82,6 +82,7 @@
 
 <<script src="https://unpkg.com/@@aspnet/signalr@1.0.2/dist/browser/signalr.js"></script>
 <script src="https://unpkg.com/@@microsoft/signalr@6.0.0-preview.4.21253.5/dist/browser/signalr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js" integrity="sha256-CutOzxCRucUsn6C6TcEYsauvvYilEniTXldPa6/wu0k=" crossorigin="anonymous"></script>
 
 <script>
 
@@ -92,66 +93,80 @@
 
 
     function NotiCount() {
-        var noti = document.getElementById("noti-time");
-        var ul = document.getElementById("list");
-        var itemCount = ul.childElementCount;
+        let noti = document.getElementById("noti-time");
+        let ul = document.getElementById("list");
+        let itemCount = ul.childElementCount;
 
         noti.textContent = itemCount;
     }
 
-    function ready(content, date) {
-        QuestionAdd(content, date);
+    function ready(authorName, title, category, date, priority, status) {
+        QuestionAdd(authorName, title, category, date, priority, status);
         NotiCount();
 
     }
 
     connection.start().then(() => console.log("Connected")).catch(err => console.log("Error connecting: " + err));
 
-    connection.on("ReceiveQuestion", test);
+    connection.on("ReceiveQuestion", ready);
 
-    function test(content) { console.log(`Someone asked "${content}"`); }
 
-    
 
-    function QuestionAdd(content, date) {
+    function QuestionAdd(authorName, title, category, date, priority, status) {
         //add new question
+        let tbody = document.getElementById("table");
+        let row = document.createElement("tr");
 
-        if (!content) console.log("no content")
-        var table = document.getElementById("@tblID");
+        let authorNameCol = document.createElement("td");
+        authorNameCol.textContent = authorName;
+        row.appendChild(authorNameCol);
 
-        var tableRow = document.createElement("tr");
-        var nameCol = document.createElement("td");
-        var contentCol = document.createElement("td");
-        var cateCol = document.createElement("td");
-        var priorityCol = document.createElement("td");
-        var statusCol = document.createElement("td");
-        var dateCol = document.createElement("td");
-        var divClone = document.getElementById("clone-div");
-        var buttonCol = divClone.cloneNode();
+        let titleCol = document.createElement("td");
+        titleCol.textContent = title;
+        row.appendChild(titleCol);
 
-        contentCol.textContent = content;
-        dateCol.textContent = date;
+        let categoryCol = document.createElement("td");
+        categoryCol.textContent = category;
+        row.appendChild(categoryCol);
 
-        tableRow.appendChild(nameCol);
-        tableRow.appendChild(titleCol);
-        tableRow.appendChild(contentCol);
-        tableRow.appendChild(cateCol);
-        tableRow.appendChild(priorityCol);
-        tableRow.appendChild(statusCol);
-        tableRow.appendChild(dateCol);
-        tableRow.appendChild(buttonCol);
+        let priorityCol = document.createElement("td");
+        priorityCol.textContent = priority;
+        row.appendChild(priorityCol);
 
+        let statusCol = document.createElement("td");
+        statusCol.textContent = status;
+        row.appendChild(statusCol);
 
-    function test(text) {
-        console.log(text);
+        let dateCol = document.createElement("td");
+        dateCol.textContent = moment(date).format("MMM Do YY");
+        row.appendChild(dateCol);
+
+        let cloneDiv = document.getElementById("clone-div");
+        let buttonCol = cloneDiv.cloneNode(true);
+        row.appendChild(buttonCol);
+
+        tbody.appendChild(row);
+
+        //add new noti
+        let ul = document.getElementById("list");
+        let li = document.createElement("li");
+        let a = document.createElement("a");
+        
+       
+        a.textContent = authorName + " created a new question";
+        
+
+        a.onclick = function (e) {
+            e.preventDefault();
+            ul.removeChild(li);
+        }
+        li.style = "background-color:red;";
+        li.appendChild(a);
+        ul.insertBefore(li, ul[0]);
     }
 
-
     function clicked() {
-        var notiCount = document.getElementById("noti-time");
-
+        let notiCount = document.getElementById("noti-time");
         notiCount.textContent = "";
     };
-
-
 </script>
