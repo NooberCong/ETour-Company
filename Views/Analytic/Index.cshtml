@@ -1,4 +1,6 @@
-﻿@{
+﻿@model AnalyticModel
+
+@{
     ViewData["Title"] = "Analytics";
 }
 
@@ -15,7 +17,26 @@
         </button>
     </div>
 </div>
-
+<h3>Top booked tours last 30 days</h3>
+@for (int i = 0; i < Model.TopBookedTours.Length; i++)
+{
+    <h5 class="my-1 text-danger">#@(i + 1) @Model.TopBookedTours[i].Title</h5>
+}
+<hr />
+<div class="my-5">
+    <canvas id="revenueBarChart"></canvas>
+    <h6 class="text-center mt-3">Monthly Revenues</h6>
+</div>
+<hr />
+<div class="my-5">
+    <canvas id="ticketSalesLineChart"></canvas>
+    <h6 class="text-center mt-3">Monthly Ticket Sales</h6>
+</div>
+<hr />
+<div class="my-5">
+    <canvas id="bookingStatusSegmentPieChart"></canvas>
+    <h6 class="text-center mt-3">Booking Status Segmentation</h6>
+</div>
 <canvas class="my-4" id="myChart" width="900" height="380"></canvas>
 
 <h2>Section title</h2>
@@ -148,7 +169,7 @@
 </div>
 
 @section Scripts {
-    <!-- Graphs -->
+    <script src="~/lib/chartjs/dist/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <script>
         var ctx = document.getElementById("myChart");
@@ -178,5 +199,10 @@
                 }
             }
         });
+    </script>
+    <script>
+        @Html.Raw(Model.RevenueChart.CreateChartCode("revenueBarChart"));
+        @Html.Raw(Model.TicketSalesChart.CreateChartCode("ticketSalesLineChart"));
+        @Html.Raw(Model.BookingStatusSegmentChart.CreateChartCode("bookingStatusSegmentPieChart"));
     </script>
 }

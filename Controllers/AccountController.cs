@@ -1,4 +1,5 @@
 ﻿using Company.Models;
+using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.InterfaceImpls;
 using Microsoft.AspNetCore.Mvc;
@@ -13,14 +14,16 @@ namespace Company.Controllers
         private readonly ICustomerRepository _customerRepository;
         private readonly IBookingRepository _bookingRepository;
         private readonly IEmployeeRepository<Employee> _employeeRepository;
+        private readonly IETourLogger _eTourLogger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public AccountController(ICustomerRepository customerRepository, IBookingRepository bookingRepository, IEmployeeRepository<Employee> employeeRepository, IUnitOfWork unitOfWork)
+        public AccountController(ICustomerRepository customerRepository, IBookingRepository bookingRepository, IEmployeeRepository<Employee> employeeRepository, IUnitOfWork unitOfWork, IETourLogger eTourLogger)
         {
             _customerRepository = customerRepository;
             _employeeRepository = employeeRepository;
             _bookingRepository = bookingRepository;
             _unitOfWork = unitOfWork;
+            _eTourLogger = eTourLogger;
         }
 
         public IActionResult Index(bool showBanned = true)
@@ -37,7 +40,7 @@ namespace Company.Controllers
         {
             var customer = await _customerRepository.Queryable
                 .Include(c => c.Reviews)
-                .ThenInclude(rv => rv.Tour)
+                .ThenInclude(rev => rev.Tour)
                 .Include(c => c.Bookings)
                 .ThenInclude(bk => bk.CustomerInfos)
                 .Include(c => c.PointLogs)
@@ -107,6 +110,7 @@ namespace Company.Controllers
             }
 
             await _employeeRepository.UpdateAsync(employee, roles);
+            await _eTourLogger.LogAsync(Log.LogType.Modification, $"{User.Identity.Name} updated employee account {employee.Email}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Employee updated successfully";
@@ -126,6 +130,7 @@ namespace Company.Controllers
 
             customer.IsSoftDeleted = !customer.IsSoftDeleted;
             await _customerRepository.UpdateAsync(customer);
+            await _eTourLogger.LogAsync(customer.IsSoftDeleted? Log.LogType.Deletion: Log.LogType.Creation, $"{User.Identity.Name} {(customer.IsSoftDeleted ? "banned" : "unbanned")} customer {customer.Name}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = $"User {customer.Name} {(customer.IsSoftDeleted ? "banned" : "unbanned")} successfully";
@@ -148,6 +153,7 @@ namespace Company.Controllers
             {
                 employee.IsSoftDeleted = !employee.IsSoftDeleted;
                 await _employeeRepository.UpdateAsync(employee);
+                await _eTourLogger.LogAsync(employee.IsSoftDeleted ? Log.LogType.Deletion : Log.LogType.Creation, $"{User.Identity.Name} {(employee.IsSoftDeleted ? "banned" : "unbanned")} employee account {employee.Email}");
                 await _unitOfWork.CommitAsync();
                 TempData["StatusMessage"] = $"Employee {employee.UserName} {(employee.IsSoftDeleted ? "banned" : "unbanned")} successfully";
             }

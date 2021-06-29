@@ -12,13 +12,15 @@ namespace Company.Controllers
     {
         private readonly ITripRepository _tripRepository;
         private readonly IBookingRepository _bookingRepository;
+        private readonly IETourLogger _eTourLogger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public BookingController(IBookingRepository bookingRepository, ITripRepository tripRepository, IUnitOfWork unitOfWork)
+        public BookingController(IBookingRepository bookingRepository, ITripRepository tripRepository, IUnitOfWork unitOfWork, IETourLogger eTourLogger)
         {
             _bookingRepository = bookingRepository;
             _tripRepository = tripRepository;
             _unitOfWork = unitOfWork;
+            _eTourLogger = eTourLogger;
         }
 
         public async Task<IActionResult> Index(Booking.BookingStatus? status)
@@ -57,18 +59,6 @@ namespace Company.Controllers
             return View(booking);
         }
 
-        public async Task<IActionResult> Edit(int id)
-        {
-            var booking = await _bookingRepository.FindAsync(id);
-
-            if (booking == null)
-            {
-                return NotFound();
-            }
-
-            return View(booking);
-        }
-
         [HttpPost]
         public async Task<IActionResult> UpdateStatus(int id, Booking.BookingStatus status, string returnUrl)
         {
@@ -86,6 +76,7 @@ namespace Company.Controllers
             existingBooking.ChangeStatus(status);
 
             await _bookingRepository.UpdateAsync(existingBooking);
+            await _eTourLogger.LogAsync(Log.LogType.Modification, $"{User.Identity.Name} changed booking No.{existingBooking.ID} status to {existingBooking.Status}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Booking status updated successfully";

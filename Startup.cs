@@ -1,3 +1,4 @@
+using Core.Services;
 using Infrastructure.Extentions;
 using Infrastructure.Hubs;
 using Microsoft.AspNetCore.Authorization;
@@ -40,6 +41,7 @@ namespace Company
             services.AddEmailService();
             services.AddSignalR();
             services.AddETourLogging();
+            services.AddScoped<AnalyticsService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
