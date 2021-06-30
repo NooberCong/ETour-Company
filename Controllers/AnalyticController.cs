@@ -69,11 +69,11 @@ namespace Company.Controllers
         {
             return status switch
             {
-                Booking.BookingStatus.Awaiting_Deposit => ChartColor.FromRgba(178, 134, 0, .5),
+                Booking.BookingStatus.Awaiting_Deposit => ChartColor.FromRgba(178, 134, 0, .75),
                 Booking.BookingStatus.Processing => ChartColor.FromRgba(0, 45, 156, .5),
-                Booking.BookingStatus.Awaiting_Payment => ChartColor.FromRgba(159, 24, 83, .5),
-                Booking.BookingStatus.Completed => ChartColor.FromRgba(25, 128, 56, .5),
-                Booking.BookingStatus.Canceled => ChartColor.FromRgba(87, 4, 8, .5),
+                Booking.BookingStatus.Awaiting_Payment => ChartColor.FromRgba(159, 24, 83, .75),
+                Booking.BookingStatus.Completed => ChartColor.FromRgba(25, 128, 56, .75),
+                Booking.BookingStatus.Canceled => ChartColor.FromRgba(87, 4, 8, .75),
                 _ => throw new NotImplementedException(),
             };
         }
