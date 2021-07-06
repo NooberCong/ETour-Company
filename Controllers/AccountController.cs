@@ -2,6 +2,7 @@
 using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.InterfaceImpls;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -9,18 +10,21 @@ using System.Threading.Tasks;
 
 namespace Company.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AccountController : Controller
     {
         private readonly ICustomerRepository _customerRepository;
         private readonly IBookingRepository _bookingRepository;
+        private readonly ITourReviewRepository _tourReviewRepository;
         private readonly IEmployeeRepository<Employee> _employeeRepository;
         private readonly IETourLogger _eTourLogger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public AccountController(ICustomerRepository customerRepository, IBookingRepository bookingRepository, IEmployeeRepository<Employee> employeeRepository, IUnitOfWork unitOfWork, IETourLogger eTourLogger)
+        public AccountController(ICustomerRepository customerRepository, ITourReviewRepository tourReviewRepository, IBookingRepository bookingRepository, IEmployeeRepository<Employee> employeeRepository, IUnitOfWork unitOfWork, IETourLogger eTourLogger)
         {
             _customerRepository = customerRepository;
             _employeeRepository = employeeRepository;
+            _tourReviewRepository = tourReviewRepository;
             _bookingRepository = bookingRepository;
             _unitOfWork = unitOfWork;
             _eTourLogger = eTourLogger;
@@ -39,8 +43,6 @@ namespace Company.Controllers
         public async Task<IActionResult> DetailCustomer(string id)
         {
             var customer = await _customerRepository.Queryable
-                .Include(c => c.Reviews)
-                .ThenInclude(rev => rev.Tour)
                 .Include(c => c.Bookings)
                 .ThenInclude(bk => bk.CustomerInfos)
                 .Include(c => c.PointLogs)
@@ -57,6 +59,9 @@ namespace Company.Controllers
                 .ThenInclude(tr => tr.Tour)
                 .Include(bk => bk.CustomerInfos)
                 .ToListAsync();
+
+
+            customer.Reviews.AddRange(_tourReviewRepository.GetReviewsForCustomer(customer));
 
             return View(customer);
         }
@@ -149,7 +154,7 @@ namespace Company.Controllers
                 return NotFound();
             }
 
-            if (!employee.IsAdmin())
+            if (!((IEmployee)employee).IsAdmin())
             {
                 employee.IsSoftDeleted = !employee.IsSoftDeleted;
                 await _employeeRepository.UpdateAsync(employee);

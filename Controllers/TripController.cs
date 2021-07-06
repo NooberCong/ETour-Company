@@ -1,46 +1,59 @@
 ﻿using Company.Models;
 using Core.Entities;
 using Core.Interfaces;
+using Infrastructure.InfrasUtils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Company.Controllers
 {
+    [Authorize(Roles = "Admin,Travel")]
     public class TripController : Controller
     {
         private readonly ITourRepository _tourRepository;
         private readonly ITripRepository _tripRepository;
         private readonly IDiscountRepository _discountRepository;
         private readonly IETourLogger _eTourLogger;
+        private readonly IEmailService _emailService;
+        private readonly IEmailComposer _emailComposer;
+        private readonly IAuthorizationService _authorizationService;
         private readonly IUnitOfWork _unitOfWork;
 
-        public TripController(ITourRepository tourRepository, ITripRepository tripRepository, IDiscountRepository discountRepository, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
+        public TripController(ITourRepository tourRepository, ITripRepository tripRepository, IDiscountRepository discountRepository, IETourLogger eTourLogger, IUnitOfWork unitOfWork, IEmailService emailService, IEmailComposer emailComposer, IAuthorizationService authorizationService)
         {
             _tourRepository = tourRepository;
             _tripRepository = tripRepository;
             _discountRepository = discountRepository;
             _eTourLogger = eTourLogger;
+            _emailService = emailService;
+            _emailComposer = emailComposer;
+            _authorizationService = authorizationService;
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IActionResult> Index(bool showClosed = false)
+        public async Task<IActionResult> Index(bool showClosed = false, bool showOwned = false)
         {
             var tripList = await _tripRepository.Queryable
                 .Include(tr => tr.Tour)
                 .Include(tr => tr.TripDiscounts)
                 .ThenInclude(trd => trd.Discount)
-                .Where(tr => showClosed || tr.IsOpen).ToArrayAsync();
+                .Where(tr => showClosed || tr.IsOpen)
+                .Where(tr => !showOwned || tr.OwnerID == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToArrayAsync();
 
             var tourList = _tourRepository.Queryable.Where(t => t.IsOpen);
 
             return View(new TripListModel
             {
                 Trips = tripList,
-                Tours = tourList
+                Tours = tourList,
+                ShowClosed = showClosed,
+                ShowOwned = showOwned
             });
         }
 
@@ -77,7 +90,10 @@ namespace Company.Controllers
         {
             returnUrl ??= Url.Action("Index");
 
-            Tour tour = await _tourRepository.FindAsync(trip.TourID);
+            Tour tour = await _tourRepository.
+                Queryable.Include(t => t.Followings)
+                .ThenInclude(tf => tf.Customer)
+                .FirstOrDefaultAsync(t => t.ID == trip.TourID);
 
             if (tour == null)
             {
@@ -101,10 +117,26 @@ namespace Company.Controllers
             }
 
             trip.IsOpen = tour.IsOpen;
+            trip.OwnerID = User.Claims.First(cl => cl.Type == ClaimTypes.NameIdentifier).Value;
 
             await _tripRepository.AddAsync(trip, discounts);
             await _eTourLogger.LogAsync(Log.LogType.Creation, $"{User.Identity.Name} created trip #{trip.ID} - {tour.Title}");
             await _unitOfWork.CommitAsync();
+
+            var addedTrip = await _tripRepository.Queryable
+                .Include(tr => tr.Tour)
+                .Include(tr => tr.TripDiscounts)
+                .ThenInclude(trd => trd.Discount)
+                .FirstOrDefaultAsync(tr => tr.ID == trip.ID);
+
+            string promoMessage = _emailComposer.ComposeTripPromotion(addedTrip,
+                    Url.Action("Detail", "Trip", new { id = addedTrip.ID }, "https", HostHelper.ClientHostUrl()),
+                    Url.Action("New", "Booking", new { tripID = addedTrip.ID }, "https", HostHelper.ClientHostUrl()));
+
+            foreach (var following in tour.Followings)
+            {
+                await _emailService.SendEmailAsync(following.Customer.Email, $"New trip for {tour.Title}", promoMessage);
+            }
 
             TempData["StatusMessage"] = "Trip created successfully";
             return LocalRedirect(returnUrl);
@@ -120,6 +152,13 @@ namespace Company.Controllers
             if (trip == null)
             {
                 return NotFound();
+            }
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, trip, "OwnedTrip");
+
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
             }
 
             return View(new TripFormModel
@@ -144,6 +183,13 @@ namespace Company.Controllers
             if (existingTrip == null)
             {
                 return NotFound();
+            }
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, existingTrip, "OwnedTrip");
+
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
             }
 
             var errors = trip.GetValidationErrors();
@@ -183,6 +229,13 @@ namespace Company.Controllers
             if (trip == null)
             {
                 return NotFound();
+            }
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, trip, "OwnedTrip");
+
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
             }
 
             if (trip.IsOpen)

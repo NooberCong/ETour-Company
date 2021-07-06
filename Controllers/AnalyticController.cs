@@ -4,6 +4,7 @@ using Company.Models;
 using Core.Entities;
 using Core.Interfaces;
 using Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -12,6 +13,7 @@ using System.Linq;
 
 namespace Company.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AnalyticController : Controller
     {
         private readonly IBookingRepository _bookingRepository;

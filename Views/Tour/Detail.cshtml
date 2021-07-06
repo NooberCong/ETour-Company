@@ -1,7 +1,7 @@
-﻿@model Tour
+﻿@model TourDetailModel
 
 @{
-    ViewData["Title"] = Model.Title;
+    ViewData["Title"] = Model.Tour.Title;
 }
 
 <link href="~/lib/lightbox2/css/lightbox.min.css" rel="stylesheet" />
@@ -21,12 +21,12 @@
 </style>
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
-    <h1 class="h2">@Model.Title</h1>
+    <h1 class="h2">@Model.Tour.Title</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
         <a class="btn btn-secondary ml-auto mr-2" asp-action="Index"><span data-feather="arrow-left"></span> Back to list</a>
-        <a class="btn btn-primary ml-auto mr-2" asp-action="Edit" asp-route-id="@Model.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="edit"></span> Edit</a>
-        <form class="text-white" style="cursor: pointer" asp-action="ToggleClose" method="post" asp-route-id="@Model.ID" asp-route-returnUrl="@Context.Request.Path">
-            @if (Model.IsOpen)
+        <a class="btn btn-primary ml-auto mr-2" asp-action="Edit" asp-route-id="@Model.Tour.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="edit"></span> Edit</a>
+        <form class="text-white" style="cursor: pointer" asp-action="ToggleClose" method="post" asp-route-id="@Model.Tour.ID" asp-route-returnUrl="@Context.Request.Path">
+            @if (Model.Tour.IsOpen)
             {
                 <a onclick="$(this).closest('form').submit()" class="btn btn-danger"><span data-feather="trash"></span> Close</a>
 
@@ -47,7 +47,7 @@
         <a class="nav-link" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="false">Trips</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="reviews-tab" data-toggle="tab" href="#reviews" role="tab" aria-controls="reviews" aria-selected="false">Reviews (@Model.Reviews.Count)</a>
+        <a class="nav-link" id="reviews-tab" data-toggle="tab" href="#reviews" role="tab" aria-controls="reviews" aria-selected="false">Reviews</a>
     </li>
 </ul>
 <div class="tab-content" id="advancedTabContent">
@@ -56,29 +56,29 @@
             <table class="table">
                 <tbody>
                     <tr>
-                        <th>@Html.DisplayNameFor(m => m.ID)</th>
-                        <td>@Html.DisplayFor(m => m.ID)</td>
+                        <th>@Html.DisplayNameFor(m => m.Tour.ID)</th>
+                        <td>@Html.DisplayFor(m => m.Tour.ID)</td>
                     </tr>
                     <tr>
-                        <th>@Html.DisplayNameFor(m => m.Title)</th>
-                        <td>@Html.DisplayFor(m => m.Title)</td>
+                        <th>@Html.DisplayNameFor(m => m.Tour.Title)</th>
+                        <td>@Html.DisplayFor(m => m.Tour.Title)</td>
                     </tr>
                     <tr>
-                        <th>@Html.DisplayNameFor(m => m.StartPlace)</th>
-                        <td>@Html.DisplayFor(m => m.StartPlace)</td>
+                        <th>@Html.DisplayNameFor(m => m.Tour.StartPlace)</th>
+                        <td>@Html.DisplayFor(m => m.Tour.StartPlace)</td>
                     </tr>
                     <tr>
-                        <th>@Html.DisplayNameFor(m => m.Destination)</th>
-                        <td>@Html.DisplayFor(m => m.Destination)</td>
+                        <th>@Html.DisplayNameFor(m => m.Tour.Destination)</th>
+                        <td>@Html.DisplayFor(m => m.Tour.Destination)</td>
                     </tr>
                     <tr>
-                        <th>@Html.DisplayNameFor(m => m.Description)</th>
-                        <td>@Html.DisplayFor(m => m.Description)</td>
+                        <th>@Html.DisplayNameFor(m => m.Tour.Description)</th>
+                        <td>@Html.DisplayFor(m => m.Tour.Description)</td>
                     </tr>
                     <tr>
                         <th>Images</th>
                         <td class="d-flex flex-wrap">
-                            @foreach (var url in Model.ImageUrls)
+                            @foreach (var url in Model.Tour.ImageUrls)
                             {
                                 <a data-lightbox="tour-images" href="@url"><img style="height: 10rem" src="@url" class="img-fluid mr-2 mb-2" /></a>
                             }
@@ -89,7 +89,7 @@
         </div>
     </div>
     <div class="tab-pane fade" id="info" role="tabpanel" aria-labelledby="info-tab">
-        <a asp-controller="Trip" asp-action="New" asp-route-tourID="@Model.ID" asp-route-returnUrl="@Context.Request.Path" class="btn btn-success mb-3">
+        <a asp-controller="Trip" asp-action="New" asp-route-tourID="@Model.Tour.ID" asp-route-returnUrl="@Context.Request.Path" class="btn btn-success mb-3">
             <span data-feather="plus"></span> New Trip
         </a>
         <div class="table-responsive">
@@ -106,7 +106,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var trip in Model.Trips)
+                    @foreach (var trip in Model.Tour.Trips)
                     {
                         <tr>
                             <td>
@@ -136,7 +136,7 @@
                 </tbody>
             </table>
         </div>
-        @if (!Model.Trips.Any())
+        @if (!Model.Tour.Trips.Any())
         {
             <p class="text-muted text-center">No trips are available for this tour</p>
         }
@@ -157,12 +157,11 @@
                     @foreach (var review in Model.Reviews)
                     {
                         <tr>
-                            <td>@review.Owner.Name</td>
+                            <td>@review.Booking.Owner.Name</td>
                             <td>
                                 @for (int i = 0; i < review.Stars; i++)
                                 {
                                     <span class="text-warning" data-feather="star"></span>
-
                                 }
                             </td>
                             <td>@review.LastUpdated</td>

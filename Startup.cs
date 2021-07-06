@@ -1,3 +1,4 @@
+using Company.AuthorizationHandlers;
 using Core.Services;
 using Infrastructure.Extentions;
 using Infrastructure.Hubs;
@@ -37,11 +38,16 @@ namespace Company
             services.AddControllersWithViews();
             services.AddBaseDb();
             services.AddCompanyDb();
-            services.AddAuthorization();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("OwnedTrip", policy =>
+       policy.Requirements.Add(new OwnedTripRequirement()));
+            });
             services.AddEmailService();
             services.AddSignalR();
             services.AddETourLogging();
             services.AddScoped<AnalyticsService>();
+            services.AddSingleton<IAuthorizationHandler, TripAuthorizationHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

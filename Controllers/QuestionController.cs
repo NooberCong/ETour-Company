@@ -1,14 +1,13 @@
 ﻿using Company.Models;
 using Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Company.Controllers
 {
+    [Authorize(Roles = "Admin,CustomerRelation")]
     public class QuestionController : Controller
     {
         private readonly IQuestionRepository _questionRepository;
