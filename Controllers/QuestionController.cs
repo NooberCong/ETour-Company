@@ -43,7 +43,7 @@ namespace Company.Controllers
 
         public async Task<IActionResult> Answer(int id)
         {
-            Question question = await _questionRepository.Queryable.Include(p => p.Author)
+            Question question = await _questionRepository.Queryable.Include(p => p.Owner)
                .FirstOrDefaultAsync(p => p.ID == id);
 
             
@@ -63,7 +63,7 @@ namespace Company.Controllers
             returnUrl ??= Url.Action("Index");
             string empID = User.Claims.First(cl => cl.Type == ClaimTypes.NameIdentifier).Value;
             Employee Author = await _employeeRepository.FindAsync(empID);
-            Question question1 = await _questionRepository.Queryable.Include(p => p.Author)
+            Question question1 = await _questionRepository.Queryable.Include(p => p.Owner)
                .FirstOrDefaultAsync(p => p.ID == id);
             Answer answer = new Answer()
             {
