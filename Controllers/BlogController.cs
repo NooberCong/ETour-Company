@@ -3,6 +3,7 @@ using Core.Entities;
 using Core.Interfaces;
 using Core.Validation_Attributes;
 using Infrastructure.InterfaceImpls;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace Company.Controllers
 {
+    [Authorize(Roles = "Admin,CustomerRelation")]
     public class BlogController : Controller
     {
         private readonly IPostRepository<Post, Employee> _blogRepository;

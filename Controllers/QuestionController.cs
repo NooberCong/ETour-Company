@@ -1,17 +1,23 @@
 ﻿using Company.Models;
 using Core.Entities;
 using Core.Interfaces;
+<<<<<<< HEAD
 using Infrastructure.InterfaceImpls;
+=======
+using Microsoft.AspNetCore.Authorization;
+>>>>>>> ee1b44e5cc0ac386d6cbf222408ca85e601e8eb2
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
+<<<<<<< HEAD
 using System.Security.Claims;
 using System.Threading.Tasks;
+=======
+>>>>>>> ee1b44e5cc0ac386d6cbf222408ca85e601e8eb2
 
 namespace Company.Controllers
 {
+    [Authorize(Roles = "Admin,CustomerRelation")]
     public class QuestionController : Controller
     {
         private readonly IQuestionRepository _questionRepository;

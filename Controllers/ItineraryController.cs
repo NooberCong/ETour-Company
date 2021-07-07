@@ -1,27 +1,29 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Company.Models;
 using Core.Entities;
 using Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Company.Controllers
 {
+    [Authorize(Roles = "Admin,Travel")]
     public class ItineraryController : Controller
     {
         private readonly ITripRepository _tripRepository;
         private readonly IItineraryRepository _itineraryRepository;
         private readonly IETourLogger _eTourLogger;
+        private readonly IAuthorizationService _authorizationService;
         private readonly IUnitOfWork _unitOfWork;
 
-        public ItineraryController(ITripRepository tripRepository, IItineraryRepository itineraryRepository, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
+        public ItineraryController(ITripRepository tripRepository, IItineraryRepository itineraryRepository, IETourLogger eTourLogger, IAuthorizationService authorizationService, IUnitOfWork unitOfWork)
         {
             _tripRepository = tripRepository;
             _itineraryRepository = itineraryRepository;
             _eTourLogger = eTourLogger;
+            _authorizationService = authorizationService;
             _unitOfWork = unitOfWork;
         }
 
@@ -30,6 +32,13 @@ namespace Company.Controllers
             var trip = await _tripRepository.Queryable
                 .Include(tr => tr.Tour)
                 .FirstOrDefaultAsync(tr => tr.ID == tripID);
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, trip, "OwnedTrip");
+
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
+            }
 
             if (trip == null)
             {
@@ -54,6 +63,13 @@ namespace Company.Controllers
             if (trip == null)
             {
                 return NotFound();
+            }
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, trip, "OwnedTrip");
+
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
             }
 
             var errors = itinerary.GetValidationErrors(trip);
@@ -89,6 +105,13 @@ namespace Company.Controllers
                 return NotFound();
             }
 
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, itinerary.Trip, "OwnedTrip");
+
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
+            }
+
             return View(new ItineraryFormModel
             {
                 Trip = itinerary.Trip,
@@ -109,6 +132,13 @@ namespace Company.Controllers
             if (existingItinerary == null)
             {
                 return NotFound();
+            }
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, existingItinerary.Trip, "OwnedTrip");
+
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
             }
 
             var errors = itinerary.GetValidationErrors(existingItinerary.Trip);
@@ -140,6 +170,13 @@ namespace Company.Controllers
             if (itinerary == null)
             {
                 return NotFound();
+            }
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, itinerary.Trip, "OwnedTrip");
+
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
             }
 
             returnUrl ??= Url.Action("Detail", "Trip", new { id = itinerary.TripID });

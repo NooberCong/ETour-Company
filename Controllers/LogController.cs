@@ -2,11 +2,13 @@
 using Core.Entities;
 using Core.Helpers;
 using Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
 namespace Company.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class LogController : Controller
     {
         private static readonly int _pageSize = 20;

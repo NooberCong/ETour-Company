@@ -2,6 +2,7 @@
 using Core.Entities;
 using Core.Interfaces;
 using Core.Validation_Attributes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,15 +11,18 @@ using System.Threading.Tasks;
 
 namespace Company.Controllers
 {
+    [Authorize(Roles = "Admin,Travel")]
     public class TourController : Controller
     {
         private readonly ITourRepository _tourRepository;
+        private readonly ITourReviewRepository _tourReviewRepository;
         private readonly IETourLogger _eTourLogger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public TourController(ITourRepository tourRepository, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
+        public TourController(ITourRepository tourRepository, ITourReviewRepository tourReviewRepository, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
         {
             _tourRepository = tourRepository;
+            _tourReviewRepository = tourReviewRepository;
             _eTourLogger = eTourLogger;
             _unitOfWork = unitOfWork;
         }
@@ -112,11 +116,16 @@ namespace Company.Controllers
                 .ThenInclude(trd => trd.Discount)
                 .FirstOrDefaultAsync(t => t.ID == id);
 
+            var reviews = _tourReviewRepository.GetReviewsForTour(tour);
+
             if (tour == null)
             {
                 return NotFound();
             }
-            return View(tour);
+            return View(new TourDetailModel { 
+                Tour = tour,
+                Reviews = reviews
+            });
         }
 
         [HttpPost]

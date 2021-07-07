@@ -1,6 +1,7 @@
 ﻿using Company.Models;
 using Core.Entities;
 using Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace Company.Controllers
 {
+    [Authorize(Roles = "Admin,Travel")]
     public class BookingController : Controller
     {
         private readonly ITripRepository _tripRepository;

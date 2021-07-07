@@ -12,5 +12,6 @@ namespace Company.Models
         public IEnumerable<Trip> Trips { get; set; }
         public IEnumerable<Tour> Tours { get; set; }
         public bool ShowClosed { get; set; }
+        public bool ShowOwned { get; set; }
     }
 }

@@ -9,7 +9,11 @@
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
     <h1 class="h2">Manage Trips</h1>
     <div class="btn-toolbar mb-2 mb-md-0 d-flex align-items-center">
-        <form method="get" class="mr-3">
+        <form method="get" class="mr-3 d-flex">
+            <div class="form-check mr-3">
+                <input style="transform: translateY(2px)" onchange="$(this).closest('form').submit()" asp-for="ShowOwned" class="form-check-input">
+                <label asp-for="ShowOwned"> Show My Trips</label>
+            </div>
             <div class="form-check">
                 <input style="transform: translateY(2px)" onchange="$(this).closest('form').submit()" asp-for="ShowClosed" class="form-check-input">
                 <label asp-for="ShowClosed"> Show Closed</label>
