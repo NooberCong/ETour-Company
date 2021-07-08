@@ -73,9 +73,21 @@ namespace Company
             app.UseAuthentication();
             app.UseAuthorization();
 
+
+            app.UseCors(builder =>
+            {
+                builder.WithOrigins("https://localhost:44323")
+                .AllowAnyHeader()
+                .WithMethods("GET", "POST")
+                .AllowCredentials();
+            });
+
+          
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<LogHub>("/logs");
+                endpoints.MapHub<QAHub>("/qa");
                 endpoints.MapRazorPages();
                 endpoints.MapControllerRoute(
                     name: "default",
