@@ -46,7 +46,7 @@
                     <td>@question.LastUpdated.ToShortDateString()</td>
                     <td class="border-top d-flex" id="clone-div">
                         <a class="mr-3 text-primary" asp-action="Answer" asp-route-id="@question.ID" id="clone-a"><span data-feather="navigation" /></a>
-                        
+
                         <form style="cursor: pointer" class="d-inline" asp-action="ToggleVisibility" asp-route-id="@question.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="question">
                             @if (question.Status != Question.QuestionStatus.Closed)
                             {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="x-square" /></a> }
@@ -71,7 +71,6 @@
             </div>
             <div class="modal-body list-group list-group-flush">
                 <ul id="list">
-                   
                 </ul>
             </div>
         </div>
@@ -80,93 +79,94 @@
 
 <partial name="_DataTable" model="@tblID" />
 
-<<script src="https://unpkg.com/@@aspnet/signalr@1.0.2/dist/browser/signalr.js"></script>
-<script src="https://unpkg.com/@@microsoft/signalr@6.0.0-preview.4.21253.5/dist/browser/signalr.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js" integrity="sha256-CutOzxCRucUsn6C6TcEYsauvvYilEniTXldPa6/wu0k=" crossorigin="anonymous"></script>
+@section Scripts {
+    <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="~/lib/moment/moment.min.js"></script>
 
-<script>
+    <script>
 
-    var connection = new signalR.HubConnectionBuilder()
-        .withUrl("/qa")
-        .configureLogging(signalR.LogLevel.Information)
-        .build();
-
-
-    function NotiCount() {
-        let noti = document.getElementById("noti-time");
-        let ul = document.getElementById("list");
-        let itemCount = ul.childElementCount;
-
-        noti.textContent = itemCount;
-    }
-
-    function ready(authorName, title, category, date, priority, status) {
-        QuestionAdd(authorName, title, category, date, priority, status);
-        NotiCount();
-
-    }
-
-    connection.start().then(() => console.log("Connected")).catch(err => console.log("Error connecting: " + err));
-
-    connection.on("ReceiveQuestion", ready);
+        var connection = new signalR.HubConnectionBuilder()
+            .withUrl("/qa")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
 
 
+        function NotiCount() {
+            let noti = document.getElementById("noti-time");
+            let ul = document.getElementById("list");
+            let itemCount = ul.childElementCount;
 
-    function QuestionAdd(authorName, title, category, date, priority, status) {
-        //add new question
-        let tbody = document.getElementById("table");
-        let row = document.createElement("tr");
-
-        let authorNameCol = document.createElement("td");
-        authorNameCol.textContent = authorName;
-        row.appendChild(authorNameCol);
-
-        let titleCol = document.createElement("td");
-        titleCol.textContent = title;
-        row.appendChild(titleCol);
-
-        let categoryCol = document.createElement("td");
-        categoryCol.textContent = category;
-        row.appendChild(categoryCol);
-
-        let priorityCol = document.createElement("td");
-        priorityCol.textContent = priority;
-        row.appendChild(priorityCol);
-
-        let statusCol = document.createElement("td");
-        statusCol.textContent = status;
-        row.appendChild(statusCol);
-
-        let dateCol = document.createElement("td");
-        dateCol.textContent = moment(date).format("MMM Do YY");
-        row.appendChild(dateCol);
-
-        let cloneDiv = document.getElementById("clone-div");
-        let buttonCol = cloneDiv.cloneNode(true);
-        row.appendChild(buttonCol);
-
-        tbody.appendChild(row);
-
-        //add new noti
-        let ul = document.getElementById("list");
-        let li = document.createElement("li");
-        let a = document.createElement("a");
-        
-       
-        a.textContent = authorName + " created a new question";
-        
-
-        a.onclick = function (e) {
-            e.preventDefault();
-            ul.removeChild(li);
+            noti.textContent = itemCount;
         }
-        li.style = "background-color:red;";
-        li.appendChild(a);
-        ul.insertBefore(li, ul[0]);
-    }
 
-    function clicked() {
-        let notiCount = document.getElementById("noti-time");
-        notiCount.textContent = "";
-    };
-</script>
+        function ready(authorName, title, category, date, priority, status) {
+            QuestionAdd(authorName, title, category, date, priority, status);
+            NotiCount();
+        }
+
+        connection.start().then(() => console.log("Connected")).catch(err => console.log("Error connecting: " + err));
+
+        connection.on("ReceiveQuestion", ready);
+
+
+
+        function QuestionAdd(authorName, title, category, date, priority, status) {
+            //add new question
+            let tbody = document.getElementById("table");
+            let row = document.createElement("tr");
+
+            let authorNameCol = document.createElement("td");
+            authorNameCol.textContent = authorName;
+            row.appendChild(authorNameCol);
+
+            let titleCol = document.createElement("td");
+            titleCol.textContent = title;
+            row.appendChild(titleCol);
+
+            let categoryCol = document.createElement("td");
+            categoryCol.textContent = category;
+            row.appendChild(categoryCol);
+
+            let priorityCol = document.createElement("td");
+            priorityCol.textContent = priority;
+            row.appendChild(priorityCol);
+
+            let statusCol = document.createElement("td");
+            statusCol.textContent = status;
+            row.appendChild(statusCol);
+
+            let dateCol = document.createElement("td");
+            dateCol.textContent = moment(date).format("MMM Do YY");
+            row.appendChild(dateCol);
+
+            let cloneDiv = document.getElementById("clone-div");
+            let buttonCol = cloneDiv.cloneNode(true);
+            row.appendChild(buttonCol);
+
+            tbody.appendChild(row);
+
+            //add new noti
+            let ul = document.getElementById("list");
+            let li = document.createElement("li");
+            let a = document.createElement("a");
+
+
+            a.textContent = `${authorName} created new question: ${title}`;
+
+
+            a.onclick = function (e) {
+                e.preventDefault();
+                ul.removeChild(li);
+            }
+
+            li.appendChild(a);
+            ul.insertBefore(li, ul[0]);
+        }
+
+        function clicked() {
+            let notiCount = document.getElementById("noti-time");
+            notiCount.textContent = "";
+        };
+    </script>
+
+} 

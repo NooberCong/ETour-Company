@@ -1,19 +1,14 @@
 ﻿using Company.Models;
 using Core.Entities;
 using Core.Interfaces;
-<<<<<<< HEAD
 using Infrastructure.InterfaceImpls;
-=======
 using Microsoft.AspNetCore.Authorization;
->>>>>>> ee1b44e5cc0ac386d6cbf222408ca85e601e8eb2
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
-<<<<<<< HEAD
 using System.Security.Claims;
 using System.Threading.Tasks;
-=======
->>>>>>> ee1b44e5cc0ac386d6cbf222408ca85e601e8eb2
 
 namespace Company.Controllers
 {
@@ -71,13 +66,13 @@ namespace Company.Controllers
             Employee Author = await _employeeRepository.FindAsync(empID);
             Question question1 = await _questionRepository.Queryable.Include(p => p.Owner)
                .FirstOrDefaultAsync(p => p.ID == id);
-            Answer answer = new Answer()
+            Answer answer = new()
             {
                 Author = Author.FullName,
                 Content = Answer,
                 QuestionID = id,
                 AuthoredByCustomer = false,
-                LastUpdated = DateTime.UtcNow
+                LastUpdated = DateTime.Now
             };
            
 

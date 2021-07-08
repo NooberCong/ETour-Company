@@ -30,7 +30,13 @@ namespace Company.Controllers
         public IActionResult Index(bool showClosed = false)
         {
 
-            var tourList = _tourRepository.Queryable.Where(tour => showClosed || tour.IsOpen == true).AsEnumerable();
+            var tourList = _tourRepository.Queryable
+                .Where(tour => showClosed || tour.IsOpen == true)
+                .AsEnumerable()
+                .Select(tour => {
+                    tour.ReviewSummary = TourReviewSummary.FromReviews(_tourReviewRepository.GetReviewsForTour(tour));
+                    return tour;
+                });
             return View(new TourListModel
             {
                 Tours = tourList,
