@@ -15,7 +15,7 @@
                     <div class="text-muted fst-italic mb-2">Posted on @Model.LastUpdated.ToLongDateString() by @Model.Owner.FullName</div>
                     @foreach (var tag in Model.Tags)
                     {
-                        <a style="cursor:pointer" class="badge bg-primary text-decoration-none text-white p-1 px-2">@tag</a>
+                    <a style="cursor:pointer" class="badge bg-primary text-decoration-none text-white p-1 px-2">@tag</a>
                     }
                 </header>
             </div>
@@ -26,11 +26,11 @@
                     <form class="text-white mr-2" style="cursor: pointer" asp-action="ToggleClose" method="post" asp-route-id="@Model.ID" asp-route-returnUrl="@Context.Request.Path">
                         @if (!Model.IsSoftDeleted)
                         {
-                            <a onclick="$(this).closest('form').submit()" class="btn btn-danger"><span data-feather="eye-off"></span> Hide</a>
+                        <a onclick="$(this).closest('form').submit()" class="btn btn-danger"><span data-feather="eye-off"></span> Hide</a>
                         }
                         else
                         {
-                            <a onclick="$(this).closest('form').submit()" class="btn btn-success"><span data-feather="eye"></span> Show</a>
+                        <a onclick="$(this).closest('form').submit()" class="btn btn-success"><span data-feather="eye"></span> Show</a>
                         }
                     </form>
                 </div>
@@ -42,48 +42,29 @@
                 <section class="mb-3 overflow-hidden">
                     @Html.Raw(Model.Content)
                 </section>
+                @if(Model.Comments.Any()) {
                 <!-- Comments section-->
                 <section>
-                    <div class="card bg-light">
-                        <div class="card-body">
-                            <!-- Comment form-->
-                            <h4 class="mb-4">Comments<span class="font-weight-normal ml-3">4</span></h4>
-                            <!-- Comment with nested comments-->
-                            <div class="d-flex mb-4">
-                                <!-- Parent comment-->
-                                <div class="flex-shrink-0"><img class="rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..." /></div>
-                                <div class="ms-3">
-                                    <div class="fw-bold">Commenter Name</div>
-                                    If you're going to lead a space frontier, it has to be government; it'll never be private enterprise. Because the space frontier is dangerous, and it's expensive, and it has unquantified risks.
-                                    <!-- Child comment 1-->
-                                    <div class="d-flex mt-4">
-                                        <div class="flex-shrink-0"><img class="rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..." /></div>
-                                        <div class="ms-3">
-                                            <div class="fw-bold">Commenter Name</div>
-                                            And under those conditions, you cannot establish a capital-market evaluation of that enterprise. You can't get investors.
-                                        </div>
-                                    </div>
-                                    <!-- Child comment 2-->
-                                    <div class="d-flex mt-4">
-                                        <div class="flex-shrink-0"><img class="rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..." /></div>
-                                        <div class="ms-3">
-                                            <div class="fw-bold">Commenter Name</div>
-                                            When you put money directly to a problem, it makes a good headline.
-                                        </div>
-                                    </div>
+                    <h3 class="my-3">Comments</h3>
+                    <div class=" w-100">
+                        @foreach (var comment in Model.Comments)
+                            {
+                        <div class="d-flex bg-light mb-3 p-3">
+                            <img class="rounded-circle mr-3" src="@comment.Owner.ImgUrl" alt="Commentator image">
+                            <div>
+                                <div>
+                                    <h5 class="h5">@comment.Owner.Name</h5>
+                                    <span>@comment.LastUpdated.ToCustomDateString()</span>
                                 </div>
-                            </div>
-                            <!-- Single comment-->
-                            <div class="d-flex">
-                                <div class="flex-shrink-0"><img class="rounded-circle" src="https://dummyimage.com/50x50/ced4da/6c757d.jpg" alt="..." /></div>
-                                <div class="ms-3">
-                                    <div class="fw-bold">Commenter Name</div>
-                                    When I look at the universe and all the ways the universe wants to kill us, I find it hard to reconcile that with statements of beneficence.
-                                </div>
+                                <p>
+                                    @comment.Content
+                                </p>
                             </div>
                         </div>
+                       }
                     </div>
                 </section>
+                }
             </div>
             <div class="col-md-4">
                 <!-- Search widget-->
@@ -105,16 +86,8 @@
                                     <td class="p-1 border-0 text-right">6 minutes</td>
                                 </tr>
                                 <tr>
-                                    <th class="pl-0 py-1 pr-1 border-0">Likes</th>
-                                    <td class="p-1 border-0 text-right">33</td>
-                                </tr>
-                                <tr>
-                                    <th class="pl-0 py-1 pr-1 border-0">Shares</th>
-                                    <td class="p-1 border-0 text-right">10</td>
-                                </tr>
-                                <tr>
                                     <th class="pl-0 py-1 pr-1 border-0">Comments</th>
-                                    <td class="p-1 border-0 text-right">6</td>
+                                    <td class="p-1 border-0 text-right">@Model.Comments.Count</td>
                                 </tr>
                             </tbody>
                         </table>

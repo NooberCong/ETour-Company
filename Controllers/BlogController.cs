@@ -73,7 +73,10 @@ namespace Company.Controllers
 
         public async Task<IActionResult> Detail(int id)
         {
-            Post post = await _blogRepository.Queryable.Include(p => p.Owner)
+            Post post = await _blogRepository.Queryable
+                .Include(p => p.Owner)
+                .Include(p => p.Comments)
+                .ThenInclude(cmt => cmt.Owner)
                 .FirstOrDefaultAsync(p => p.ID == id);
 
             if (post == null)
