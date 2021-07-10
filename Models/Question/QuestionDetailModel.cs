@@ -9,8 +9,6 @@ namespace Company.Models
     public class QuestionDetailModel
     {
         public Question Question { get; set; }
-        public string Answer { get; set; }
-        public List<Answer> Answers { get; set; }
-        public int QuestionId { get; set; }
+        public Answer Answer { get; set; }
     }
 }

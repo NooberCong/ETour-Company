@@ -1,22 +1,6 @@
 ﻿using Company.Models;
 using Core.Entities;
 using Core.Interfaces;
-<<<<<<< HEAD
-
-using Infrastructure.InterfaceImpls;
-
-using Microsoft.AspNetCore.Authorization;
-
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using System.Security.Claims;
-using System.Threading.Tasks;
-
-=======
 using Infrastructure.InterfaceImpls;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,11 +9,11 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
->>>>>>> caa0746e055a6b0adc194c7e1ad000a63030b31f
 
 namespace Company.Controllers
 {
-    
+
+    [Authorize(Roles = "Admin,CustomerRelation")]
     public class QuestionController : Controller
     {
         private readonly IQuestionRepository _questionRepository;
@@ -53,7 +37,8 @@ namespace Company.Controllers
                 .Where(q => showClosed || q.Status != Core.Entities.Question.QuestionStatus.Closed)
                 .AsEnumerable();
 
-            return View(new QuestionListModel { 
+            return View(new QuestionListModel
+            {
                 ShowClosed = showClosed,
                 Questions = questions
             });
@@ -61,68 +46,70 @@ namespace Company.Controllers
 
         public async Task<IActionResult> Answer(int id)
         {
-            Question question = await _questionRepository.Queryable.Include(p => p.Owner)
-               .FirstOrDefaultAsync(p => p.ID == id);
-            List<Answer> answers = (from a in _answerRepository.Queryable where a.QuestionID == id select a).ToList();
+            Question question = await _questionRepository.Queryable
+                .Include(q => q.Owner)
+                .Include(q => q.Answers)
+                .FirstOrDefaultAsync(p => p.ID == id);
 
             return View(new QuestionDetailModel
             {
-                Question=question,
-                Answers = answers,
-                QuestionId = id
+                Question = question
             });
         }
-    
+
         [HttpPost]
-        public async Task<IActionResult> Answer(string Answer, int QuestionId, string returnUrl, Question Question)
+        public async Task<IActionResult> Answer(Answer answer, string returnUrl)
         {
-            
-            returnUrl ??= Url.Action("Index");
-            string empID = User.Claims.First(cl => cl.Type == ClaimTypes.NameIdentifier).Value;
-            Employee Author = await _employeeRepository.FindAsync(empID);
-            Question question1 = await _questionRepository.Queryable.Include(p => p.Owner)
-<<<<<<< HEAD
-               .FirstOrDefaultAsync(p => p.ID == QuestionId);
-
-            question1.Status = Question.Status;
-            question1.Priority = Question.Priority;
-
-            Answer answer = new Answer()
-=======
-               .FirstOrDefaultAsync(p => p.ID == id);
-            Answer answer = new()
->>>>>>> caa0746e055a6b0adc194c7e1ad000a63030b31f
+            var question = await _questionRepository.Queryable
+                .Include(q => q.Owner)
+                .Include(q => q.Answers)
+                .FirstOrDefaultAsync(q => q.ID == answer.QuestionID);
+            if (question == null)
             {
-                Author = Author.FullName,
-                Content = Answer,
-                QuestionID = QuestionId,
-                AuthoredByCustomer = false,
-                LastUpdated = DateTime.Now
-            };
+                return NotFound();
+            }
 
-            await _questionRepository.UpdateAsync(question1);
-            if(Answer != null)await _answerRepository.AddAsync(answer);
+            if (!ModelState.IsValid)
+            {
+                return View(new QuestionDetailModel
+                {
+                    Question = question,
+                    Answer = answer
+                });
+            }
+
+            returnUrl ??= Url.Action("Answer", new { id = question.ID });
+
+            string empID = User.Claims.First(cl => cl.Type == ClaimTypes.NameIdentifier).Value;
+            Employee author = await _employeeRepository.FindAsync(empID);
+
+            answer.Author = author.FullName;
+            answer.AuthoredByCustomer = false;
+            answer.LastUpdated = DateTime.Now;
+
+            await _answerRepository.AddAsync(answer);
             await _unitOfWork.CommitAsync();
-
-
             return Redirect(returnUrl);
         }
 
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int QuestionId, string returnUrl, Question Question)
+        public async Task<IActionResult> Edit(int id, Question.QuestionPriority priority, Question.QuestionStatus status, string returnUrl)
         {
+            Question question = await _questionRepository.Queryable.FirstOrDefaultAsync(p => p.ID == id);
 
-            returnUrl ??= Url.Action("Index");
-            Question question1 = await _questionRepository.Queryable.Include(p => p.Owner)
-               .FirstOrDefaultAsync(p => p.ID == QuestionId);
-            question1.Status = Question.Status;
-            question1.Priority = Question.Priority;
-            await _questionRepository.UpdateAsync(question1);
+            if (question == null)
+            {
+                return NotFound();
+            }
+
+            returnUrl ??= Url.Action("Answer", new { id = question.ID });
+            question.Status = status;
+            question.Priority = priority;
+
+            await _questionRepository.UpdateAsync(question);
             await _unitOfWork.CommitAsync();
-            return Redirect(returnUrl);
+            return LocalRedirect(returnUrl);
         }
-
-
     }
 }
