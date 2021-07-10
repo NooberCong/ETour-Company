@@ -6,7 +6,31 @@
     ViewData["Title"] = Model.Question.Title;
 }
 
-<div class="mt-3">
+<div class="m-3">
+    <form asp-action="Edit" method="post" class="m-auto" id="form">
+        <div class="d-flex flex-wrap">
+            <div class="form-group" hidden>
+                <label asp-for=@Model.QuestionId></label>
+                <input class="form-control" asp-for=@Model.QuestionId />
+            </div>
+            <div class="form-group mr-5">
+                <label asp-for="@Model.Question.Priority"></label>
+                <select asp-for="@Model.Question.Priority" class="selectpicker" asp-items="@Html.GetEnumSelectList<Question.QuestionPriority>()"></select>
+            </div>
+            <div class="form-group mr-5">
+                <label asp-for="@Model.Question.Status"></label>
+                <select asp-for="@Model.Question.Status" class="selectpicker" asp-items="@Html.GetEnumSelectList<Question.QuestionStatus>()"></select>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary ml-2"><span data-feather="save"></span>Edit</button>
+            </div>
+        </div>
+        
+    </form>
+</div>
+
+
+<div class="mt-5">
     <div class="card">
         <div class="card-header">
             <div class="row">
@@ -18,14 +42,49 @@
         <div class="card-body">
             <p>@Model.Question.Content</p>
         </div>
+
+        @{
+            foreach (var item in Model.Answers)
+            {
+                <div class="card m-2">
+                    <div class="card-header" id="headingOne">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link" data-toggle="collapse" data-target="#ans-@item.ID" aria-expanded="true" aria-controls="ans-@item.ID">
+                                <span class="text-secondary"><strong>@item.Author </strong></span><span class="text-secondary"> @item.LastUpdated</span>
+                            </button>
+                        </h5>
+                    </div>
+
+                    <div id="ans-@item.ID" class="collapse">
+                        <div class="card-body">
+                            @item.Content
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
     </div>
-    <form method="post">
-        <div>
+
+
+    <form asp-action="Answer" method="post" class="m-3">
+        <div class="form-group" hidden>
+            <label asp-for=@Model.QuestionId></label>
+            <input class="form-control" asp-for=@Model.QuestionId />
+        </div>
+        <div class="form-group">
             <label asp-for=@Model.Answer></label>
             <input class="form-control" asp-for=@Model.Answer />
         </div>
         <a class="btn btn-secondary" asp-action="Index"><span data-feather="arrow-left"></span> Back to list</a>
         <button type="submit" class="btn btn-primary"><span data-feather="save"></span>Answer</button>
     </form>
+    
+
 
 </div>
+
+
+
+
+<script src="~/lib/jquery/dist/jquery.js"></script>

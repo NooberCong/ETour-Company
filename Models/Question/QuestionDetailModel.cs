@@ -10,7 +10,7 @@ namespace Company.Models
     {
         public Question Question { get; set; }
         public string Answer { get; set; }
-
-        
+        public List<Answer> Answers { get; set; }
+        public int QuestionId { get; set; }
     }
 }
