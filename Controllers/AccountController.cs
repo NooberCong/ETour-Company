@@ -32,10 +32,22 @@ namespace Company.Controllers
 
         public IActionResult Index(bool showBanned = true)
         {
+            var emps = _employeeRepository.QueryFiltered(emp => showBanned || !emp.IsSoftDeleted);
+
+            foreach (var employee in emps)
+            {
+                System.Console.WriteLine(employee.FullName);
+                foreach (var role in ((IEmployee)employee).Roles)
+                {
+                    System.Console.WriteLine(role.Name);
+                }
+                System.Console.WriteLine("--------");
+            }
+
             return View(new AccountListModel
             {
                 Customers = _customerRepository.Queryable.Where(cus => showBanned || !cus.IsSoftDeleted).AsEnumerable(),
-                Employees = _employeeRepository.Queryable.Where(emp => showBanned || !emp.IsSoftDeleted).AsEnumerable(),
+                Employees = emps,
                 ShowBanned = showBanned
             });
         }
@@ -164,7 +176,7 @@ namespace Company.Controllers
             }
             else
             {
-                TempData["StatusMessage"] = $"Cannot perform ban action on an Admin account";
+                TempData["StatusMessage"] = $"Error: Cannot perform ban action on an Admin account";
             }
 
             return LocalRedirect(returnUrl);

@@ -71,7 +71,9 @@
                                 <a class="mr-3 text-primary mb-3 mb-md-0" asp-action="DetailCustomer" asp-route-id="@customer.ID"><span data-feather="navigation" /></a>
                                 <form style="cursor: pointer" class="d-inline" asp-action="ToggleBanCustomer" asp-route-id="@customer.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
                                     @if (!customer.IsSoftDeleted)
-                                    {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="slash" /></a> }
+                                    {
+                                        <a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="slash" /></a>
+                                    }
                                     else
                                     {
                                         <a onclick="$(this).closest('form').submit()" class="text-success d-inline"><span data-feather="refresh-cw" /></a>
@@ -129,10 +131,6 @@
                                             <a onclick="$(this).closest('form').submit()" class="text-success d-inline"><span data-feather="refresh-cw" /></a>
                                         }
                                     </form>
-                                }
-                                else
-                                {
-                                    <a style="cursor: not-allowed" class="text-danger d-inline"><span data-feather="slash" /></a>
                                 }
                             </td>
                         </tr>

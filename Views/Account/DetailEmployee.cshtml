@@ -17,11 +17,11 @@
         <form class="text-white" style="cursor: pointer" asp-action="ToggleBanEmployee" method="post" asp-route-id="@Model.ID" asp-route-returnUrl="@Context.Request.Path">
             @if (!Model.IsSoftDeleted)
             {
-                <button onclick="$(this).closest('form').submit()" class="btn btn-danger"><span data-feather="slash"></span> Ban</button>
+                <button disabled="@Model.IsAdmin()" onclick="$(this).closest('form').submit()" class="btn btn-danger"><span data-feather="slash"></span> Ban</button>
             }
             else
             {
-                <button onclick="$(this).closest('form').submit()" class="btn btn-success"><span data-feather="refresh-cw"></span> Unban</button>
+                <button disabled="@Model.IsAdmin()" onclick="$(this).closest('form').submit()" class="btn btn-success"><span data-feather="refresh-cw"></span> Unban</button>
             }
         </form>
     </div>
