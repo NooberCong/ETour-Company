@@ -1,31 +1,15 @@
 ﻿using Company.Models;
 using Core.Entities;
 using Core.Interfaces;
-<<<<<<< HEAD
-
 using Infrastructure.InterfaceImpls;
-
 using Microsoft.AspNetCore.Authorization;
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using System.Security.Claims;
 using System.Threading.Tasks;
-
-=======
-using Infrastructure.InterfaceImpls;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
->>>>>>> caa0746e055a6b0adc194c7e1ad000a63030b31f
 
 namespace Company.Controllers
 {
@@ -81,17 +65,12 @@ namespace Company.Controllers
             string empID = User.Claims.First(cl => cl.Type == ClaimTypes.NameIdentifier).Value;
             Employee Author = await _employeeRepository.FindAsync(empID);
             Question question1 = await _questionRepository.Queryable.Include(p => p.Owner)
-<<<<<<< HEAD
                .FirstOrDefaultAsync(p => p.ID == QuestionId);
 
             question1.Status = Question.Status;
             question1.Priority = Question.Priority;
 
             Answer answer = new Answer()
-=======
-               .FirstOrDefaultAsync(p => p.ID == id);
-            Answer answer = new()
->>>>>>> caa0746e055a6b0adc194c7e1ad000a63030b31f
             {
                 Author = Author.FullName,
                 Content = Answer,
@@ -123,6 +102,32 @@ namespace Company.Controllers
             return Redirect(returnUrl);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> ToggleVisibility(int id, string returnUrl)
+        {
+            returnUrl ??= Url.Action("Index");
 
+            var question = await _questionRepository.Queryable.FirstOrDefaultAsync(p => p.ID == id);
+
+            if (question == null)
+            {
+                return NotFound();
+            }
+
+            if (question.Status == Question.QuestionStatus.Closed)
+            {
+                question.Show();
+            }
+            else
+            {
+                question.Hide();
+            }
+
+            await _questionRepository.UpdateAsync(question);
+            await _unitOfWork.CommitAsync();
+            TempData["StatusMessage"] = question.Status == Question.QuestionStatus.Closed ? "Question close successfully" : "Question open successfullly";
+
+            return LocalRedirect(returnUrl);
+        }
     }
 }
