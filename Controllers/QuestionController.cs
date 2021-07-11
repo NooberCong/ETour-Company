@@ -116,7 +116,7 @@ namespace Company.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> ToggleVisibility(int id, string returnUrl)
+        public async Task<IActionResult> ToggleClose(int id, string returnUrl)
         {
             returnUrl ??= Url.Action("Index");
 
