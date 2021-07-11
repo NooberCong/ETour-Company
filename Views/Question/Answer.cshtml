@@ -1,31 +1,25 @@
-﻿@using Infrastructure.InterfaceImpls;
-
-@model QuestionDetailModel
+﻿@model QuestionDetailModel
 
 @{
     ViewData["Title"] = Model.Question.Title;
 }
 
 <div class="m-3">
-    <form asp-action="Edit" method="post" class="m-auto" id="form">
+    <form asp-action="Edit" method="post">
+        <input name="id" value=@Model.Question.ID type="hidden" />
         <div class="d-flex flex-wrap">
-            <div class="form-group" hidden>
-                <label asp-for=@Model.QuestionId></label>
-                <input class="form-control" asp-for=@Model.QuestionId />
-            </div>
             <div class="form-group mr-5">
                 <label asp-for="@Model.Question.Priority"></label>
-                <select asp-for="@Model.Question.Priority" class="selectpicker" asp-items="@Html.GetEnumSelectList<Question.QuestionPriority>()"></select>
+                <select asp-for="@Model.Question.Priority" name="priority" class="selectpicker" asp-items="@Html.GetEnumSelectList<Question.QuestionPriority>()"></select>
             </div>
             <div class="form-group mr-5">
                 <label asp-for="@Model.Question.Status"></label>
-                <select asp-for="@Model.Question.Status" class="selectpicker" asp-items="@Html.GetEnumSelectList<Question.QuestionStatus>()"></select>
+                <select asp-for="@Model.Question.Status" name="status" class="selectpicker" asp-items="@Html.GetEnumSelectList<Question.QuestionStatus>()"></select>
             </div>
             <div class="form-group">
                 <button type="submit" class="btn btn-primary ml-2"><span data-feather="save"></span>Edit</button>
             </div>
         </div>
-        
     </form>
 </div>
 
@@ -44,20 +38,20 @@
         </div>
 
         @{
-            foreach (var item in Model.Answers)
+            foreach (var ans in Model.Question.Answers.OrderByDescending(ans => ans.LastUpdated))
             {
                 <div class="card m-2">
                     <div class="card-header" id="headingOne">
                         <h5 class="mb-0">
-                            <button class="btn btn-link" data-toggle="collapse" data-target="#ans-@item.ID" aria-expanded="true" aria-controls="ans-@item.ID">
-                                <span class="text-secondary"><strong>@item.Author </strong></span><span class="text-secondary"> @item.LastUpdated</span>
+                            <button class="btn btn-link" data-toggle="collapse" data-target="#ans-@ans.ID" aria-expanded="true" aria-controls="ans-@ans.ID">
+                                <span class="text-secondary"><strong>@ans.Author </strong></span><span class="text-secondary"> @ans.LastUpdated</span>
                             </button>
                         </h5>
                     </div>
 
-                    <div id="ans-@item.ID" class="collapse">
+                    <div id="ans-@ans.ID" class="collapse">
                         <div class="card-body">
-                            @item.Content
+                            @ans.Content
                         </div>
                     </div>
                 </div>
@@ -66,25 +60,15 @@
 
     </div>
 
-
-    <form asp-action="Answer" method="post" class="m-3">
-        <div class="form-group" hidden>
-            <label asp-for=@Model.QuestionId></label>
-            <input class="form-control" asp-for=@Model.QuestionId />
-        </div>
+    <form asp-action="Answer" method="post" class="my-3">
+        <input class="form-control" type="hidden" asp-for=@Model.Answer.QuestionID value="@Model.Question.ID" />
         <div class="form-group">
-            <label asp-for=@Model.Answer></label>
-            <input class="form-control" asp-for=@Model.Answer />
+            <label asp-for=@Model.Answer.Content>Answer</label>
+            <textarea rows="5" class="form-control" asp-for=@Model.Answer.Content></textarea>
+            <span asp-validation-for="@Model.Answer.Content"></span>
         </div>
         <a class="btn btn-secondary" asp-action="Index"><span data-feather="arrow-left"></span> Back to list</a>
         <button type="submit" class="btn btn-primary"><span data-feather="save"></span>Answer</button>
     </form>
-    
-
 
 </div>
-
-
-
-
-<script src="~/lib/jquery/dist/jquery.js"></script>
