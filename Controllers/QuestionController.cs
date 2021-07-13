@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -60,6 +61,7 @@ namespace Company.Controllers
         [HttpPost]
         public async Task<IActionResult> Answer(Answer answer, string returnUrl)
         {
+
             var question = await _questionRepository.Queryable
                 .Include(q => q.Owner)
                 .Include(q => q.Answers)
@@ -102,13 +104,41 @@ namespace Company.Controllers
             {
                 return NotFound();
             }
-
             returnUrl ??= Url.Action("Answer", new { id = question.ID });
             question.Status = status;
             question.Priority = priority;
 
             await _questionRepository.UpdateAsync(question);
             await _unitOfWork.CommitAsync();
+            return LocalRedirect(returnUrl);
+
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleClose(int id, string returnUrl)
+        {
+            returnUrl ??= Url.Action("Index");
+
+            var question = await _questionRepository.Queryable.FirstOrDefaultAsync(p => p.ID == id);
+
+            if (question == null)
+            {
+                return NotFound();
+            }
+
+            if (question.Status == Question.QuestionStatus.Closed)
+            {
+                question.Show();
+            }
+            else
+            {
+                question.Hide();
+            }
+
+            await _questionRepository.UpdateAsync(question);
+            await _unitOfWork.CommitAsync();
+            TempData["StatusMessage"] = question.Status == Question.QuestionStatus.Closed ? "Question close successfully" : "Question open successfullly";
             return LocalRedirect(returnUrl);
         }
     }

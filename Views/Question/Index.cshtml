@@ -47,7 +47,7 @@
                     <td class="border-top d-flex" id="clone-div">
                         <a class="mr-3 text-primary" asp-action="Answer" asp-route-id="@question.ID" id="clone-a"><span data-feather="navigation" /></a>
 
-                        <form style="cursor: pointer" class="d-inline" asp-action="ToggleVisibility" asp-route-id="@question.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="question">
+                        <form style="cursor: pointer" class="d-inline" asp-action="ToggleClose" asp-route-id="@question.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)" method="post">
                             @if (question.Status != Question.QuestionStatus.Closed)
                             {<a onclick="$(this).closest('form').submit()" class="text-danger d-inline"><span data-feather="x-square" /></a> }
                             else
