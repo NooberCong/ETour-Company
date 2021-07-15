@@ -22,6 +22,9 @@
 
 
 <div class="table-responsive">
+    <div id="QuestionCount">
+
+    </div>
     <table id="@tblID" class="table">
         <thead>
             <tr>
@@ -97,6 +100,23 @@
             let itemCount = ul.childElementCount;
 
             noti.textContent = itemCount;
+
+            let questionCountDiv = document.getElementById("QuestionCount");
+            var tmp = questionCountDiv.childElementCount;
+            if (tmp != 0) {
+                while (questionCountDiv.firstChild) {
+                    questionCountDiv.removeChild(questionCountDiv.firstChild);
+                }
+            }
+          
+            let refreshlink = document.createElement("a");
+            refreshlink.href = "./Question";
+            if (itemCount == 1) {
+                refreshlink.textContent = "There is a new question";
+            } else {
+                refreshlink.textContent = "There are " + itemCount + " new questions";
+            }
+            questionCountDiv.appendChild(refreshlink);
         }
 
         function ready(authorName, title, category, date, priority, status) {
@@ -111,7 +131,7 @@
 
 
         function QuestionAdd(authorName, title, category, date, priority, status) {
-            //add new question
+/*            //add new question
             let tbody = document.getElementById("table");
             let row = document.createElement("tr");
 
@@ -144,6 +164,7 @@
             row.appendChild(buttonCol);
 
             tbody.appendChild(row);
+            */
 
             //add new noti
             let ul = document.getElementById("list");

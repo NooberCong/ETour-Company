@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Company.Controllers
 {
-    [Authorize(Roles = "Admin,CustomerRelation")]
+    
     public class BlogController : Controller
     {
         private readonly IPostRepository<Post, Employee> _blogRepository;

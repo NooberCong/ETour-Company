@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace Company.Controllers
 {
 
-    [Authorize(Roles = "Admin,CustomerRelation")]
+    
     public class QuestionController : Controller
     {
         private readonly IQuestionRepository _questionRepository;
