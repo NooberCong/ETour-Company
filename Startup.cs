@@ -86,8 +86,8 @@ namespace Company
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<LogHub>("/logs");
-                endpoints.MapHub<QAHub>("/qa");
+                endpoints.MapHub<LogHub>(LogHub.PATH);
+                endpoints.MapHub<QAHub>(QAHub.PATH);
                 endpoints.MapRazorPages();
                 endpoints.MapControllerRoute(
                     name: "default",
