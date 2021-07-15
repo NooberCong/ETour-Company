@@ -15,12 +15,14 @@ namespace Company.Controllers
     {
         private readonly IInvoiceRepository _invoiceRepository;
         private readonly IBookingRepository _bookingRepository;
+        private readonly IETourLogger _eTourLogger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public InvoiceController(IInvoiceRepository invoiceRepository, IBookingRepository bookingRepository, IUnitOfWork unitOfWork)
+        public InvoiceController(IInvoiceRepository invoiceRepository, IBookingRepository bookingRepository, IETourLogger eTourLogger, IUnitOfWork unitOfWork)
         {
             _invoiceRepository = invoiceRepository;
             _bookingRepository = bookingRepository;
+            _eTourLogger = eTourLogger;
             _unitOfWork = unitOfWork;
         }
 
@@ -72,6 +74,7 @@ namespace Company.Controllers
             invoice.LastUpdated = DateTime.Now;
 
             await _invoiceRepository.AddAsync(invoice);
+            await _eTourLogger.LogAsync(Log.LogType.Creation, $"{User.Identity.Name} created new invoice for Booking No {invoice.BookingID}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Invoice Added Successfuly";
@@ -118,6 +121,7 @@ namespace Company.Controllers
             invoice.LastUpdated = DateTime.Now;
 
             await _invoiceRepository.UpdateAsync(invoice);
+            await _eTourLogger.LogAsync(Log.LogType.Modification, $"{User.Identity.Name} created updated invoice #{invoice.ID} for Booking No {invoice.BookingID}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Invoice Updated Successfully";
@@ -137,6 +141,7 @@ namespace Company.Controllers
             }
 
             await _invoiceRepository.DeleteAsync(invoice);
+            await _eTourLogger.LogAsync(Log.LogType.Deletion, $"{User.Identity.Name} created deleted invoice #{invoice.ID} for Booking No {invoice.BookingID}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = "Invoice Deleted Successfully";

@@ -65,10 +65,13 @@
         <div class="form-group">
             <label asp-for=@Model.Answer.Content>Answer</label>
             <textarea rows="5" class="form-control" asp-for=@Model.Answer.Content></textarea>
-            <span asp-validation-for="@Model.Answer.Content"></span>
+            <span class="text-danger" asp-validation-for="@Model.Answer.Content"></span>
         </div>
         <a class="btn btn-secondary" asp-action="Index"><span data-feather="arrow-left"></span> Back to list</a>
         <button type="submit" class="btn btn-primary"><span data-feather="save"></span>Answer</button>
     </form>
-
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

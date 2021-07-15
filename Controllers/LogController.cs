@@ -21,7 +21,7 @@ namespace Company.Controllers
 
         public IActionResult Index(Log.LogType? type, int pageNumber = 1, bool logSync = true)
         {
-            var logs = _logRepository.Queryable.Where(log => type == null || log.Type == type);
+            var logs = _logRepository.Queryable.Where(log => type == null || log.Type == type).OrderByDescending(log => log.LastUpdated);
 
             return View(new LogListModel
             {

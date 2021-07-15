@@ -35,7 +35,8 @@ namespace Company.Controllers
             var questions = _questionRepository.Queryable
                 .OrderBy(q => q.LastUpdated)
                 .Include(q => q.Owner)
-                .Where(q => showClosed || q.Status != Core.Entities.Question.QuestionStatus.Closed)
+                .Where(q => showClosed || q.Status != Question.QuestionStatus.Closed)
+                .OrderByDescending(q => q.LastUpdated)
                 .AsEnumerable();
 
             return View(new QuestionListModel
@@ -129,11 +130,11 @@ namespace Company.Controllers
 
             if (question.Status == Question.QuestionStatus.Closed)
             {
-                question.Show();
+                question.Open();
             }
             else
             {
-                question.Hide();
+                question.Close();
             }
 
             await _questionRepository.UpdateAsync(question);
