@@ -76,7 +76,7 @@ namespace Company
 
             app.UseCors(builder =>
             {
-                builder.WithOrigins("https://localhost:44323")
+                builder.WithOrigins("https://localhost:44323", "https://etour-client.azurewebsites.net")
                 .AllowAnyHeader()
                 .WithMethods("GET", "POST")
                 .AllowCredentials();
