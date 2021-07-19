@@ -3,7 +3,9 @@
     ViewData["Title"] = "Questions";
     string tblID = "questionTbl";
 }
-
+<div class="alert-danger" id="annoucementdiv"  hidden>
+    Disconnected
+</div>
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
     <h1 class="h2">Manage Questions</h1>
     <div class="btn-toolbar mb-2 mb-md-0 d-flex align-items-center">
@@ -124,7 +126,31 @@
             NotiCount();
         }
 
-        connection.start().then(() => console.log("Connected")).catch(err => console.log("Error connecting: " + err));
+        connection.onclose(function () {
+            onDisconnected();
+            setTimeout(onConnection(), 3000);
+        })
+
+
+        function onConnection() {
+            connection.start()
+                .then(onConnected)
+                .catch(function (err) {
+                    console.error(err);
+                });
+        }
+
+        function onDisconnected() {
+            let div = document.getElementById("annoucementdiv");
+            div.hidden = false;
+        }
+
+        function onConnected() {
+            let div = document.getElementById("annoucementdiv");
+            div.hidden = true;
+        }
+
+        onConnection();
 
         connection.on("ReceiveQuestion", ready);
 
