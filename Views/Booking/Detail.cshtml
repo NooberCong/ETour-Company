@@ -144,8 +144,8 @@
             <table class="table">
                 <tbody>
                     <tr>
-                        <th>Title</th>
-                        <td>@Model.Trip.Tour.Title</td>
+                        <th>ID</th>
+                        <td>@Model.Trip.ID <a class="ml-3 card-link" asp-controller="Trip" asp-action="Detail" asp-route-id="@Model.Trip.ID">Details</a></td>
                     </tr>
                     <tr>
                         <th>Start Place</th>
