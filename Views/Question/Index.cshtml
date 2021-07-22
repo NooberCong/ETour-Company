@@ -3,7 +3,9 @@
     ViewData["Title"] = "Questions";
     string tblID = "questionTbl";
 }
-
+<div class="alert-danger" id="annoucementdiv"  hidden>
+    Disconnected
+</div>
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
     <h1 class="h2">Manage Questions</h1>
     <div class="btn-toolbar mb-2 mb-md-0 d-flex align-items-center">
@@ -22,6 +24,9 @@
 
 
 <div class="table-responsive">
+    <div id="QuestionCount">
+
+    </div>
     <table id="@tblID" class="table">
         <thead>
             <tr>
@@ -97,6 +102,23 @@
             let itemCount = ul.childElementCount;
 
             noti.textContent = itemCount;
+
+            let questionCountDiv = document.getElementById("QuestionCount");
+            var tmp = questionCountDiv.childElementCount;
+            if (tmp != 0) {
+                while (questionCountDiv.firstChild) {
+                    questionCountDiv.removeChild(questionCountDiv.firstChild);
+                }
+            }
+          
+            let refreshlink = document.createElement("a");
+            refreshlink.href = "./Question";
+            if (itemCount == 1) {
+                refreshlink.textContent = "There is a new question";
+            } else {
+                refreshlink.textContent = "There are " + itemCount + " new questions";
+            }
+            questionCountDiv.appendChild(refreshlink);
         }
 
         function ready(authorName, title, category, date, priority, status) {
@@ -104,16 +126,46 @@
             NotiCount();
         }
 
-        connection.start().then(() => console.log("Connected")).catch(err => console.log("Error connecting: " + err));
+        connection.onclose(function () {
+            onDisconnected();
+            setTimeout(onConnection(), 3000);
+        })
+
+
+        function onConnection() {
+            connection.start()
+                .then(onConnected)
+                .catch(function (err) {
+                    console.error(err);
+                });
+        }
+
+        function onDisconnected() {
+            let div = document.getElementById("annoucementdiv");
+            div.hidden = false;
+        }
+
+        function onConnected() {
+            let div = document.getElementById("annoucementdiv");
+            div.hidden = true;
+        }
+
+        onConnection();
 
         connection.on("ReceiveQuestion", ready);
 
 
 
         function QuestionAdd(authorName, title, category, date, priority, status) {
+
+/*            //add new question
+            let tbody = document.getElementById("table");
+            let row = document.createElement("tr");
+
             //add new question
             //let tbody = document.getElementById("table");
             //let row = document.createElement("tr");
+
 
             //let authorNameCol = document.createElement("td");
             //authorNameCol.textContent = authorName;
@@ -142,8 +194,10 @@
             //let cloneDiv = document.getElementById("clone-div");
             //let buttonCol = cloneDiv.cloneNode(true);
             //row.appendChild(buttonCol);
-
+            tbody.appendChild(row);
+            */
             //tbody.appendChild(row);
+
 
             //add new noti
             let ul = document.getElementById("list");
