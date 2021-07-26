@@ -51,8 +51,6 @@ namespace Company.Background_Services
                                 }
 
                                 await _bookingRepository.UpdateAsync(booking);
-
-                                Console.WriteLine($"Canceled booking No.{booking.ID} due to expired payment deadline");
                             }
                         }
 

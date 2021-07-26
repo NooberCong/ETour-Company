@@ -32,7 +32,7 @@ namespace Company.Background_Services
                     var unbookables = _tripRepository.Queryable
                         .Include(tr => tr.Bookings)
                         .AsEnumerable()
-                        .Where(tr => tr.CanBook(DateTime.Now));
+                        .Where(tr => !tr.CanBook(DateTime.Now));
 
                     foreach (var trip in unbookables)
                     {
