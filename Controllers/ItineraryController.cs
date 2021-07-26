@@ -165,7 +165,9 @@ namespace Company.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id, string returnUrl)
         {
-            var itinerary = await _itineraryRepository.FindAsync(id);
+            var itinerary = await _itineraryRepository.Queryable
+                .Include(itin => itin.Trip)
+                .FirstOrDefaultAsync(itin => itin.ID == id);
 
             if (itinerary == null)
             {
@@ -199,6 +201,13 @@ namespace Company.Controllers
                 .FirstOrDefaultAsync(tr => tr.ID == sourceTripID);
 
             var destinationTrip = await _tripRepository.FindAsync(destinationTripID);
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, destinationTrip, "OwnedTrip");
+
+            if (!authorizationResult.Succeeded)
+            {
+                return Forbid();
+            }
 
             if (sourceTrip == null || destinationTrip == null)
             {

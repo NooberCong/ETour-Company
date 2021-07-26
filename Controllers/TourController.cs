@@ -88,7 +88,7 @@ namespace Company.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Tour tour, IFormFileCollection images, string returnUrl)
+        public async Task<IActionResult> Edit(Tour tour, [AllowedIFormFileCollectionExtensions(new string[] { ".jpg", ".png", ".jpeg" })] IFormFileCollection images, string returnUrl)
         {
             returnUrl ??= Url.Action("Index");
 

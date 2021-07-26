@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Company.Controllers
@@ -130,28 +129,17 @@ namespace Company.Controllers
                 .ThenInclude(trd => trd.Discount)
                 .FirstOrDefaultAsync(tr => tr.ID == trip.ID);
 
-            StartSendPromoEmails(tour, addedTrip);
+            string promoMessage = _emailComposer.ComposeTripPromotion(addedTrip,
+                                                Url.Action("Detail", "Trip", new { id = addedTrip.ID }, "https", HostHelper.ClientHostUrl()),
+                                                Url.Action("New", "Booking", new { tripID = addedTrip.ID }, "https", HostHelper.ClientHostUrl()));
+
+            foreach (var following in tour.Followings)
+            {
+                await _emailService.SendEmailAsync(following.Customer.Email, $"New trip for {tour.Title}", promoMessage);
+            }
 
             TempData["StatusMessage"] = "Trip created successfully";
             return LocalRedirect(returnUrl);
-        }
-
-        private void StartSendPromoEmails(Tour tour, Trip addedTrip)
-        {
-            var threadStart = new ThreadStart(async () => {
-                string promoMessage = _emailComposer.ComposeTripPromotion(addedTrip,
-                                    Url.Action("Detail", "Trip", new { id = addedTrip.ID }, "https", HostHelper.ClientHostUrl()),
-                                    Url.Action("New", "Booking", new { tripID = addedTrip.ID }, "https", HostHelper.ClientHostUrl()));
-
-                foreach (var following in tour.Followings)
-                {
-                    await _emailService.SendEmailAsync(following.Customer.Email, $"New trip for {tour.Title}", promoMessage);
-                }
-            });
-
-            var thread = new Thread(threadStart);
-            thread.IsBackground = true;
-            thread.Start();
         }
 
         public async Task<IActionResult> Edit(int id, string returnUrl)

@@ -27,69 +27,35 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="table-responsive col-md-6">
-        <table class="table">
-            <tbody>
-                <tr>
-                    <th>@Html.DisplayNameFor(m => m.FullName)</th>
-                    <td>@Html.DisplayFor(m => m.FullName)</td>
-                </tr>
-                <tr>
-                    <th>@Html.DisplayNameFor(m => m.Email)</th>
-                    <td>@Html.DisplayFor(m => m.Email)</td>
-                </tr>
-                <tr>
-                    <th>@Html.DisplayNameFor(m => m.DOB)</th>
-                    <td>@Html.DisplayFor(m => m.DOB)</td>
-                </tr>
-                <tr>
-                    <th>@Html.DisplayNameFor(m => m.PhoneNumber)</th>
-                    <td>@Html.DisplayFor(m => m.PhoneNumber)</td>
-                </tr>
-                <tr>
-                    <th>@Html.DisplayNameFor(m => m.StartWork)</th>
-                    <td>@Html.DisplayFor(m => m.StartWork)</td>
-                </tr>
-                <tr>
-                    <th>@Html.DisplayNameFor(m => m.Roles)</th>
-                    <td>
-                        @string.Join(", ", Model.Roles)
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="table-responsive col-md-6 border-left">
-        <table class="table">
-            <tbody>
-                <tr>
-                    <th>Total tours</th>
-                    <td>10</td>
-                </tr>
-                <tr>
-                    <th>Total trips</th>
-                    <td>35</td>
-                </tr>
-                <tr>
-                    <th>Total itineraries</th>
-                    <td>50</td>
-                </tr>
-                <tr>
-                    <th>Total discounts</th>
-                    <td>7</td>
-                </tr>
-                <tr>
-                    <th>Total posts</th>
-                    <td>0</td>
-                </tr>
-                <tr>
-                    <th>Total answers</th>
-                    <td>15</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+<div class="table-responsive">
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>@Html.DisplayNameFor(m => m.FullName)</th>
+                <td>@Html.DisplayFor(m => m.FullName)</td>
+            </tr>
+            <tr>
+                <th>@Html.DisplayNameFor(m => m.Email)</th>
+                <td>@Html.DisplayFor(m => m.Email)</td>
+            </tr>
+            <tr>
+                <th>@Html.DisplayNameFor(m => m.DOB)</th>
+                <td>@Html.DisplayFor(m => m.DOB)</td>
+            </tr>
+            <tr>
+                <th>@Html.DisplayNameFor(m => m.PhoneNumber)</th>
+                <td>@Html.DisplayFor(m => m.PhoneNumber)</td>
+            </tr>
+            <tr>
+                <th>@Html.DisplayNameFor(m => m.StartWork)</th>
+                <td>@Html.DisplayFor(m => m.StartWork)</td>
+            </tr>
+            <tr>
+                <th>@Html.DisplayNameFor(m => m.Roles)</th>
+                <td>
+                    @string.Join(", ", Model.Roles)
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>
-
-<h3 class="my-3">Performance tracking</h3>

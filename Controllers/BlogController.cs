@@ -53,7 +53,11 @@ namespace Company.Controllers
 
             string empID = User.Claims.First(cl => cl.Type == ClaimTypes.NameIdentifier).Value;
             post.OwnerID = empID;
-            post.Tags = commaSeparatedTags.Split(",", System.StringSplitOptions.TrimEntries | System.StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            if (!string.IsNullOrEmpty(commaSeparatedTags))
+            {
+                post.Tags.AddRange(commaSeparatedTags.Split(",", System.StringSplitOptions.TrimEntries | System.StringSplitOptions.RemoveEmptyEntries).ToList());
+            }
 
             if (!ModelState.IsValid)
             {
@@ -127,7 +131,10 @@ namespace Company.Controllers
             }
 
             post.OwnerID = existingPost.OwnerID;
-            post.Tags = commaSeparatedTags.Split(",", System.StringSplitOptions.TrimEntries | System.StringSplitOptions.RemoveEmptyEntries).ToList();
+            if (!string.IsNullOrEmpty(commaSeparatedTags))
+            {
+                post.Tags.AddRange(commaSeparatedTags.Split(",", System.StringSplitOptions.TrimEntries | System.StringSplitOptions.RemoveEmptyEntries).ToList());
+            }
 
             await _blogRepository.UpdateAsync(post, coverImg);
             await _eTourLogger.LogAsync(Log.LogType.Modification, $"{User.Identity.Name} updated post {post.Title}");
