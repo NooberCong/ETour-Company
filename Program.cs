@@ -33,6 +33,9 @@ namespace Company
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                }).ConfigureServices(services => services.AddHostedService<BookingPaymentDeadlineService>());
+                }).ConfigureServices(services => {
+                    services.AddHostedService<BookingPaymentDeadlineService>();
+                    services.AddHostedService<UnbookableTripClosingService>();
+                });
     }
 }
