@@ -4,6 +4,7 @@ using Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,15 +14,17 @@ namespace Company.Controllers
     public class BookingController : Controller
     {
         private readonly ITripRepository _tripRepository;
+        private readonly ICustomerRepository _customerRepository;
         private readonly IBookingRepository _bookingRepository;
         private readonly IETourLogger _eTourLogger;
         private readonly IUnitOfWork _unitOfWork;
 
-        public BookingController(IBookingRepository bookingRepository, ITripRepository tripRepository, IUnitOfWork unitOfWork, IETourLogger eTourLogger)
+        public BookingController(IBookingRepository bookingRepository, ITripRepository tripRepository, ICustomerRepository customerRepository, IUnitOfWork unitOfWork, IETourLogger eTourLogger)
         {
             _bookingRepository = bookingRepository;
             _tripRepository = tripRepository;
             _unitOfWork = unitOfWork;
+            _customerRepository = customerRepository;
             _eTourLogger = eTourLogger;
         }
 
@@ -29,7 +32,8 @@ namespace Company.Controllers
         {
             var bookings = await _bookingRepository.Queryable
                 .Where(bk => status == null || bk.Status == status)
-                .Include(bk => bk.Owner).Include(bk => bk.Trip)
+                .Include(bk => bk.Owner)
+                .Include(bk => bk.Trip)
                 .ThenInclude(tr => tr.Tour).ToListAsync();
 
             return View(new BookingListModel
@@ -75,7 +79,26 @@ namespace Company.Controllers
                 return NotFound();
             }
 
-            existingBooking.ChangeStatus(status);
+            if (!existingBooking.GetPossibleNextStatuses().Contains(status))
+            {
+                return BadRequest();
+            }
+
+
+            if (status == Booking.BookingStatus.Canceled)
+            {
+                var customer = await _customerRepository.FindAsync(existingBooking.OwnerID);
+                existingBooking.Cancel(DateTime.Now);
+                existingBooking.RefundPoints(customer);
+                await _customerRepository.UpdateAsync(customer);
+                foreach (var log in existingBooking.PointLogs)
+                {
+                    _customerRepository.AddPointLog(log);
+                }
+            } else
+            {
+                existingBooking.ChangeStatus(status);
+            }
 
             await _bookingRepository.UpdateAsync(existingBooking);
             await _eTourLogger.LogAsync(Log.LogType.Modification, $"{User.Identity.Name} changed booking No.{existingBooking.ID} status to {existingBooking.Status}");
