@@ -254,7 +254,7 @@ namespace Company.Controllers
             }
 
             await _tripRepository.UpdateAsync(trip);
-            await _eTourLogger.LogAsync(Log.LogType.Deletion, $"{User.Identity.Name} {(trip.IsOpen ? "open" : "closed")} trip #{trip.ID} - {trip.Tour.Title}");
+            await _eTourLogger.LogAsync(trip.IsOpen? Log.LogType.Creation: Log.LogType.Deletion, $"{User.Identity.Name} {(trip.IsOpen ? "opened" : "closed")} trip #{trip.ID} - {trip.Tour.Title}");
             await _unitOfWork.CommitAsync();
 
             TempData["StatusMessage"] = trip.IsOpen ? "Trip opened successfully" : "Trip closed successfully";

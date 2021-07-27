@@ -90,7 +90,9 @@ namespace Company.Controllers
         {
             returnUrl ??= Url.Action("Index");
 
-            var booking = await _bookingRepository.FindAsync(id);
+            var booking = await _bookingRepository.Queryable
+                .Include(bk => bk.Trip)
+                .FirstOrDefaultAsync(bk => bk.ID == id);
 
             if (booking == null)
             {
