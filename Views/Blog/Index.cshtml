@@ -48,7 +48,7 @@
                     </td>
                     <td>@post.Owner.UserName</td>
                     <td>@post.LastUpdated.ToShortDateString()</td>
-                    <td>@post.Category</td>
+                    <td>@post.Category.ToCustomString()</td>
                     <td class="border-top d-flex">
                         <a class="mr-3 text-primary" asp-action="Detail" asp-route-id="@post.ID"><span data-feather="navigation" /></a>
                         <a class="mr-3 text-warning" asp-action="Edit" asp-route-id="@post.ID" asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"><span data-feather="edit" /></a>

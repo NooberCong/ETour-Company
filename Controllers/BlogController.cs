@@ -36,7 +36,8 @@ namespace Company.Controllers
             return View(new BlogListModel
             {
                 Posts = bloglist,
-                ShowHidden = showHidden
+                ShowHidden = showHidden,
+                Category = category
             });
         }
 

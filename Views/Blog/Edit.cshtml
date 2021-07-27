@@ -38,7 +38,7 @@
 
     <div class="form-group">
         <label asp-for="Post.Category"></label>
-        <select class="selectpicker" asp-items="@Html.GetEnumSelectList<IPost<Employee>.PostCategory>()"></select>
+        <select asp-for="Post.Category" class="selectpicker" asp-items="@Html.GetEnumSelectList<IPost<Employee>.PostCategory>()"></select>
         <span asp-validation-for="Post.Category" class="text-danger"></span>
     </div>
 
